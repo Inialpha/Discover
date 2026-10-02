@@ -1,5 +1,7 @@
 # Discovery State and Agent Tools
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Mode/intent enums: REQUIREMENTS §4. Tool list: §5.4. Group, compare, and trend state additions are in the *Alignment addendum* at the end of this file.
+
 ## 1. Purpose
 
 This document turns Discover's product requirements and Qloo integration design into an implementable agent contract.
@@ -76,9 +78,10 @@ The initial modes are:
 
 | Mode | Purpose |
 |---|---|
-| personal | Discover for the current user |
-| gift | Discover for another person |
-| community | Discover for a group, audience, or local community |
+| self | Discover for the current user |
+| someone_else | Discover for another person (gift, outing, experience are goals within it) |
+| group | Discover for two or more specific people with blended tastes |
+| community | Discover for an audience or local community (context, not individual taste) |
 | business | Discover markets, audiences, products, places, or opportunities for a business |
 
 Mode changes the discovery objective, useful context, questions, and result interpretation.
@@ -134,7 +137,7 @@ The subject is the person, group, audience, or business for whom discovery is pe
 
 ~~~python
 class DiscoverySubject(BaseModel):
-    type: Literal["self", "person", "community", "business"] | None = None
+    type: Literal["self", "person", "group", "community", "business"] | None = None
     description: str | None = None
     relationship: str | None = None
 ~~~
@@ -968,7 +971,7 @@ User:
 
 State should identify:
 
-- mode = personal
+- mode = self
 - target = TV/movie
 - preferences = the named shows plus R&B
 - no unnecessary follow-up
@@ -992,7 +995,7 @@ User:
 
 Initial state:
 
-- mode = gift
+- mode = someone_else (goal_type = gift)
 - subject = person
 - goal = birthday gift
 - interests = Korean dramas, Taylor Swift
@@ -1263,7 +1266,7 @@ Use fixed LLM responses to test:
 
 ## End-to-end tests
 
-At least one controlled test should cover each of the four discovery modes.
+At least one controlled test should cover each of the five discovery modes.
 
 ---
 
@@ -1282,7 +1285,7 @@ Extract state
         ↓
 
 STATE
-mode = gift
+mode = someone_else (goal_type = gift)
 goal = birthday gift
 subject = girlfriend
 preferences = Korean dramas, Taylor Swift
@@ -1351,7 +1354,7 @@ Personalized discoveries + explanations
 The agent layer is ready for the first implementation milestone when it can:
 
 - accept natural-language discovery requests
-- identify one of the four initial modes
+- identify one of the five modes
 - maintain structured discovery state
 - identify high-value missing information
 - ask a focused follow-up
@@ -1439,3 +1442,58 @@ The key engineering boundary is:
 The key product boundary is:
 
 > Discover uses cultural intelligence to answer what someone should discover next, not merely what is similar to what they already know.
+
+
+---
+
+# Alignment addendum (REQUIREMENTS v1.0)
+
+These additions bring this document in line with `REQUIREMENTS.md`; where earlier sections differ, this addendum and the requirements win.
+
+## A1. Taxonomy
+- Modes: `self`, `someone_else`, `group`, `community`, `business` (REQUIREMENTS §4.1). Earlier uses of `personal` and `gift` mean `self` and `someone_else` with `goal_type = gift`.
+- A separate `intent` field (`recommend`, `taste_profile`, `audience_insight`, `location_insight`, `compare`, `trend`, `market_scan`) lives in `DiscoveryRequest` (§4.2).
+
+## A2. State additions
+~~~python
+class DiscoveryRequest(BaseModel):
+    mode: DiscoveryMode | None = None
+    intent: DiscoveryIntent = "recommend"
+    goal: str | None = None
+    goal_type: Literal["gift","outing","experience","media","general"] | None = None
+    original_message: str
+    language: str = "en"
+
+class Participant(BaseModel):
+    id: str
+    role: Literal["self","recipient","member"]
+    display_name: str
+    source: Literal["user","invite"] = "user"
+    likes: list[str] = []
+    dislikes: list[str] = []
+    constraints: dict = {}
+    resolved_entities: list[ResolvedEntity] = []
+
+class BlendConfig(BaseModel):                 # group mode (MOD-021)
+    strategy: Literal["consensus","balanced","variety"] = "balanced"
+
+class Assumption(BaseModel):                  # AGT-005
+    key: str
+    text: str
+~~~
+`DiscoveryState` gains `participants`, `intent`, `blend`, `assumptions`, `feedback_adjustments`, and `schema_version` (REQUIREMENTS §8.4).
+
+## A3. Tool additions
+`query_audience_insights`, `query_trends`, `compare_subjects`, `search_current_info` join the tool set (REQUIREMENTS §5.4). Every tool registers a **user-safe label** used in `tool.started` / `tool.completed` events, plus a timeout and an argument schema. Tool results never include raw provider payloads in events.
+
+## A4. Group blending
+Build one query per blend strategy from per-participant signals; `consensus` weights shared signals, `balanced` equalizes participant influence, `variety` produces sections biased to each participant. Per-participant fit statements must be tagged `evidence` or `interpretation`.
+
+## A5. Gift with budget
+Qloo selects candidate brands/categories/entities; `search_current_info` supplies current items and prices. Only items with verified prices satisfy a strict budget (INF-003). Without a search provider, return experiences, places, brands, and media and state the limitation (INF-006).
+
+## A6. Evidence vs interpretation
+Every explanation fragment is tagged `evidence`, `user_context`, or `interpretation` (TAX-007); `compose_response` must populate these tags.
+
+## A7. Streaming
+The agent loop emits user-safe events through an `EventSink` (REQUIREMENTS §7.6). Prompts, raw decisions, and provider payloads are never emitted (STR-009).

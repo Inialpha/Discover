@@ -1,5 +1,7 @@
 # Discover — Qloo Integration Specification
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Qloo requirements: REQUIREMENTS §5.5; wire details are **unverified until the `record` spike** (TST-020, ADR-002, ADR-009).
+
 **Status:** Draft — Version 0.1  
 **Source of truth:** Qloo official API documentation  
 **Primary endpoint:** GET https://api.qloo.com/v2/insights
@@ -475,7 +477,7 @@ User:
 Agent state:
 
 ~~~text
-mode = personal
+mode = self
 goal = restaurant discovery
 target = place
 
@@ -717,3 +719,14 @@ Primary sources:
 - Search Entities: https://docs.qloo.com/reference/get-search
 
 The implementation should re-check these official references when API behavior or schemas change.
+
+
+---
+
+# Alignment addendum (REQUIREMENTS v1.0)
+
+- Everything in this document that describes Qloo wire formats, parameters, entity-type lists, or response shapes is **provisional** until the `record` spike (TST-020) produces sanitized fixtures; the adapter's normalization layer is the only place that may change as a result (QLO-003).
+- The adapter exposes intent-level methods: `resolve`, `recommend`, `audience`, `compare`, `trends` (QLO-002), plus a capability probe feeding `/meta` (QLO-008).
+- Location coverage for Nigerian cities is **unverified** (RSK-002); location is a request parameter, never a constant (QLO-007).
+- Qloo does not supply prices or product availability; current specifics come from `SearchProvider` (INF-001..006).
+- Mock Qloo returns **normalized models** with synthetic data; it must never be presented as Qloo output (TST-012).

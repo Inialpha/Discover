@@ -1,5 +1,7 @@
 # Discover — System Architecture
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Runtime model for streaming: REQUIREMENTS §5.7 and ADR-006 (runs are detached from the HTTP connection, events persisted, resume via `Last-Event-ID`).
+
 **Status:** Draft — Version 0.1  
 **Source of truth:** REQUIREMENTS.md  
 **Primary external intelligence:** Qloo Cultural Intelligence API
@@ -624,7 +626,7 @@ She loves Taylor Swift and Korean dramas."
 
 Agent extracts:
 
-mode = gift
+mode = someone_else (goal_type = gift)
 subject = girlfriend
 goal = birthday gift
 signals = Taylor Swift, Korean dramas
@@ -887,3 +889,13 @@ The recommended documentation sequence is:
 12. Hackathon compliance checklist.
 
 Architecture should be updated whenever one of these documents introduces a significant system-level decision.
+
+
+---
+
+# Alignment addendum (REQUIREMENTS v1.0)
+
+- **Request model:** the earlier "request → agent loop → response" synchronous flow is superseded. A message creates a **run** (detached background task) that emits persisted events; the HTTP response is an SSE stream or a JSON/202 fallback (ADR-006, REQUIREMENTS §5.7, §7.5).
+- **Additional components:** `RunExecutor` + `EventLog`, registries (`ModeRegistry`, `IntentRegistry`, `ResultKindRegistry`, `ToolRegistry`, `ReportTemplateRegistry`, `ExportRendererRegistry`), `SearchProvider`, report generation and renderers, share/snapshot service, invite service.
+- **Open decisions** previously listed here (auth, LLM, structured-decision format, STT, search) are resolved or defaulted in REQUIREMENTS §16 and the ADRs.
+- **Startup recovery:** orphaned `running` runs are marked `failed (recoverable)` (BKD-005).

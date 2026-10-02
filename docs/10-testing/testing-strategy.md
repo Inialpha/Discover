@@ -1,5 +1,7 @@
 # Testing Strategy
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Profiles and test layers: REQUIREMENTS §11 (ADR-009).
+
 ## 1. Purpose
 
 This document defines the testing strategy for Discover before and during implementation.
@@ -28,7 +30,7 @@ Testing should follow these principles:
 5. Test agent behavior through structured decisions and invariants rather than exact prose.
 6. Test security boundaries explicitly.
 7. Keep the test suite lightweight enough to run in CI.
-8. Test the four initial discovery modes.
+8. Test the five discovery modes.
 9. Test failure paths, not only successful paths.
 10. Every important bug should result in a regression test.
 
@@ -517,17 +519,9 @@ Every public endpoint should have tests for:
 
 Endpoints include:
 
-    POST   /api/v1/discovery
-    POST   /api/v1/discovery/{session_id}/message
-    GET    /api/v1/discovery/{session_id}
-    DELETE /api/v1/discovery/{session_id}
-    GET    /api/v1/history
-    GET    /api/v1/history/{id}
-    POST   /api/v1/saved
-    GET    /api/v1/saved
-    DELETE /api/v1/saved/{id}
-    GET    /health
-    GET    /ready
+    The full endpoint list is REQUIREMENTS §7.3. Every endpoint needs contract,
+    access-control (ACC-008), and error-path tests. SSE endpoints additionally need
+    event-order, heartbeat, and resume (Last-Event-ID) tests.
 
 ## 31. API Security Tests
 
@@ -927,3 +921,55 @@ The agentic parts should be tested through:
 The central testing principle is:
 
 > **Test what the system must guarantee, not what the language model happens to say.**
+
+
+---
+
+# Profile mechanics (REQUIREMENTS §11, ADR-009)
+
+## P1. Selecting a profile
+`DISCOVER_PROFILE=mock|record|replay|live`, with optional `QLOO_MODE`, `LLM_MODE`, `SEARCH_MODE`, `STT_MODE` overrides. `mock` requires no external keys.
+
+## P2. Repository layout
+~~~text
+backend/
+  app/integrations/
+    qloo/      client.py  live.py  mock.py  record.py  replay.py  normalize.py
+    llm/       client.py  live.py  scripted.py  record.py  replay.py
+    search/    client.py  live.py  mock.py  record.py  replay.py
+fixtures/
+  scenarios/   self.yaml  someone_else_gift.yaml  group.yaml  community.yaml
+               business.yaml  compare.yaml  trend.yaml  ambiguous_entity.yaml
+               thin_results.yaml  provider_failure.yaml  timeout.yaml
+  recorded/    qloo/  llm/  search/        # created by `record`, sanitized
+~~~
+
+## P3. Scenario file shape (mock)
+~~~yaml
+id: someone_else_gift
+match: { keywords: [gift, birthday], mode: someone_else }
+script:
+  - event: phase.changed   data: { phase: understanding }
+  - event: tool.started    data: { tool: resolve_entities, provider: qloo }
+  - event: tool.completed  data: { tool: resolve_entities, summary: "Matched 2 of 2" }
+  - event: result.set      data: { results_ref: gift_results }
+results:
+  gift_results: [ ... normalized DiscoveryResult objects, marked synthetic ... ]
+~~~
+All mock output sets `synthetic: true` internally, which surfaces as the demo banner, export watermark, and `/meta.synthetic_data` (TST-003).
+
+## P4. Recording and sanitizing
+`record` writes request summaries and responses to `fixtures/recorded/`, stripping API keys, tokens, and any personal identifiers, and adds `captured_at` and API-version metadata (TST-021). Fixtures are reviewed before commit.
+
+## P5. First session after keys arrive
+Run the spike checklist (TST-020), commit fixtures, implement/adjust `normalize.py` until replay contract tests pass, then update `docs/07-qloo` and add an ADR for any deviation.
+
+## P6. Quality evals
+Maintain ≥ 15 golden prompts (`fixtures/evals/golden.yaml`) with behavioral assertions: asks only when material; labels evidence vs interpretation; honors budget and exclusions; never invents prices; states limitations when thin.
+
+## P7. Streaming tests
+- Event order and terminal-event uniqueness (API-011).
+- Resume at every event index (API-012).
+- Heartbeat cadence; client reconnect.
+- Orphaned-run recovery on restart (BKD-005).
+- Cancel during tool execution.
