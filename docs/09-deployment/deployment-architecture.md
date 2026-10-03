@@ -1,5 +1,7 @@
 # Deployment Architecture
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Deployment requirements: REQUIREMENTS §12; configuration variables: §9.2.
+
 ## 1. Purpose
 
 This document defines how Discover is packaged, deployed, configured, monitored, and operated in development, staging, and production.
@@ -844,3 +846,14 @@ The architecture deliberately moves computation that is expensive or difficult t
 The core deployment principle is:
 
 > **Keep the runtime small, the boundaries explicit, and every expensive operation bounded.**
+
+
+---
+
+# Alignment addendum (REQUIREMENTS v1.0)
+
+- **Environment variables:** the full list and defaults are REQUIREMENTS §9.2; `.env.example` at the repo root is the runnable reference.
+- **SSE through the host:** disable response buffering (`X-Accel-Buffering: no`), keep heartbeats on, and verify idle-timeout behavior in staging before the demo (DEP-003). Cold-start UX and a keep-warm ping are required (NFR-005).
+- **Local development:** `docker compose up` runs Postgres, backend, and frontend in the `mock` profile with no external keys (DEP-004).
+- **Production guard:** startup refuses `DISCOVER_PROFILE=mock` unless `ALLOW_DEMO_MODE=true` (TST-004).
+- **Frontend metadata route** for share previews (DEP-008, ADR-011).

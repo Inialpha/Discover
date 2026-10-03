@@ -1,12 +1,14 @@
 # Hackathon Strategy
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Scope is fixed by REQUIREMENTS; the delivery plan is §14.
+
 ## 1. Purpose
 
 This document translates the current Qloo Agentic Hackathon requirements into implementation and submission priorities for Discover.
 
 The goal is not to optimize the project around speculative judging behavior. The goal is to ensure that the product demonstrably satisfies the published requirements and clearly communicates why Qloo is essential to the product.
 
-The current official rules state that the submission deadline is October 30, 2026 at 11:45 PM EDT. Stage One is a pass/fail viability and theme/API-fit review. Eligible projects then enter Stage Two, which evaluates Technological Implementation, Design, Potential Impact, and Quality of the Idea with equal weighting. citeturn0search0turn0search1
+The current official rules state that the submission deadline is October 30, 2026 at 11:45 PM EDT. Stage One is a pass/fail viability and theme/API-fit review. Eligible projects then enter Stage Two, which evaluates Technological Implementation, Design, Potential Impact, and Quality of the Idea with equal weighting. 
 
 ## 2. Official Requirements Relevant to Discover
 
@@ -22,7 +24,7 @@ The submission must provide:
 - external hosting / a fully published application
 - access sufficient for judging and testing
 
-The project must also be original work and comply with third-party API, SDK, data, and license requirements. citeturn0search0turn0search1
+The project must also be original work and comply with third-party API, SDK, data, and license requirements. 
 
 ## 3. Discover's Core Hackathon Thesis
 
@@ -154,7 +156,7 @@ The goal is to demonstrate agency while preserving a coherent product experience
 
 ## 8. Technological Implementation Focus
 
-The published criterion asks how thoroughly and skillfully the project uses Qloo and whether the implementation is genuine and non-trivial. citeturn0search0turn0search1
+The published criterion asks how thoroughly and skillfully the project uses Qloo and whether the implementation is genuine and non-trivial. 
 
 Discover should therefore demonstrate several meaningful Qloo capabilities rather than one simple recommendation request.
 
@@ -219,7 +221,7 @@ This demonstrates that Qloo is part of an iterative agent loop.
 
 ## 10. Design Strategy
 
-The published Design criterion asks whether the project delivers a complete and coherent product experience rather than a technical proof of concept. citeturn0search0turn0search1
+The published Design criterion asks whether the project delivers a complete and coherent product experience rather than a technical proof of concept. 
 
 The frontend should therefore feel like a real discovery product.
 
@@ -261,7 +263,7 @@ Avoid claiming certainty where the underlying data does not support it.
 
 ## 13. Potential Impact
 
-The published Potential Impact criterion asks whether the project makes a credible and specific case for a real audience and whether the demonstrated solution addresses that problem. citeturn0search0turn0search1
+The published Potential Impact criterion asks whether the project makes a credible and specific case for a real audience and whether the demonstrated solution addresses that problem. 
 
 Discover should communicate a concrete problem:
 
@@ -279,7 +281,7 @@ Discover addresses this through conversational preference extraction plus cultur
 
 ## 14. Quality of the Idea
 
-The published Quality of the Idea criterion asks whether the use of Qloo is creative and non-obvious and whether the team demonstrates genuine understanding of the problem space. citeturn0search0turn0search1
+The published Quality of the Idea criterion asks whether the use of Qloo is creative and non-obvious and whether the team demonstrates genuine understanding of the problem space. 
 
 The product concept should therefore emphasize the broader discovery problem rather than presenting itself as another generic recommendation chatbot.
 
@@ -399,7 +401,7 @@ Before submission:
 - test authentication where applicable
 - test from a clean browser session
 
-The official rules require a functional application available for judging/testing, and judges may choose to evaluate based on the submission materials if they do not test the project themselves. citeturn0search0
+The official rules require a functional application available for judging/testing, and judges may choose to evaluate based on the submission materials if they do not test the project themselves. 
 
 ## 20. Submission Repository
 
@@ -427,7 +429,7 @@ The README should quickly explain:
 - live demo
 - major discovery modes
 
-The official rules require the public repository to contain the necessary source code, assets, and instructions and to include an open-source license. citeturn0search0turn0search1
+The official rules require the public repository to contain the necessary source code, assets, and instructions and to include an open-source license. 
 
 ## 21. Devpost Submission Content
 
@@ -455,7 +457,7 @@ A short workflow diagram.
 
 ### Key features
 
-The four discovery modes and refinement.
+The five discovery modes and refinement.
 
 ### Technical implementation
 
@@ -542,7 +544,7 @@ Each official requirement should map to an implementation artifact.
 | External hosting | Frontend/backend deployment |
 | Test access | Public demo/testing instructions |
 
-The rules and submission page should be checked again immediately before submission because official terms can change. citeturn0search0
+The rules and submission page should be checked again immediately before submission because official terms can change. 
 
 ## 26. Judging-Criteria Traceability
 
@@ -553,7 +555,7 @@ The rules and submission page should be checked again immediately before submiss
 | Potential Impact | Concrete discovery problems for individuals, gift-givers, communities, and businesses |
 | Quality of the Idea | Cultural intelligence as the foundation for agentic cross-domain discovery |
 
-The criteria are equally weighted in Stage Two. citeturn0search0turn0search1
+The criteria are equally weighted in Stage Two. 
 
 ## 27. Implementation Priorities
 
@@ -627,7 +629,7 @@ Otherwise it should be considered for post-hackathon work.
 
 ## 29. Submission Timeline
 
-The official submission deadline is October 30, 2026 at 11:45 PM EDT. citeturn0search0turn0search1
+The official submission deadline is October 30, 2026 at 11:45 PM EDT. 
 
 Recommended internal milestones:
 
@@ -738,3 +740,12 @@ It should demonstrate a coherent product where Qloo changes what the agent can d
 The central principle is:
 
 > **Do not build a chatbot that happens to call Qloo. Build a discovery agent whose intelligence depends on Qloo's cultural grounding.**
+
+
+---
+
+# Alignment addendum (REQUIREMENTS v1.0)
+
+- **Scope is fixed.** Earlier "scope control" language that suggested deferring features is superseded: all features in REQUIREMENTS stay in scope; priority tiers (P0/P1/P2) only set build order (REQUIREMENTS §0.2).
+- **Schedule:** use REQUIREMENTS §14 (29 days, tracks A–G, milestones M0–M7). Re-verify the deadline and rules before submission (HCK-006).
+- **Demo data:** the demo video and hosted demo must use the `live` profile; `mock` data is for development only (HCK-003, UX-105).

@@ -54,6 +54,17 @@ Examples:
 
 The agent can ask targeted questions such as budget, location, interests, or whether the user wants a physical product or an experience.
 
+### Discover for a Group
+
+Blended discovery for two or more specific people planning something together.
+
+Examples:
+- a Friday outing that works for four friends with different tastes
+- a team dinner that fits everyone's preferences
+- invite friends by link so they can add their own tastes
+
+Discover shows who each result fits best, and which tastes are shared versus unique.
+
 ### Discover for Community
 
 Discovery for groups and local audiences.
@@ -193,11 +204,22 @@ The exact implementation can evolve as the detailed architecture is documented.
 - **Documentation before implementation:** architectural decisions are recorded before major coding begins.
 - **Iterative design:** requirements and architecture are living documents.
 
+## Beyond Recommendations
+
+- **Live agent timeline:** watch the agent work (understanding, looking up, querying Qloo, evaluating) as it happens, over streaming responses.
+- **Evidence you can trust:** every explanation separates what a data source returned from what the agent interpreted.
+- **Compare and trends:** compare audiences, markets, or tastes, and explore change over time.
+- **Business reports:** structured reports exportable as PDF, Markdown, CSV, JSON, or HTML.
+- **Shareable pages:** revocable, read-only snapshots of results or reports, with privacy controls.
+- **Guest-first:** start instantly; sign in to keep history and saved discoveries.
+
 ## Project Status
 
-The project is currently in the **requirements and architecture phase**.
+**Requirements v1.0 are baselined and the project is ready to begin implementation (milestone M0).**
 
-The source-of-truth requirements are maintained in [REQUIREMENTS.md](./REQUIREMENTS.md). Detailed architecture, API contracts, database design, frontend specifications, Qloo integration, deployment, and testing documentation will be added before implementation.
+[REQUIREMENTS.md](./REQUIREMENTS.md) is the canonical specification: taxonomy, functional requirements, UX, API and streaming protocol, data model, test profiles, delivery plan, and decision register. Detail documents under [`docs/`](./docs) elaborate it and defer to it. Architectural decisions are recorded in [`docs/01-decisions/decision-records.md`](./docs/01-decisions/decision-records.md).
+
+No Qloo API key is required to start: the `mock` profile runs the whole product against scripted, clearly labelled synthetic data. When keys are available, the `record` profile captures real responses for regression tests (see REQUIREMENTS §11).
 
 ## Repository
 
@@ -219,20 +241,7 @@ The implementation is intended to satisfy the hackathon's core expectations:
 
 ## Documentation
 
-Planned documentation includes:
-
-- Product vision, problem, goals, scope, personas, and use cases
-- System and agent architecture
-- Backend and database design
-- Frontend and page specifications
-- Discovery mode specifications
-- Qloo integration
-- API contracts
-- Deployment
-- Testing
-- Hackathon alignment
-
-Start with [REQUIREMENTS.md](./REQUIREMENTS.md).
+Start with [REQUIREMENTS.md](./REQUIREMENTS.md), then see the [documentation index](./docs/README.md).
 
 ---
 

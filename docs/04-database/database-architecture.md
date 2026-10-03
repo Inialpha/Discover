@@ -1,5 +1,7 @@
 # Database Architecture
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Entity list and rules: REQUIREMENTS §8. New tables vs. earlier drafts are listed in the *Alignment addendum* at the end of this file.
+
 ## 1. Purpose
 
 This document defines the PostgreSQL persistence model for Discover.
@@ -137,7 +139,7 @@ Suggested columns:
 |---|---|---|
 | id | UUID | Primary key |
 | user_id | UUID | Nullable for anonymous MVP sessions if supported |
-| mode | TEXT | personal, gift, community, business |
+| mode | TEXT | self, someone_else, group, community, business (REQUIREMENTS §4.1) |
 | title | TEXT | Optional generated/user-defined title |
 | status | TEXT | active, completed, archived, deleted |
 | created_at | TIMESTAMPTZ | Required |
@@ -632,20 +634,18 @@ POST /api/v1/discovery/{session_id}/message
     → discovery_queries
     → discovery_results
 
-GET /api/v1/discovery/{session_id}
+GET /api/v1/discovery/sessions/{id}
     → discovery_sessions
     → discovery_states
     → discovery_messages
     → discovery_results
 
-GET /api/v1/history
+GET /api/v1/discovery/sessions            (history)
     → discovery_sessions
 
-GET /api/v1/history/{id}
-    → discovery_sessions
-    → discovery_states
-    → discovery_messages
-    → discovery_results
+GET /api/v1/discovery/runs/{id}/events
+    → discovery_runs
+    → run_events
 
 POST /api/v1/saved
     → saved_discoveries
@@ -703,3 +703,26 @@ PostgreSQL stores the user's durable discovery workspace, structured state, norm
 The central rule is:
 
 > **Persist what the product needs to remember; do not persist everything the agent happens to process.**
+
+
+---
+
+# Alignment addendum (REQUIREMENTS v1.0)
+
+The canonical entity list is REQUIREMENTS §8.1. Relative to the earlier drafts in this document:
+
+| Change | Detail |
+|---|---|
+| `discovery_sessions.mode` | Values `self, someone_else, group, community, business`; add `intent TEXT` |
+| New `users.is_guest`, `last_seen_at` | Guest-first identity (ADR-007); guests purged after `GUEST_RETENTION_DAYS` |
+| New `user_preferences` | Settings and memory toggle |
+| New `discovery_participants` | Group and recipient participants |
+| New `discovery_runs`, `run_events` | Detached runs and persisted SSE events (PK `run_id, seq`); retention per `RUN_EVENT_RETENTION_DAYS` |
+| `discovery_results` | Add `run_id`, `kind`, `rank`, `group_key`, `payload JSONB`, `explanation JSONB`, `source JSONB`, `schema_version` |
+| New `result_feedback` | Closes the earlier gap: Feedback was required but had no table |
+| `saved_items` | Stores a `snapshot JSONB`, `note`, `tags TEXT[]` |
+| New `reports` | `ReportDocument` JSONB with `template`, `status` |
+| New `share_links` | Immutable snapshot, hashed token, redaction, expiry, revocation, `view_count` |
+| New `group_invites`, `group_contributions` | Invite links and moderated invitee input |
+
+Indexes to add: `run_events(run_id, seq)`; `discovery_sessions(user_id, status, updated_at DESC)`; `share_links(token_hash)` unique; `group_invites(token_hash)` unique; `result_feedback(result_id, user_id)` unique; `discovery_runs(session_id, started_at DESC)`; partial unique index enforcing one `running` run per session (API-001).

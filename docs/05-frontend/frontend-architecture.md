@@ -1,5 +1,7 @@
 # Frontend Architecture
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Routes, workspace layout, timeline, result presentation, and per-mode UI: REQUIREMENTS §6.
+
 ## 1. Purpose
 
 This document defines the frontend architecture and user experience for Discover.
@@ -34,7 +36,7 @@ The frontend should:
 - make recommendations visually scannable
 - explain why results were selected
 - allow users to refine results without restarting
-- support the four initial discovery modes
+- support the five discovery modes
 - preserve session context
 - make saved discoveries and history easy to revisit
 - work well on mobile and desktop
@@ -125,7 +127,7 @@ The interface should encourage natural language rather than forcing a form.
 
 ## 7. Discovery Modes
 
-The four initial modes should be visible but should not make the product feel like four unrelated applications.
+The five modes should be visible but should not make the product feel like five unrelated applications.
 
 Modes:
 
@@ -894,7 +896,7 @@ This order ensures the core discovery loop works before secondary screens are po
 The frontend architecture is ready for implementation when:
 
 - the Discovery Workspace is clearly defined
-- the four discovery modes are represented
+- the five discovery modes are represented
 - text and voice input boundaries are defined
 - follow-up questions have a dedicated interaction
 - results and explanations have a common model
@@ -916,3 +918,17 @@ The user speaks naturally. Discover asks only useful questions, explores cultura
 The core design principle is:
 
 > **The interface should expose the discovery journey, not the machinery behind it.**
+
+
+---
+
+# Alignment addendum (REQUIREMENTS v1.0)
+
+- **Routes and pages:** REQUIREMENTS §6.1 (adds `/reports`, `/reports/:id`, `/compare`, `/s/:token`, `/join/:token`).
+- **Modes:** five modes (`self`, `someone_else`, `group`, `community`, `business`); the earlier "four initial modes" is superseded.
+- **Streaming:** a `useRun` hook built on `fetch` + SSE parsing (not `EventSource`), with automatic resume using `Last-Event-ID`, event validation against the exported JSON Schema, and an `AgentTimeline` component fed by the same event stream (UX-020..025). Progress is event-driven; there is no fake progress.
+- **Results:** `ResultCard`, `EvidenceList`, detail drawer, influence view, lenses, map view, compare tray (UX-040..050).
+- **Mode views:** Taste Canvas, Gift Brief, Group Board, Community Landscape, Business Workspace, all composed from shared components (UX-060..083).
+- **Reports and sharing:** report viewer/editor, export menu, share dialog, public share page, print stylesheet (UX-090..094).
+- **Demo data banner:** shown whenever `/meta` reports a non-`live` profile (UX-105).
+- **Stack:** ADR-015.

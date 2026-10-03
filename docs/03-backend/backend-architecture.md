@@ -1,5 +1,7 @@
 # Backend Architecture
 
+> **Alignment:** This is a detail document. The canonical requirements, enums (modes, intents, statuses, result kinds), API surface, and SSE protocol are in [`REQUIREMENTS.md`](../../REQUIREMENTS.md). If anything here conflicts with it, `REQUIREMENTS.md` wins and this document must be corrected. Decisions: [`docs/01-decisions/decision-records.md`](../01-decisions/decision-records.md). Endpoint list: REQUIREMENTS §7.3. Run executor, registries, and configuration: §9.
+
 ## 1. Purpose
 
 This document defines the backend architecture for Discover and turns the product, Qloo integration, and agent-state designs into a practical FastAPI application.
@@ -197,31 +199,37 @@ Shared HTTP clients should be reused instead of repeatedly creating connections 
 The public API is centered on discovery sessions.
 
 ~~~text
-POST   /api/v1/discovery
-POST   /api/v1/discovery/{session_id}/message
-GET    /api/v1/discovery/{session_id}
-DELETE /api/v1/discovery/{session_id}
-GET    /api/v1/history
-GET    /api/v1/history/{id}
-POST   /api/v1/saved
-GET    /api/v1/saved
-DELETE /api/v1/saved/{id}
-GET    /health
-GET    /ready
+Summary (authoritative table: REQUIREMENTS §7.3; schemas: docs/08-api/api-contract.md)
+
+POST   /api/v1/auth/guest
+GET    /api/v1/me
+POST   /api/v1/discovery/sessions
+GET    /api/v1/discovery/sessions                      (history = filtered list)
+GET    /api/v1/discovery/sessions/{id}
+POST   /api/v1/discovery/sessions/{id}/messages        (SSE or JSON; starts a run)
+GET    /api/v1/discovery/runs/{run_id}
+GET    /api/v1/discovery/runs/{run_id}/events          (replay / resume)
+POST   /api/v1/discovery/runs/{run_id}/cancel
+GET    /api/v1/discovery/sessions/{id}/results
+PUT    /api/v1/results/{result_id}/feedback
+POST   /api/v1/saved            GET /api/v1/saved       GET|PATCH|DELETE /api/v1/saved/{id}
+POST   /api/v1/reports          GET /api/v1/reports/{id}/export
+POST   /api/v1/shares           GET /api/v1/public/shares/{token}
+GET    /api/v1/meta             GET /health             GET /ready
 ~~~
 
 Authentication endpoints depend on the selected authentication provider.
 
 ## 10. Create Discovery Session
 
-POST /api/v1/discovery
+POST /api/v1/discovery/sessions  (optionally with `initial_message`; messages then go to `/messages`)
 
-Example request:
+Example message request:
 
 ~~~json
 {
   "message": "I need a birthday gift for my girlfriend. She loves Taylor Swift and Korean dramas.",
-  "mode": "gift"
+  "mode": "someone_else"
 }
 ~~~
 
