@@ -1,0 +1,90 @@
+{
+  "response": {
+    "success": true,
+    "results": {
+      "entities": [
+        {
+          "entity_id": "1F7E4334-9BDE-4936-80C7-8E1EAF1CA2C3",
+          "name": "My Year of Rest and Relaxation",
+          "type": "urn:entity",
+          "subtype": "urn:entity:book",
+          "popularity": 0.9955153748860993,
+          "external": {
+            "goodreads": [
+              {
+                "id": "44279110",
+                "user_rating": 3.62,
+                "user_ratings_count": 495981
+              }
+            ]
+          },
+          "properties": {
+            "description": "From one of our boldest, most celebrated new literary voices, a novel about a young woman’s efforts to duck the ills of the world by embarking on an extended hibernation with the help of one of the worst psychiatrists in the annals of literature and the battery of medicines she prescribes.  Our narrator should be happy, shouldn’t she? She’s young, thin, pretty, a recent Columbia graduate, works an easy job at a hip art gallery, lives in an apartment on the Upper East Side of Manhattan paid for, like the rest of her needs, by her inheritance. But there is a dark and vacuous hole in her heart, and it isn’t just the loss of her parents, or the way her Wall Street boyfriend treats her, or her sadomasochistic relationship with her best friend, Reva. It’s the year 2000 in a city aglitter with wealth and possibility; what could be so terribly wrong?  My Year of Rest and Relaxation is a powerful answer to that question. Through the story of a year spent under the influence of a truly mad combination of drugs designed to heal our heroine from her alienation from this world, Moshfegh shows us how reasonable, even necessary, alienation can be. Both tender and blackly funny, merciless and compassionate, it is a showcase for the gifts of one of our major writers working at the height of her powers.",
+            "format": "Paperback",
+            "isbn10": "0525522131",
+            "isbn13": "9780525522133",
+            "language": "English",
+            "page_count": 289,
+            "publication_date": "2018-07-10",
+            "publication_year": 2018,
+            "publisher": "Penguin Books",
+            "title": "My Year of Rest and Relaxation",
+            "image": {
+              "url": "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1597676656i/44279110.jpg"
+            },
+            "akas": [
+              {
+                "value": "Mon année de repos et de détente",
+                "languages": [
+                  "fr"
+                ]
+              }
+            ]
+          },
+          "disambiguation": "2018, Ottessa Moshfegh",
+          "query": {
+            "affinity": 0.9316438942062153,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "28D688C4-0760-4042-BEC1-F6EE75E71CC7",
+                  "score": 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "query": {
+      "explainability": {
+        "signal.interests.entities": {
+          "effect_on_top3_recs": [
+            {
+              "entity_id": "28D688C4-0760-4042-BEC1-F6EE75E71CC7",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top5_recs": [
+            {
+              "entity_id": "28D688C4-0760-4042-BEC1-F6EE75E71CC7",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top10_recs": [
+            {
+              "entity_id": "28D688C4-0760-4042-BEC1-F6EE75E71CC7",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_all_recs": [
+            {
+              "entity_id": "28D688C4-0760-4042-BEC1-F6EE75E71CC7",
+              "avg_score": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,694 @@
+{
+  "response": {
+    "success": true,
+    "results": {
+      "entities": [
+        {
+          "name": "Carly Rae Jepsen",
+          "tags": [
+            {
+              "id": "urn:tag:artist:qloo:catchy",
+              "name": "Catchy",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:bubblegum_pop",
+              "name": "Bubblegum Pop",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:influence:qloo:synth_pop",
+              "name": "Synth-Pop",
+              "type": "urn:tag:influence:qloo"
+            },
+            {
+              "id": "urn:tag:audience:qloo:loyal",
+              "name": "Loyal",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:instrument:qloo:piano",
+              "name": "Piano",
+              "type": "urn:tag:instrument:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:melodic",
+              "name": "Melodic",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:love",
+              "name": "Love",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:youth",
+              "name": "Youth",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:instrument:qloo:vocals",
+              "name": "Vocals",
+              "type": "urn:tag:instrument:qloo"
+            },
+            {
+              "id": "urn:tag:influence:qloo:dance_pop",
+              "name": "Dance Pop",
+              "type": "urn:tag:influence:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:energetic",
+              "name": "Energetic",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:genre:music:acoustic",
+              "name": "Acoustic",
+              "type": "urn:tag:genre:music"
+            },
+            {
+              "id": "urn:tag:audience:qloo:dedicated",
+              "name": "Dedicated",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:dance_pop",
+              "name": "Dance Pop",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:dance_pop",
+              "name": "Dance Pop",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:synth_pop",
+              "name": "Synth Pop",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:expressive",
+              "name": "Expressive",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:subgenre:qloo:electropop",
+              "name": "Electropop",
+              "type": "urn:tag:subgenre:qloo"
+            },
+            {
+              "id": "urn:tag:influenced_by:qloo:madonna",
+              "name": "Madonna",
+              "type": "urn:tag:influenced_by:qloo"
+            },
+            {
+              "id": "urn:tag:influenced_by:qloo:robyn",
+              "name": "Robyn",
+              "type": "urn:tag:influenced_by:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:emotional",
+              "name": "Emotional",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:audience:qloo:passionate",
+              "name": "Passionate",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:influenced_by:qloo:prince",
+              "name": "Prince",
+              "type": "urn:tag:influenced_by:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:upbeat",
+              "name": "Upbeat",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:genre:music:pop",
+              "name": "Pop",
+              "type": "urn:tag:genre:music"
+            },
+            {
+              "id": "urn:tag:audience:qloo:enthusiastic",
+              "name": "Enthusiastic",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:self_discovery",
+              "name": "Self Discovery",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:obscurity:qloo:3",
+              "name": "3",
+              "type": "urn:tag:obscurity:qloo"
+            },
+            {
+              "id": "urn:tag:artist:qloo:emotive",
+              "name": "Emotive",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:influence:qloo:indie_pop",
+              "name": "Indie Pop",
+              "type": "urn:tag:influence:qloo"
+            },
+            {
+              "id": "urn:tag:voice_type:qloo:mezzo_soprano",
+              "name": "Mezzo-Soprano",
+              "type": "urn:tag:voice_type:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:heartbreak",
+              "name": "Heartbreak",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:artist:qloo:energetic",
+              "name": "Energetic",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:influenced_by:qloo:cyndi_lauper",
+              "name": "Cyndi Lauper",
+              "type": "urn:tag:influenced_by:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:polished",
+              "name": "Polished",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:empowerment",
+              "name": "Empowerment",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:pop",
+              "name": "Pop",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:indie_pop",
+              "name": "Indie Pop",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:synthpop",
+              "name": "Synthpop",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:instrument:qloo:guitar",
+              "name": "Guitar",
+              "type": "urn:tag:instrument:qloo"
+            },
+            {
+              "id": "urn:tag:genre:music:canadian",
+              "name": "Canadian",
+              "type": "urn:tag:genre:music"
+            },
+            {
+              "id": "urn:tag:artist:qloo:melodic",
+              "name": "Melodic",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:engaging",
+              "name": "Engaging",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:catchy",
+              "name": "Catchy",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:artist:qloo:versatile",
+              "name": "Versatile",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:subgenre:qloo:indie_pop",
+              "name": "Indie Pop",
+              "type": "urn:tag:subgenre:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:electropop",
+              "name": "Electropop",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:audience:qloo:devoted",
+              "name": "Devoted",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:audience:qloo:nostalgic",
+              "name": "Nostalgic",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:audience:qloo:engaged",
+              "name": "Engaged",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:lush",
+              "name": "Lush",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:synth_driven",
+              "name": "Synth-Driven",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:emotive",
+              "name": "Emotive",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:nostalgic",
+              "name": "Nostalgic",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:music:qloo:polished",
+              "name": "Polished",
+              "type": "urn:tag:music:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:intimate",
+              "name": "Intimate",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:joyful",
+              "name": "Joyful",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:charismatic",
+              "name": "Charismatic",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:artist:qloo:playful",
+              "name": "Playful",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:artist:qloo:polished",
+              "name": "Polished",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:artist:qloo:vulnerable",
+              "name": "Vulnerable",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:artist:qloo:hook_driven",
+              "name": "Hook-Driven",
+              "type": "urn:tag:artist:qloo"
+            },
+            {
+              "id": "urn:tag:complexity_scale:qloo:5",
+              "name": "5",
+              "type": "urn:tag:complexity_scale:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:synth_infused_dance_pop",
+              "name": "Synth-Infused Dance-Pop",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:80s_channeling_electropop",
+              "name": "80s-Channeling Electropop",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:indie_pop_melodic",
+              "name": "Indie-Pop Melodic",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:bubblegum_pop_catchy",
+              "name": "Bubblegum-Pop Catchy",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:style:qloo:piano_driven_balladry",
+              "name": "Piano-Driven Balladry",
+              "type": "urn:tag:style:qloo"
+            },
+            {
+              "id": "urn:tag:influence:qloo:dance_pop",
+              "name": "Dance-Pop",
+              "type": "urn:tag:influence:qloo"
+            },
+            {
+              "id": "urn:tag:influenced_by:qloo:joni_mitchell",
+              "name": "Joni Mitchell",
+              "type": "urn:tag:influenced_by:qloo"
+            },
+            {
+              "id": "urn:tag:influenced_by:qloo:carole_king",
+              "name": "Carole King",
+              "type": "urn:tag:influenced_by:qloo"
+            },
+            {
+              "id": "urn:tag:influenced_by:qloo:abba",
+              "name": "ABBA",
+              "type": "urn:tag:influenced_by:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:young_love",
+              "name": "Young Love",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:longing",
+              "name": "Longing",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:nostalgia",
+              "name": "Nostalgia",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:self_discovery",
+              "name": "Self-Discovery",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:playfulness",
+              "name": "Playfulness",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:obscurity:qloo:2",
+              "name": "2",
+              "type": "urn:tag:obscurity:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:dance_pop",
+              "name": "Dance-Pop",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:synth_pop",
+              "name": "Synth-Pop",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:indie_pop",
+              "name": "Indie Pop",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:subgenre:qloo:folk",
+              "name": "Folk",
+              "type": "urn:tag:subgenre:qloo"
+            },
+            {
+              "id": "urn:tag:subgenre:qloo:acoustic",
+              "name": "Acoustic",
+              "type": "urn:tag:subgenre:qloo"
+            },
+            {
+              "id": "urn:tag:subgenre:qloo:bubblegum_pop",
+              "name": "Bubblegum Pop",
+              "type": "urn:tag:subgenre:qloo"
+            },
+            {
+              "id": "urn:tag:voice_type:qloo:soprano",
+              "name": "Soprano",
+              "type": "urn:tag:voice_type:qloo"
+            }
+          ],
+          "type": "urn:entity",
+          "subtype": "urn:entity:artist",
+          "external": {
+            "imdb": [
+              {
+                "id": "nm4946551"
+              }
+            ],
+            "lastfm": [
+              {
+                "id": "carly%20rae%20jepsen",
+                "listeners": 2533825,
+                "scrobbles": 128885835
+              }
+            ],
+            "spotify": [
+              {
+                "id": "6sFIWsNpZYqfjUpaCgueju",
+                "verified": true,
+                "followers": 4384589,
+                "last_release": 2020,
+                "first_release": 2008,
+                "monthly_listeners": 11851460
+              }
+            ],
+            "twitter": [
+              {
+                "id": "carlyraejepsen"
+              }
+            ],
+            "facebook": [
+              {
+                "id": "carlyraejepsen"
+              }
+            ],
+            "wikidata": [
+              {
+                "id": "q52583"
+              }
+            ],
+            "instagram": [
+              {
+                "id": "carlyraejepsen"
+              }
+            ],
+            "musicbrainz": [
+              {
+                "id": "09887aa7-226e-4ecc-9a0c-02d2ae5777e1",
+                "artist_type": "Person"
+              }
+            ]
+          },
+          "entity_id": "A3A7CEAC-FE66-49E4-AC58-D619BC48C840",
+          "popularity": 0.9982764157311471,
+          "properties": {
+            "image": {
+              "url": "https://lastfm.freetls.fastly.net/i/u/770x0/6cdebcd5eda5f2578d2f40eec42a9e0a.jpg"
+            },
+            "vocals": "Clear, bright and youthful soprano with an agile upper register; capable of warm intimate delivery and energetic pop belting. Frequently uses layered harmony stacks, breathy phrasing and a precise, hook-forward approach to vocal melodies.",
+            "aliases": [
+              "Carly Rae Jepsen"
+            ],
+            "members": [
+              "None"
+            ],
+            "is_group": false,
+            "biography": "Born November 21, 1985 in Mission, British Columbia, Carly Rae Jepsen began performing as a teenager and gained national attention as a contestant on Canadian Idol (2007). After placing on the show she released early, folk-tinged material and steadily built a songwriting career. Her breakout came in 2011 with the single \"Call Me Maybe,\" which became a global phenomenon and led to her major-label debut album Kiss (2012). Jepsen followed mainstream success with a shift toward lush, 1980s-influenced synth-pop on Emotion (2015), an album that earned strong critical praise and a devoted cult following. She has continued releasing pop records, EPs and standalone singles while touring internationally and collaborating with other pop and indie producers.",
+            "known_for": "Sharp, hook-driven pop songwriting, infectious melodies, the global hit \"Call Me Maybe\" and the critically acclaimed synth-pop album Emotion.",
+            "start_year": 2006,
+            "voice_type": [
+              "Soprano"
+            ],
+            "description": "Carly Rae Jepsen is a Canadian singer-songwriter who rose to fame after placing on Canadian Idol and then achieving international success with the 2011 viral hit \"Call Me Maybe.\" Her catalog spans bright mainstream pop, synth-driven indie pop and earlier folk/acoustic work. Widely praised for her craft of concise, hook-forward songwriting, Jepsen balances radio-ready singles with critically acclaimed albums such as Emotion (2015) and Dedicated (2019). She is known for melodic hooks, layered harmonies and emotive lyricism.",
+            "instruments": [
+              "Vocals",
+              "Guitar",
+              "Piano"
+            ],
+            "lowest_note": "A3",
+            "vocal_range": "Soprano, approximately A3\u0011C6",
+            "highest_note": "C6",
+            "collaborators": [
+              "Owl City",
+              "Dev Hynes",
+              "Rostam Batmanglij",
+              "Ariel Rechtshaid",
+              "Greg Kurstin"
+            ],
+            "date_of_birth": "1985-11-21",
+            "influenced_by": [
+              "Joni Mitchell",
+              "Carole King",
+              "ABBA",
+              "Madonna"
+            ],
+            "notable_songs": [
+              "Call Me Maybe",
+              "Good Time",
+              "I Really Like You",
+              "Run Away With Me",
+              "Cut To The Feeling",
+              "Now That I Found You",
+              "Party For One"
+            ],
+            "lyrical_themes": [
+              "Love",
+              "Heartbreak",
+              "Young Love",
+              "Longing",
+              "Nostalgia",
+              "Self-Discovery",
+              "Empowerment",
+              "Playfulness"
+            ],
+            "place_of_birth": "Mission, Fraser Valley Regional",
+            "primary_genres": [
+              "Pop",
+              "Dance-Pop",
+              "Synth-Pop",
+              "Indie Pop"
+            ],
+            "characteristics": [
+              "Catchy",
+              "Emotive",
+              "Playful",
+              "Polished",
+              "Vulnerable",
+              "Melodic",
+              "Hook-Driven"
+            ],
+            "cultural_impact": "Her 2011 single \"Call Me Maybe\" became a viral cultural phenomenon, turning Jepsen into a mainstream pop figure and spawning countless parodies and memes. Later critical reappraisal of Emotion elevated her status as a modern pop craftsman, influencing a wave of synth-forward indie-pop and demonstrating that mainstream hooks can coexist with sophisticated, emotionally literate songwriting. She also maintains a passionate, diverse fanbase including strong support within LGBTQ+ communities.",
+            "obscurity_scale": [
+              "2"
+            ],
+            "complexity_scale": [
+              "5"
+            ],
+            "secondary_genres": [
+              "Folk",
+              "Acoustic",
+              "Electropop",
+              "Bubblegum Pop"
+            ],
+            "associated_brands": [],
+            "genres_influenced": [
+              "Indie Pop",
+              "Synth-Pop",
+              "Dance-Pop"
+            ],
+            "performance_style": "A polished pop performer who balances choreographed, high-energy shows with intimate acoustic sets; uses tight vocal harmonies, backing tracks and focused crowd interaction.",
+            "artists_influenced": [],
+            "short_descriptions": [
+              {
+                "value": "Kanadische Sängerin und Songwriterin, bekannt für eingängige Pop-Hits und gefühlvolle Texte.",
+                "languages": [
+                  "de"
+                ]
+              },
+              {
+                "value": "Chanteuse-compositrice canadienne connue pour ses tubes pop accrocheurs et ses paroles émouvantes.",
+                "languages": [
+                  "fr"
+                ]
+              },
+              {
+                "value": "Canadian singer and songwriter known for catchy pop hits and emotive lyrics.",
+                "languages": [
+                  "en"
+                ]
+              },
+              {
+                "value": "Cantante y compositora canadiense conocida por sus pegadizas canciones pop y sus letras emotivas.",
+                "languages": [
+                  "es"
+                ]
+              }
+            ],
+            "adjectives_for_fans": [
+              "Loyal",
+              "Devoted",
+              "Passionate",
+              "Nostalgic",
+              "Engaged"
+            ],
+            "adjectives_for_music": [
+              "Catchy",
+              "Lush",
+              "Synth-Driven",
+              "Melodic",
+              "Emotive",
+              "Upbeat",
+              "Nostalgic",
+              "Polished"
+            ],
+            "lyrical_themes_description": "Jepsen's lyrics frequently explore infatuation and romantic longing with precise, image-driven details; she balances playful, upbeat tracks about crushes and joy with more reflective songs about heartbreak, nostalgia and emotional growth.",
+            "adjectives_for_performance_style": [
+              "Energetic",
+              "Intimate",
+              "Joyful",
+              "Charismatic",
+              "Polished"
+            ],
+            "creative_and_specific_adjectives_for_music": [
+              "Synth-Infused Dance-Pop",
+              "80s-Channeling Electropop",
+              "Indie-Pop Melodic",
+              "Bubblegum-Pop Catchy",
+              "Piano-Driven Balladry"
+            ]
+          },
+          "disambiguation": "Carly Rae Jepsen",
+          "query": {
+            "affinity": 0.9666379041407961,
+            "measurements": {
+              "audience_growth": 0
+            },
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "4BBEF799-A0C4-4110-AB01-39216993C312",
+                  "score": 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "query": {
+      "explainability": {
+        "signal.interests.entities": {
+          "effect_on_top3_recs": [
+            {
+              "entity_id": "4BBEF799-A0C4-4110-AB01-39216993C312",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top5_recs": [
+            {
+              "entity_id": "4BBEF799-A0C4-4110-AB01-39216993C312",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top10_recs": [
+            {
+              "entity_id": "4BBEF799-A0C4-4110-AB01-39216993C312",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_all_recs": [
+            {
+              "entity_id": "4BBEF799-A0C4-4110-AB01-39216993C312",
+              "avg_score": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

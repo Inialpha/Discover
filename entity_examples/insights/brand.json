@@ -1,0 +1,979 @@
+{
+  "response": {
+    "success": true,
+    "results": {
+      "entities": [
+        {
+          "name": "Air Jordan Product Line",
+          "tags": [
+            {
+              "id": "urn:tag:genre:brand:fashion:footwear:sneaker:basketball",
+              "name": "Basketball",
+              "type": "urn:tag:genre:brand"
+            },
+            {
+              "id": "urn:tag:genre:brand:fashion:footwear:sneakers",
+              "name": "Sneakers",
+              "type": "urn:tag:genre:brand"
+            },
+            {
+              "id": "urn:tag:genre:brand:fashion",
+              "name": "Fashion",
+              "type": "urn:tag:genre:brand"
+            },
+            {
+              "id": "urn:tag:genre:brand:fashion:footwear",
+              "name": "Footwear",
+              "type": "urn:tag:genre:brand"
+            },
+            {
+              "id": "urn:tag:aesthetic_property:qloo:bold_branding",
+              "name": "Bold Branding",
+              "type": "urn:tag:aesthetic_property:qloo"
+            },
+            {
+              "id": "urn:tag:aesthetic_property:qloo:dynamic_silhouettes",
+              "name": "Dynamic Silhouettes",
+              "type": "urn:tag:aesthetic_property:qloo"
+            },
+            {
+              "id": "urn:tag:aesthetic_property:qloo:high_contrast_colorways",
+              "name": "High-Contrast Colorways",
+              "type": "urn:tag:aesthetic_property:qloo"
+            },
+            {
+              "id": "urn:tag:aesthetic_property:qloo:performance_oriented_design",
+              "name": "Performance-Oriented Design",
+              "type": "urn:tag:aesthetic_property:qloo"
+            },
+            {
+              "id": "urn:tag:lifestyle:qloo:professional_athletic_achievement",
+              "name": "Professional Athletic Achievement",
+              "type": "urn:tag:lifestyle:qloo"
+            },
+            {
+              "id": "urn:tag:lifestyle:qloo:global_fame",
+              "name": "Global Fame",
+              "type": "urn:tag:lifestyle:qloo"
+            },
+            {
+              "id": "urn:tag:lifestyle:qloo:style_authority",
+              "name": "Style Authority",
+              "type": "urn:tag:lifestyle:qloo"
+            },
+            {
+              "id": "urn:tag:lifestyle:qloo:championship_success",
+              "name": "Championship Success",
+              "type": "urn:tag:lifestyle:qloo"
+            },
+            {
+              "id": "urn:tag:brand_subtype:qloo:fashion",
+              "name": "Fashion",
+              "type": "urn:tag:brand_subtype:qloo"
+            },
+            {
+              "id": "urn:tag:brand_type:qloo:product_brand",
+              "name": "Product Brand",
+              "type": "urn:tag:brand_type:qloo"
+            },
+            {
+              "id": "urn:tag:business_model:qloo:b2c",
+              "name": "B2C",
+              "type": "urn:tag:business_model:qloo"
+            },
+            {
+              "id": "urn:tag:collection_cadence:qloo:drops",
+              "name": "Drops",
+              "type": "urn:tag:collection_cadence:qloo"
+            },
+            {
+              "id": "urn:tag:collection_cadence:qloo:seasonal",
+              "name": "Seasonal",
+              "type": "urn:tag:collection_cadence:qloo"
+            },
+            {
+              "id": "urn:tag:collection_cadence:qloo:limited_edition",
+              "name": "Limited Edition",
+              "type": "urn:tag:collection_cadence:qloo"
+            },
+            {
+              "id": "urn:tag:competitor_brand:qloo:adidas",
+              "name": "Adidas",
+              "type": "urn:tag:competitor_brand:qloo"
+            },
+            {
+              "id": "urn:tag:competitor_brand:qloo:under_armour",
+              "name": "Under Armour",
+              "type": "urn:tag:competitor_brand:qloo"
+            },
+            {
+              "id": "urn:tag:competitor_brand:qloo:puma",
+              "name": "Puma",
+              "type": "urn:tag:competitor_brand:qloo"
+            },
+            {
+              "id": "urn:tag:competitor_brand:qloo:reebok",
+              "name": "Reebok",
+              "type": "urn:tag:competitor_brand:qloo"
+            },
+            {
+              "id": "urn:tag:competitor_brand:qloo:new_balance",
+              "name": "New Balance",
+              "type": "urn:tag:competitor_brand:qloo"
+            },
+            {
+              "id": "urn:tag:core_value:qloo:excellence",
+              "name": "Excellence",
+              "type": "urn:tag:core_value:qloo"
+            },
+            {
+              "id": "urn:tag:core_value:qloo:innovation",
+              "name": "Innovation",
+              "type": "urn:tag:core_value:qloo"
+            },
+            {
+              "id": "urn:tag:core_value:qloo:heritage",
+              "name": "Heritage",
+              "type": "urn:tag:core_value:qloo"
+            },
+            {
+              "id": "urn:tag:core_value:qloo:competition",
+              "name": "Competition",
+              "type": "urn:tag:core_value:qloo"
+            },
+            {
+              "id": "urn:tag:core_value:qloo:community",
+              "name": "Community",
+              "type": "urn:tag:core_value:qloo"
+            },
+            {
+              "id": "urn:tag:cultural_relevance:qloo:hip_hop",
+              "name": "Hip-Hop",
+              "type": "urn:tag:cultural_relevance:qloo"
+            },
+            {
+              "id": "urn:tag:cultural_relevance:qloo:basketball_culture",
+              "name": "Basketball Culture",
+              "type": "urn:tag:cultural_relevance:qloo"
+            },
+            {
+              "id": "urn:tag:cultural_relevance:qloo:sneakerhead_community",
+              "name": "Sneakerhead Community",
+              "type": "urn:tag:cultural_relevance:qloo"
+            },
+            {
+              "id": "urn:tag:cultural_relevance:qloo:streetwear_movement",
+              "name": "Streetwear Movement",
+              "type": "urn:tag:cultural_relevance:qloo"
+            },
+            {
+              "id": "urn:tag:customer_segment:qloo:basketball_enthusiasts",
+              "name": "Basketball Enthusiasts",
+              "type": "urn:tag:customer_segment:qloo"
+            },
+            {
+              "id": "urn:tag:customer_segment:qloo:sneaker_collectors",
+              "name": "Sneaker Collectors",
+              "type": "urn:tag:customer_segment:qloo"
+            },
+            {
+              "id": "urn:tag:customer_segment:qloo:urban_youth",
+              "name": "Urban Youth",
+              "type": "urn:tag:customer_segment:qloo"
+            },
+            {
+              "id": "urn:tag:customer_segment:qloo:athleisure_consumers",
+              "name": "Athleisure Consumers",
+              "type": "urn:tag:customer_segment:qloo"
+            },
+            {
+              "id": "urn:tag:design_inspiration:qloo:basketball_history",
+              "name": "Basketball History",
+              "type": "urn:tag:design_inspiration:qloo"
+            },
+            {
+              "id": "urn:tag:design_inspiration:qloo:aviation",
+              "name": "Aviation",
+              "type": "urn:tag:design_inspiration:qloo"
+            },
+            {
+              "id": "urn:tag:design_inspiration:qloo:modern_art",
+              "name": "Modern Art",
+              "type": "urn:tag:design_inspiration:qloo"
+            },
+            {
+              "id": "urn:tag:design_inspiration:qloo:performance_engineering",
+              "name": "Performance Engineering",
+              "type": "urn:tag:design_inspiration:qloo"
+            },
+            {
+              "id": "urn:tag:emotional_tone:qloo:bold",
+              "name": "Bold",
+              "type": "urn:tag:emotional_tone:qloo"
+            },
+            {
+              "id": "urn:tag:emotional_tone:qloo:confident",
+              "name": "Confident",
+              "type": "urn:tag:emotional_tone:qloo"
+            },
+            {
+              "id": "urn:tag:emotional_tone:qloo:ambitious",
+              "name": "Ambitious",
+              "type": "urn:tag:emotional_tone:qloo"
+            },
+            {
+              "id": "urn:tag:emotional_tone:qloo:electrifying",
+              "name": "Electrifying",
+              "type": "urn:tag:emotional_tone:qloo"
+            },
+            {
+              "id": "urn:tag:fashion_segment:qloo:sportswear",
+              "name": "Sportswear",
+              "type": "urn:tag:fashion_segment:qloo"
+            },
+            {
+              "id": "urn:tag:fashion_segment:qloo:streetwear",
+              "name": "Streetwear",
+              "type": "urn:tag:fashion_segment:qloo"
+            },
+            {
+              "id": "urn:tag:fashion_segment:qloo:athleisure",
+              "name": "Athleisure",
+              "type": "urn:tag:fashion_segment:qloo"
+            },
+            {
+              "id": "urn:tag:fashion_segment:qloo:heritage",
+              "name": "Heritage",
+              "type": "urn:tag:fashion_segment:qloo"
+            },
+            {
+              "id": "urn:tag:industry:qloo:fashion_apparel",
+              "name": "Fashion & Apparel",
+              "type": "urn:tag:industry:qloo"
+            },
+            {
+              "id": "urn:tag:industry:qloo:sports_fitness",
+              "name": "Sports & Fitness",
+              "type": "urn:tag:industry:qloo"
+            },
+            {
+              "id": "urn:tag:industry:qloo:footwear",
+              "name": "Footwear",
+              "type": "urn:tag:industry:qloo"
+            },
+            {
+              "id": "urn:tag:influencer_appeal:qloo:professional_athletes",
+              "name": "Professional Athletes",
+              "type": "urn:tag:influencer_appeal:qloo"
+            },
+            {
+              "id": "urn:tag:influencer_appeal:qloo:music_artists",
+              "name": "Music Artists",
+              "type": "urn:tag:influencer_appeal:qloo"
+            },
+            {
+              "id": "urn:tag:influencer_appeal:qloo:streetwear_designers",
+              "name": "Streetwear Designers",
+              "type": "urn:tag:influencer_appeal:qloo"
+            },
+            {
+              "id": "urn:tag:influencer_appeal:qloo:creative_directors",
+              "name": "Creative Directors",
+              "type": "urn:tag:influencer_appeal:qloo"
+            },
+            {
+              "id": "urn:tag:influencer_appeal:qloo:cultural_icons",
+              "name": "Cultural Icons",
+              "type": "urn:tag:influencer_appeal:qloo"
+            },
+            {
+              "id": "urn:tag:interest_adjacency:qloo:basketball",
+              "name": "Basketball",
+              "type": "urn:tag:interest_adjacency:qloo"
+            },
+            {
+              "id": "urn:tag:interest_adjacency:qloo:sneaker_culture",
+              "name": "Sneaker Culture",
+              "type": "urn:tag:interest_adjacency:qloo"
+            },
+            {
+              "id": "urn:tag:interest_adjacency:qloo:hip_hop_music",
+              "name": "Hip-Hop Music",
+              "type": "urn:tag:interest_adjacency:qloo"
+            },
+            {
+              "id": "urn:tag:interest_adjacency:qloo:athletic_training",
+              "name": "Athletic Training",
+              "type": "urn:tag:interest_adjacency:qloo"
+            },
+            {
+              "id": "urn:tag:interest_adjacency:qloo:streetwear_fashion",
+              "name": "Streetwear Fashion",
+              "type": "urn:tag:interest_adjacency:qloo"
+            },
+            {
+              "id": "urn:tag:key_market:qloo:united_states",
+              "name": "United States",
+              "type": "urn:tag:key_market:qloo"
+            },
+            {
+              "id": "urn:tag:key_market:qloo:china",
+              "name": "China",
+              "type": "urn:tag:key_market:qloo"
+            },
+            {
+              "id": "urn:tag:key_market:qloo:europe",
+              "name": "Europe",
+              "type": "urn:tag:key_market:qloo"
+            },
+            {
+              "id": "urn:tag:key_market:qloo:japan",
+              "name": "Japan",
+              "type": "urn:tag:key_market:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:basketball",
+              "name": "Basketball",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:jumpman",
+              "name": "Jumpman",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:sneakers",
+              "name": "Sneakers",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:performance",
+              "name": "Performance",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:streetwear",
+              "name": "Streetwear",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:partnership:qloo:travis_scott",
+              "name": "Travis Scott",
+              "type": "urn:tag:partnership:qloo"
+            },
+            {
+              "id": "urn:tag:partnership:qloo:off_white",
+              "name": "Off-White",
+              "type": "urn:tag:partnership:qloo"
+            },
+            {
+              "id": "urn:tag:partnership:qloo:dior",
+              "name": "Dior",
+              "type": "urn:tag:partnership:qloo"
+            },
+            {
+              "id": "urn:tag:partnership:qloo:paris_saint_germain",
+              "name": "Paris Saint-Germain",
+              "type": "urn:tag:partnership:qloo"
+            },
+            {
+              "id": "urn:tag:lifestyle:qloo:urban_living",
+              "name": "Urban Living",
+              "type": "urn:tag:lifestyle:qloo"
+            },
+            {
+              "id": "urn:tag:lifestyle:qloo:active_training",
+              "name": "Active Training",
+              "type": "urn:tag:lifestyle:qloo"
+            },
+            {
+              "id": "urn:tag:lifestyle:qloo:basketball_court_culture",
+              "name": "Basketball Court Culture",
+              "type": "urn:tag:lifestyle:qloo"
+            },
+            {
+              "id": "urn:tag:lifestyle:qloo:street_culture",
+              "name": "Street Culture",
+              "type": "urn:tag:lifestyle:qloo"
+            },
+            {
+              "id": "urn:tag:market_archetype:qloo:mainstream",
+              "name": "Mainstream",
+              "type": "urn:tag:market_archetype:qloo"
+            },
+            {
+              "id": "urn:tag:market_archetype:qloo:heritage",
+              "name": "Heritage",
+              "type": "urn:tag:market_archetype:qloo"
+            },
+            {
+              "id": "urn:tag:market_archetype:qloo:cult",
+              "name": "Cult",
+              "type": "urn:tag:market_archetype:qloo"
+            },
+            {
+              "id": "urn:tag:material:qloo:leather",
+              "name": "Leather",
+              "type": "urn:tag:material:qloo"
+            },
+            {
+              "id": "urn:tag:material:qloo:mesh",
+              "name": "Mesh",
+              "type": "urn:tag:material:qloo"
+            },
+            {
+              "id": "urn:tag:material:qloo:synthetic_performance_fabrics",
+              "name": "Synthetic Performance Fabrics",
+              "type": "urn:tag:material:qloo"
+            },
+            {
+              "id": "urn:tag:material:qloo:rubber",
+              "name": "Rubber",
+              "type": "urn:tag:material:qloo"
+            },
+            {
+              "id": "urn:tag:personal_style:qloo:sporty",
+              "name": "Sporty",
+              "type": "urn:tag:personal_style:qloo"
+            },
+            {
+              "id": "urn:tag:personal_style:qloo:urban",
+              "name": "Urban",
+              "type": "urn:tag:personal_style:qloo"
+            },
+            {
+              "id": "urn:tag:personal_style:qloo:casual",
+              "name": "Casual",
+              "type": "urn:tag:personal_style:qloo"
+            },
+            {
+              "id": "urn:tag:personal_style:qloo:edgy",
+              "name": "Edgy",
+              "type": "urn:tag:personal_style:qloo"
+            },
+            {
+              "id": "urn:tag:price_level:qloo:_",
+              "name": "$$$",
+              "type": "urn:tag:price_level:qloo"
+            },
+            {
+              "id": "urn:tag:product_category:qloo:footwear",
+              "name": "Footwear",
+              "type": "urn:tag:product_category:qloo"
+            },
+            {
+              "id": "urn:tag:product_category:qloo:apparel",
+              "name": "Apparel",
+              "type": "urn:tag:product_category:qloo"
+            },
+            {
+              "id": "urn:tag:product_category:qloo:outerwear",
+              "name": "Outerwear",
+              "type": "urn:tag:product_category:qloo"
+            },
+            {
+              "id": "urn:tag:product_category:qloo:accessories",
+              "name": "Accessories",
+              "type": "urn:tag:product_category:qloo"
+            },
+            {
+              "id": "urn:tag:product_service:qloo:basketball_sneakers",
+              "name": "Basketball Sneakers",
+              "type": "urn:tag:product_service:qloo"
+            },
+            {
+              "id": "urn:tag:product_service:qloo:athletic_apparel",
+              "name": "Athletic Apparel",
+              "type": "urn:tag:product_service:qloo"
+            },
+            {
+              "id": "urn:tag:product_service:qloo:sportswear",
+              "name": "Sportswear",
+              "type": "urn:tag:product_service:qloo"
+            },
+            {
+              "id": "urn:tag:product_service:qloo:streetwear",
+              "name": "Streetwear",
+              "type": "urn:tag:product_service:qloo"
+            },
+            {
+              "id": "urn:tag:product_service:qloo:accessories",
+              "name": "Accessories",
+              "type": "urn:tag:product_service:qloo"
+            },
+            {
+              "id": "urn:tag:retail_channel:qloo:direct_to_consumer",
+              "name": "Direct-to-Consumer",
+              "type": "urn:tag:retail_channel:qloo"
+            },
+            {
+              "id": "urn:tag:retail_channel:qloo:department_store",
+              "name": "Department Store",
+              "type": "urn:tag:retail_channel:qloo"
+            },
+            {
+              "id": "urn:tag:retail_channel:qloo:wholesale",
+              "name": "Wholesale",
+              "type": "urn:tag:retail_channel:qloo"
+            },
+            {
+              "id": "urn:tag:retail_channel:qloo:online_marketplace",
+              "name": "Online Marketplace",
+              "type": "urn:tag:retail_channel:qloo"
+            },
+            {
+              "id": "urn:tag:signature_piece:qloo:air_jordan_1",
+              "name": "Air Jordan 1",
+              "type": "urn:tag:signature_piece:qloo"
+            },
+            {
+              "id": "urn:tag:signature_piece:qloo:air_jordan_3",
+              "name": "Air Jordan 3",
+              "type": "urn:tag:signature_piece:qloo"
+            },
+            {
+              "id": "urn:tag:signature_piece:qloo:air_jordan_4",
+              "name": "Air Jordan 4",
+              "type": "urn:tag:signature_piece:qloo"
+            },
+            {
+              "id": "urn:tag:signature_piece:qloo:air_jordan_11",
+              "name": "Air Jordan 11",
+              "type": "urn:tag:signature_piece:qloo"
+            },
+            {
+              "id": "urn:tag:similar_brand:qloo:supreme",
+              "name": "Supreme",
+              "type": "urn:tag:similar_brand:qloo"
+            },
+            {
+              "id": "urn:tag:similar_brand:qloo:fear_of_god",
+              "name": "Fear Of God",
+              "type": "urn:tag:similar_brand:qloo"
+            },
+            {
+              "id": "urn:tag:similar_brand:qloo:yeezy",
+              "name": "Yeezy",
+              "type": "urn:tag:similar_brand:qloo"
+            },
+            {
+              "id": "urn:tag:similar_brand:qloo:kith",
+              "name": "Kith",
+              "type": "urn:tag:similar_brand:qloo"
+            },
+            {
+              "id": "urn:tag:similar_brand:qloo:converse",
+              "name": "Converse",
+              "type": "urn:tag:similar_brand:qloo"
+            },
+            {
+              "id": "urn:tag:sustainability_initiative:qloo:move_to_zero",
+              "name": "Move To Zero",
+              "type": "urn:tag:sustainability_initiative:qloo"
+            },
+            {
+              "id": "urn:tag:sustainability_initiative:qloo:recycled_materials",
+              "name": "Recycled Materials",
+              "type": "urn:tag:sustainability_initiative:qloo"
+            },
+            {
+              "id": "urn:tag:target_age_group:qloo:teens",
+              "name": "Teens",
+              "type": "urn:tag:target_age_group:qloo"
+            },
+            {
+              "id": "urn:tag:target_age_group:qloo:young_adults",
+              "name": "Young Adults",
+              "type": "urn:tag:target_age_group:qloo"
+            },
+            {
+              "id": "urn:tag:target_age_group:qloo:adults",
+              "name": "Adults",
+              "type": "urn:tag:target_age_group:qloo"
+            },
+            {
+              "id": "urn:tag:target_gender:qloo:male",
+              "name": "Male",
+              "type": "urn:tag:target_gender:qloo"
+            },
+            {
+              "id": "urn:tag:target_gender:qloo:female",
+              "name": "Female",
+              "type": "urn:tag:target_gender:qloo"
+            },
+            {
+              "id": "urn:tag:target_gender:qloo:gender_neutral",
+              "name": "Gender-Neutral",
+              "type": "urn:tag:target_gender:qloo"
+            },
+            {
+              "id": "urn:tag:target_income_level:qloo:medium",
+              "name": "Medium",
+              "type": "urn:tag:target_income_level:qloo"
+            },
+            {
+              "id": "urn:tag:target_income_level:qloo:medium_to_high",
+              "name": "Medium to High",
+              "type": "urn:tag:target_income_level:qloo"
+            }
+          ],
+          "type": "urn:entity",
+          "enabled": true,
+          "subtype": "urn:entity:brand",
+          "external": {
+            "twitter": [
+              {
+                "id": "jumpman23"
+              }
+            ],
+            "wikidata": [
+              {
+                "id": "Q420953"
+              }
+            ],
+            "instagram": [
+              {
+                "id": "jumpman23"
+              }
+            ]
+          },
+          "entity_id": "E26BC58D-18D2-405B-BC7B-7C556ADE3829",
+          "popularity": 0.9990167991727552,
+          "properties": {
+            "akas": [
+              {
+                "value": "Џорданки",
+                "languages": [
+                  "mk"
+                ]
+              },
+              {
+                "value": "エアジョーダン",
+                "languages": [
+                  "ja"
+                ]
+              },
+              {
+                "value": "Jordan",
+                "languages": [
+                  "es",
+                  "es_ar"
+                ]
+              },
+              {
+                "value": "Nike Air Jordan",
+                "languages": [
+                  "fr"
+                ]
+              },
+              {
+                "value": "jordan",
+                "languages": [
+                  "bg"
+                ]
+              },
+              {
+                "value": "Air Jordan",
+                "languages": [
+                  "it",
+                  "de",
+                  "uk",
+                  "en_au",
+                  "pt",
+                  "cs",
+                  "kk",
+                  "nl",
+                  "id",
+                  "vi",
+                  "fi",
+                  "ca",
+                  "pt_pt",
+                  "pl",
+                  "hu",
+                  "sv"
+                ]
+              },
+              {
+                "value": "اير جوردن",
+                "languages": [
+                  "ar"
+                ]
+              },
+              {
+                "value": "အဲဂျော်ဒန်",
+                "languages": [
+                  "my"
+                ]
+              },
+              {
+                "value": "에어 조던",
+                "languages": [
+                  "ko"
+                ]
+              },
+              {
+                "value": "飛人佐敦",
+                "languages": [
+                  "zh"
+                ]
+              },
+              {
+                "value": "Air Jordan ürünleri",
+                "languages": [
+                  "tr"
+                ]
+              },
+              {
+                "value": "Jordan Brand",
+                "languages": [
+                  "ru"
+                ]
+              },
+              {
+                "value": "אייר ג'ורדן",
+                "languages": [
+                  "he"
+                ]
+              }
+            ],
+            "image": {
+              "url": "s3://qloo-autogenic/instagram/images/profiles/53/5332352.jpg"
+            },
+            "sport": null,
+            "tagline": "Our Turn",
+            "industry": null,
+            "keywords": [
+              "Basketball",
+              "Jumpman",
+              "Sneakers",
+              "Performance",
+              "Streetwear"
+            ],
+            "owned_by": null,
+            "products": null,
+            "inception": null,
+            "lifestyle": [
+              "Urban Living",
+              "Active Training",
+              "Basketball Court Culture",
+              "Street Culture"
+            ],
+            "brand_type": [
+              "Product Brand"
+            ],
+            "industries": [
+              "Fashion & Apparel",
+              "Sports & Fitness",
+              "Footwear"
+            ],
+            "subsidiary": null,
+            "core_values": [
+              "Excellence",
+              "Innovation",
+              "Heritage",
+              "Competition",
+              "Community"
+            ],
+            "description": "Established in 1984, this athletic brand represents the pinnacle of basketball performance and cultural significance. It is owned and operated by Nike as a dedicated line for iconic footwear and apparel inspired by basketball legend Michael Jordan. The brand holds a dominant market position, bridging the gap between professional sports utility and high-fashion streetwear. Its products are globally recognized for their innovation, heritage, and influence on modern sneaker culture.",
+            "key_markets": [
+              "United States",
+              "China",
+              "Europe",
+              "Japan"
+            ],
+            "founded_year": 1984,
+            "manufacturer": null,
+            "subsidiaries": [],
+            "headquartered": null,
+            "official_site": null,
+            "target_gender": [
+              "Male",
+              "Female",
+              "Gender-Neutral"
+            ],
+            "ticker_symbol": null,
+            "business_model": [
+              "B2C"
+            ],
+            "emotional_tone": [
+              "Bold",
+              "Confident",
+              "Ambitious",
+              "Electrifying"
+            ],
+            "personal_style": [
+              "Sporty",
+              "Urban",
+              "Casual",
+              "Edgy"
+            ],
+            "similar_brands": [
+              "Supreme",
+              "Fear Of God",
+              "Yeezy",
+              "Kith",
+              "Converse"
+            ],
+            "ultimate_parent": "Nike, Inc.",
+            "immediate_parent": "Nike, Inc.",
+            "target_age_group": [
+              "Teens",
+              "Young Adults",
+              "Adults"
+            ],
+            "audience_identity": "People who value athletic performance, basketball heritage, and street-style aesthetic, often finding a sense of belonging in sneaker culture and urban fashion subcultures.",
+            "competitor_brands": [
+              "Adidas",
+              "Under Armour",
+              "Puma",
+              "Reebok",
+              "New Balance"
+            ],
+            "customer_segments": [
+              "Basketball Enthusiasts",
+              "Sneaker Collectors",
+              "Urban Youth",
+              "Athleisure Consumers"
+            ],
+            "influencer_appeal": [
+              "Professional Athletes",
+              "Music Artists",
+              "Streetwear Designers",
+              "Creative Directors",
+              "Cultural Icons"
+            ],
+            "products_services": [
+              "Basketball Sneakers",
+              "Athletic Apparel",
+              "Sportswear",
+              "Streetwear",
+              "Accessories"
+            ],
+            "short_description": "Air Jordan is a Nike brand product line featuring basketball shoes and athletic apparel inspired by Michael Jordan.",
+            "style_description": "A fusion of performance-driven athletic engineering and distinct, high-impact design that has defined the aesthetic of modern sportswear for decades.",
+            "cultural_relevance": [
+              "Hip-Hop",
+              "Basketball Culture",
+              "Sneakerhead Community",
+              "Streetwear Movement"
+            ],
+            "known_partnerships": [
+              "Travis Scott",
+              "Off-White",
+              "Dior",
+              "Paris Saint-Germain"
+            ],
+            "market_positioning": "Premium performance and lifestyle athletic brand rooted in basketball excellence and cultural prestige.",
+            "short_descriptions": [
+              {
+                "value": "An iconic athletic brand synonymous with basketball performance, cultural influence, and pioneering sneaker innovation.",
+                "languages": [
+                  "en"
+                ]
+              },
+              {
+                "value": "Eine ikonische Sportmarke, die für Basketball-Performance, kulturellen Einfluss und bahnbrechende Sneaker-Innovation steht.",
+                "languages": [
+                  "de"
+                ]
+              },
+              {
+                "value": "Una marca deportiva icónica, sinónimo de rendimiento en baloncesto, influencia cultural y una innovadora propuesta en calzado.",
+                "languages": [
+                  "es"
+                ]
+              },
+              {
+                "value": "Une marque de sport emblématique, synonyme de performance au basket-ball, d'influence culturelle et d'innovation pionnière en matière de sneakers.",
+                "languages": [
+                  "fr"
+                ]
+              }
+            ],
+            "is_regional_variant": false,
+            "parent_organization": null,
+            "price_range_usd_max": 300,
+            "price_range_usd_min": 100,
+            "target_income_level": [
+              "Medium",
+              "Medium to High"
+            ],
+            "aesthetic_properties": [
+              "Bold Branding",
+              "Dynamic Silhouettes",
+              "High-Contrast Colorways",
+              "Performance-Oriented Design"
+            ],
+            "category_description": "A premium athletic footwear and apparel brand that blends high-performance sports technology with iconic lifestyle design within the basketball and streetwear market.",
+            "headquarters_address": "Beaverton, Oregon, United States",
+            "interest_adjacencies": [
+              "Basketball",
+              "Sneaker Culture",
+              "Hip-Hop Music",
+              "Athletic Training",
+              "Streetwear Fashion"
+            ],
+            "situational_contexts": "Engaged with during basketball training, high-stakes games, urban lifestyle activities, or when making a bold statement through streetwear fashion.",
+            "aspirational_lifestyle": [
+              "Professional Athletic Achievement",
+              "Global Fame",
+              "Style Authority",
+              "Championship Success"
+            ],
+            "sustainability_initiatives": [
+              "Move To Zero",
+              "Recycled Materials"
+            ],
+            "cultural_context_description": "Deeply ingrained in global basketball culture, hip-hop, and the intersection of professional sports and high-end street fashion.",
+            "target_demographics_description": "The brand targets a wide range of active individuals, from teens to adults across all genders, typically those with disposable income for premium athletic and lifestyle footwear."
+          },
+          "disambiguation": "",
+          "query": {
+            "affinity": 0.969972417154696,
+            "measurements": {
+              "audience_growth": 0
+            },
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "C70CE2B8-0AD1-4150-BF18-5A6347F2E860",
+                  "score": 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "query": {
+      "explainability": {
+        "signal.interests.entities": {
+          "effect_on_top3_recs": [
+            {
+              "entity_id": "C70CE2B8-0AD1-4150-BF18-5A6347F2E860",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top5_recs": [
+            {
+              "entity_id": "C70CE2B8-0AD1-4150-BF18-5A6347F2E860",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top10_recs": [
+            {
+              "entity_id": "C70CE2B8-0AD1-4150-BF18-5A6347F2E860",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_all_recs": [
+            {
+              "entity_id": "C70CE2B8-0AD1-4150-BF18-5A6347F2E860",
+              "avg_score": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

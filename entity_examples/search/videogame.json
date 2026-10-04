@@ -1,0 +1,575 @@
+{
+  "response": {
+    "results": [
+      {
+        "name": "The Last of Us",
+        "entity_id": "3C16E021-A5ED-4CFD-9849-45A133F32840",
+        "types": [
+          "urn:entity:videogame"
+        ],
+        "properties": {
+          "akas": [
+            {
+              "language": "en_au",
+              "value": "Last of Us"
+            },
+            {
+              "language": "hi",
+              "value": "लास्ट ऑफ अस"
+            },
+            {
+              "language": "de",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "es",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "es_ar",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "fr",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "it",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "nl",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "ar",
+              "value": "ذا لاست أوف أس"
+            },
+            {
+              "language": "cs",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "et",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "fi",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "he",
+              "value": "האחרון מבינינו"
+            },
+            {
+              "language": "ja",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "ko",
+              "value": "더 라스트 오브 어스"
+            },
+            {
+              "language": "pl",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "pt",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "pt_pt",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "ro",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "ru",
+              "value": "Одни из нас"
+            },
+            {
+              "language": "sv",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "th",
+              "value": "เดอะลาสต์ออฟอัส"
+            },
+            {
+              "language": "tr",
+              "value": "The Last of Us"
+            },
+            {
+              "language": "zh",
+              "value": "最后生还者"
+            }
+          ],
+          "content_rating": "M",
+          "description": "Twenty years after a pandemic radically transformed known civilization, infected humans run amuck and survivors kill one another for sustenance and weapons. Joel, a hardened survivor, is hired to smuggle a fourteen-year-old girl, Ellie, out of a military quarantine, but their simple job becomes a brutal, emotional journey across a devastated United States.",
+          "developer": "Naughty Dog",
+          "external": {
+            "igdb": {
+              "id": "the-last-of-us"
+            },
+            "metacritic": {
+              "critic_rating": 95,
+              "id": "1400149140"
+            },
+            "twitch": {
+              "id": "the-last-of-us"
+            },
+            "wikidata": {
+              "id": "q1986744"
+            }
+          },
+          "image": {
+            "url": "https://images.qloo.com/i/3C16E021-A5ED-4CFD-9849-45A133F32840-420x-auto.jpg"
+          },
+          "platforms": [
+            "PlayStation 3",
+            "PlayStation 4",
+            "PlayStation 5",
+            "Windows"
+          ],
+          "publisher": "SCEA",
+          "release_date": "2013-06-14",
+          "release_year": 2013,
+          "short_description": "Two decades after a pandemic collapses civilization, a hardened survivor escorts a teenage girl across a brutal, infected United States, forging a dangerous bond.",
+          "short_descriptions": [
+            {
+              "language": "sk",
+              "value": "počítačová hra z 2013"
+            },
+            {
+              "language": "sq",
+              "value": "video lojë"
+            },
+            {
+              "language": "it",
+              "value": "videogioco del 2013"
+            },
+            {
+              "language": "fr",
+              "value": "jeu vidéo de 2013"
+            },
+            {
+              "language": "eu",
+              "value": "2013 bideo-joko"
+            },
+            {
+              "language": "tr",
+              "value": "2013 video oyunu"
+            },
+            {
+              "language": "da",
+              "value": "computerspil fra 2013"
+            },
+            {
+              "language": "es",
+              "value": "videojuego de la compañía estadounidense Naughty Dog"
+            },
+            {
+              "language": "lv",
+              "value": "2013. gadā videospēle"
+            },
+            {
+              "language": "uk",
+              "value": "відеогра 2013 року"
+            },
+            {
+              "language": "nn",
+              "value": "dataspel frå 2013"
+            },
+            {
+              "language": "zh",
+              "value": "2013年电子游戏"
+            },
+            {
+              "language": "ka",
+              "value": "2013 წლის ვიდეო თამაში"
+            },
+            {
+              "language": "fa",
+              "value": "انحصاری پلی استیشن|بازی ویدئویی"
+            },
+            {
+              "language": "gl",
+              "value": "videoxogo de 2013"
+            },
+            {
+              "language": "te",
+              "value": "2013 వీడియో గేమ్"
+            },
+            {
+              "language": "sr",
+              "value": "видео-игра"
+            },
+            {
+              "language": "sv",
+              "value": "datorspel från 2013"
+            },
+            {
+              "language": "eo",
+              "value": "videoludo de 2013"
+            },
+            {
+              "language": "ar",
+              "value": "لعبة فيديو صدرت سنة 2013 من نوع رعب البقاء والأكشن والمغامرات"
+            },
+            {
+              "language": "he",
+              "value": "משחק מחשב משנת 2013"
+            },
+            {
+              "language": "fi",
+              "value": "2013 videopeli"
+            },
+            {
+              "language": "ms",
+              "value": "permainan video terbitan tahun 2013"
+            },
+            {
+              "language": "be",
+              "value": "камп’ютарная гульня 2013 года"
+            },
+            {
+              "language": "ru",
+              "value": "компьютерная игра 2013 года в жанре action-adventure с элементами survival horror и стелс-экшена, разработанная студией Naughty Dog"
+            },
+            {
+              "language": "mk",
+              "value": "видеоигра од 2013 година"
+            },
+            {
+              "language": "ro",
+              "value": "joc video din 2013"
+            },
+            {
+              "language": "cs",
+              "value": "videohra z roku 2013"
+            },
+            {
+              "language": "bn",
+              "value": "২০১৩ ভিডিও গেম"
+            },
+            {
+              "language": "oc",
+              "value": "videojòc de 2013"
+            },
+            {
+              "language": "hr",
+              "value": "videoigra"
+            },
+            {
+              "language": "lb",
+              "value": "Computerspill aus dem Joer 2013"
+            },
+            {
+              "language": "hi",
+              "value": "नॉटी डॉग का 2013 का एक्शन-एडवेंचर वीडियो गेम"
+            },
+            {
+              "language": "ja",
+              "value": "アメリカ合衆国のゲーム作品"
+            },
+            {
+              "language": "nb",
+              "value": "action-eventyrspill fra 2013"
+            },
+            {
+              "language": "lt",
+              "value": "2013 metų kompiuterinis žaidimas"
+            },
+            {
+              "language": "en",
+              "value": "2013 action-adventure video game developed by Naughty Dog"
+            },
+            {
+              "language": "ig",
+              "value": "egwuregwu vidīò 2013"
+            },
+            {
+              "language": "hy",
+              "value": "2013 թվականի համակարգչային խաղ"
+            },
+            {
+              "language": "bs",
+              "value": "video igrica"
+            },
+            {
+              "language": "ga",
+              "value": "físchluiche a foilsíodh sa bhliain 2013"
+            },
+            {
+              "language": "is",
+              "value": "hrollvekju-/spennuleikur hannaður af Naughty Dog árið 2013"
+            },
+            {
+              "language": "sl",
+              "value": "akcijsko-pustolovska videoigra iz leta 2013"
+            },
+            {
+              "language": "vi",
+              "value": "trò chơi điện tử năm 2013"
+            },
+            {
+              "language": "et",
+              "value": "2013. aastal videomäng"
+            },
+            {
+              "language": "ca",
+              "value": "videojoc de 2013"
+            },
+            {
+              "language": "el",
+              "value": "βιντεοπαιχνίδι του 2013"
+            },
+            {
+              "language": "pl",
+              "value": "gra komputerowa z 2013 roku"
+            },
+            {
+              "language": "nl",
+              "value": "computerspel uit 2013 van Naughty Dog"
+            },
+            {
+              "language": "az",
+              "value": "2013-ci ilin video oyunu"
+            },
+            {
+              "language": "bg",
+              "value": "видеоигра от 2013 година"
+            },
+            {
+              "language": "pt",
+              "value": "jogo eletrônico de 2013 desenvolvido pela Naughty Dog"
+            },
+            {
+              "language": "de",
+              "value": "Action-Adventure-Computerspiel aus dem Jahr 2013"
+            },
+            {
+              "language": "id",
+              "value": "permainan video laga-petualangan tahun 2013 yang dikembangkan oleh Naughty Dog"
+            },
+            {
+              "language": "sc",
+              "value": "videojòcu de 2013"
+            },
+            {
+              "language": "hu",
+              "value": "2013-as videójáték"
+            },
+            {
+              "language": "de",
+              "value": "In einer postapokalyptischen Welt begeben sich ein Schmuggler und ein junges Mädchen auf eine gefährliche Reise, um ein Heilmittel für eine tödliche Infektion zu finden."
+            },
+            {
+              "language": "es",
+              "value": "En un mundo postapocalíptico, un contrabandista y una joven emprenden un peligroso viaje para encontrar una cura para una infección mortal."
+            },
+            {
+              "language": "fr",
+              "value": "Dans un monde post-apocalyptique, un contrebandier et une jeune fille entreprennent un périlleux voyage pour trouver un remède à une infection mortelle."
+            },
+            {
+              "language": "en",
+              "value": "In a post-apocalyptic world, a smuggler and a young girl embark on a perilous journey to find a cure for a deadly infection."
+            }
+          ]
+        },
+        "popularity": 0.9624713896845506,
+        "disambiguation": "2013-06-14, Naughty Dog",
+        "tags": [
+          {
+            "name": "3D",
+            "tag_id": "urn:tag:art_style:qloo:3d",
+            "type": "urn:tag:art_style:qloo"
+          },
+          {
+            "name": "Realistic",
+            "tag_id": "urn:tag:art_style:qloo:realistic",
+            "type": "urn:tag:art_style:qloo"
+          },
+          {
+            "name": "Cinematic",
+            "tag_id": "urn:tag:art_style:qloo:cinematic",
+            "type": "urn:tag:art_style:qloo"
+          },
+          {
+            "name": "story-rich",
+            "tag_id": "urn:tag:audience:qloo:story_rich",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "emotional depth",
+            "tag_id": "urn:tag:audience:qloo:emotional_depth",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "character-driven",
+            "tag_id": "urn:tag:audience:qloo:character_driven",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "post-apocalyptic",
+            "tag_id": "urn:tag:audience:qloo:post_apocalyptic",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "cinematic presentation",
+            "tag_id": "urn:tag:audience:qloo:cinematic_presentation",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "mature themes",
+            "tag_id": "urn:tag:audience:qloo:mature_themes",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "melancholic",
+            "tag_id": "urn:tag:emotional_tone:qloo:melancholic",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "tense",
+            "tag_id": "urn:tag:emotional_tone:qloo:tense",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "bleak",
+            "tag_id": "urn:tag:emotional_tone:qloo:bleak",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "emotional",
+            "tag_id": "urn:tag:emotional_tone:qloo:emotional",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "suspenseful",
+            "tag_id": "urn:tag:emotional_tone:qloo:suspenseful",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "Single-player",
+            "tag_id": "urn:tag:gameplay_type:qloo:single_player",
+            "type": "urn:tag:gameplay_type:qloo"
+          },
+          {
+            "name": "Multiplayer",
+            "tag_id": "urn:tag:gameplay_type:qloo:multiplayer",
+            "type": "urn:tag:gameplay_type:qloo"
+          },
+          {
+            "name": "Stealth",
+            "tag_id": "urn:tag:gameplay_type:qloo:stealth",
+            "type": "urn:tag:gameplay_type:qloo"
+          },
+          {
+            "name": "Survival",
+            "tag_id": "urn:tag:gameplay_type:qloo:survival",
+            "type": "urn:tag:gameplay_type:qloo"
+          },
+          {
+            "name": "Action",
+            "tag_id": "urn:tag:genre:qloo:action",
+            "type": "urn:tag:genre:qloo"
+          },
+          {
+            "name": "Adventure",
+            "tag_id": "urn:tag:genre:qloo:adventure",
+            "type": "urn:tag:genre:qloo"
+          },
+          {
+            "name": "Survival",
+            "tag_id": "urn:tag:genre:qloo:survival",
+            "type": "urn:tag:genre:qloo"
+          },
+          {
+            "name": "Stealth",
+            "tag_id": "urn:tag:genre:qloo:stealth",
+            "type": "urn:tag:genre:qloo"
+          },
+          {
+            "name": "Narrative",
+            "tag_id": "urn:tag:genre:qloo:narrative",
+            "type": "urn:tag:genre:qloo"
+          },
+          {
+            "name": "PlayStation 3",
+            "tag_id": "urn:tag:platform:qloo:playstation_3",
+            "type": "urn:tag:platform:qloo"
+          },
+          {
+            "name": "PlayStation 4",
+            "tag_id": "urn:tag:platform:qloo:playstation_4",
+            "type": "urn:tag:platform:qloo"
+          },
+          {
+            "name": "PlayStation 5",
+            "tag_id": "urn:tag:platform:qloo:playstation_5",
+            "type": "urn:tag:platform:qloo"
+          },
+          {
+            "name": "Windows",
+            "tag_id": "urn:tag:platform:qloo:windows",
+            "type": "urn:tag:platform:qloo"
+          },
+          {
+            "name": "Single-player; Multiplayer",
+            "tag_id": "urn:tag:player_mode:qloo:single_player_multiplayer",
+            "type": "urn:tag:player_mode:qloo"
+          },
+          {
+            "name": "Intermediate",
+            "tag_id": "urn:tag:skill_level:qloo:intermediate",
+            "type": "urn:tag:skill_level:qloo"
+          },
+          {
+            "name": "Singleplayer",
+            "tag_id": "urn:tag:category:qloo:singleplayer",
+            "type": "urn:tag:category:qloo"
+          },
+          {
+            "name": "Story Rich",
+            "tag_id": "urn:tag:category:qloo:story_rich",
+            "type": "urn:tag:category:qloo"
+          },
+          {
+            "name": "Survival",
+            "tag_id": "urn:tag:category:qloo:survival",
+            "type": "urn:tag:category:qloo"
+          },
+          {
+            "name": "Third-Person",
+            "tag_id": "urn:tag:category:qloo:third_person",
+            "type": "urn:tag:category:qloo"
+          },
+          {
+            "name": "Atmospheric",
+            "tag_id": "urn:tag:category:qloo:atmospheric",
+            "type": "urn:tag:category:qloo"
+          },
+          {
+            "name": "Stealth",
+            "tag_id": "urn:tag:category:qloo:stealth",
+            "type": "urn:tag:category:qloo"
+          },
+          {
+            "name": "Action",
+            "tag_id": "urn:tag:category:qloo:action",
+            "type": "urn:tag:category:qloo"
+          },
+          {
+            "name": "Cinematic",
+            "tag_id": "urn:tag:category:qloo:cinematic",
+            "type": "urn:tag:category:qloo"
+          }
+        ]
+      }
+    ]
+  }
+}

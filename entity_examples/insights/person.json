@@ -1,0 +1,1389 @@
+{
+  "response": {
+    "success": true,
+    "results": {
+      "entities": [
+        {
+          "name": "Jim Carrey",
+          "type": "urn:entity",
+          "subtype": "urn:entity:person",
+          "entity_id": "E25A7F46-9D58-4AFE-8EA9-2413CF9C0DC5",
+          "popularity": 0.9977223557038953,
+          "tags": [
+            {
+              "id": "urn:tag:occupation:person:producer",
+              "name": "Producer",
+              "type": "urn:tag:occupation:person"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_people_french_descent",
+              "name": "American People Of French Descent",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_male_film_actors",
+              "name": "American Male Film Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_impressionists_entertainers",
+              "name": "American Impressionists (entertainers)",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:occupation:person:film_producer",
+              "name": "Film Producer",
+              "type": "urn:tag:occupation:person"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_people_irish_descent",
+              "name": "American People Of Irish Descent",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_stand_up_comedians",
+              "name": "American Stand-up Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_canadian_screenwriters",
+              "name": "21st-century Canadian Screenwriters",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_male_television_actors",
+              "name": "Canadian Male Television Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_stand_up_comedians",
+              "name": "Canadian Stand-up Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:occupation:person:painter",
+              "name": "Painter",
+              "type": "urn:tag:occupation:person"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:naturalized_citizens_united_states",
+              "name": "Naturalized Citizens Of The United States",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_illustrators",
+              "name": "Canadian Illustrators",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:janitors",
+              "name": "Janitors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_people_french_canadian_descent",
+              "name": "American People Of French-canadian Descent",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_canadian_male_writers",
+              "name": "21st-century Canadian Male Writers",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_people_scottish_descent",
+              "name": "Canadian People Of Scottish Descent",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:genre:media:media:adventure",
+              "name": "Adventure",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:best_drama_actor_golden_globe_film_winners",
+              "name": "Best Drama Actor Golden Globe (film) Winners",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_male_television_actors",
+              "name": "American Male Television Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_male_comedians",
+              "name": "American Male Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_canadian_male_actors",
+              "name": "21st-century Canadian Male Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:occupation:person:comedian",
+              "name": "Comedian",
+              "type": "urn:tag:occupation:person"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:male_actors_from_toronto",
+              "name": "Male Actors From Toronto",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:occupation:person:television_actor",
+              "name": "Television Actor",
+              "type": "urn:tag:occupation:person"
+            },
+            {
+              "id": "urn:tag:genre:media:media:documentary",
+              "name": "Documentary",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_canadian_novelists",
+              "name": "21st-century Canadian Novelists",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:occupation:person:actor",
+              "name": "Actor",
+              "type": "urn:tag:occupation:person"
+            },
+            {
+              "id": "urn:tag:genre:media:media:family",
+              "name": "Family",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:occupation:person:screenwriter",
+              "name": "Screenwriter",
+              "type": "urn:tag:occupation:person"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_people_scottish_descent",
+              "name": "American People Of Scottish Descent",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_male_voice_actors",
+              "name": "American Male Voice Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:genre:person:actor",
+              "name": "Actor",
+              "type": "urn:tag:genre:person"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:film_producers_from_ontario",
+              "name": "Film Producers From Ontario",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:category:wikidata:person",
+              "name": "Person",
+              "type": "urn:tag:category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:20th_century_canadian_male_writers",
+              "name": "20th-century Canadian Male Writers",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:genre:media:media:music",
+              "name": "Music",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_male_television_writers",
+              "name": "Canadian Male Television Writers",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_american_comedians",
+              "name": "21st-century American Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_male_voice_actors",
+              "name": "Canadian Male Voice Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_sketch_comedians",
+              "name": "American Sketch Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:genre:person:comedian",
+              "name": "Comedian",
+              "type": "urn:tag:genre:person"
+            },
+            {
+              "id": "urn:tag:genre:media:media:crime",
+              "name": "Crime",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:genre:media:media:drama",
+              "name": "Drama",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_anti_vaccination_activists",
+              "name": "Canadian Anti-vaccination Activists",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_emigrants_to_united_states",
+              "name": "Canadian Emigrants To The United States",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_male_comedians",
+              "name": "Canadian Male Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_canadian_comedians",
+              "name": "21st-century Canadian Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_cartoonists",
+              "name": "American Cartoonists",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_male_screenwriters",
+              "name": "American Male Screenwriters",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_anti_vaccination_activists",
+              "name": "American Anti-vaccination Activists",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_illustrators",
+              "name": "American Illustrators",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:genre:media:media:comedy",
+              "name": "Comedy",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:best_musical_comedy_actor_golden_globe_film_winners",
+              "name": "Best Musical Or Comedy Actor Golden Globe (film) Winners",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:method_actors",
+              "name": "Method Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_people_french_descent",
+              "name": "Canadian People Of French Descent",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_film_producers",
+              "name": "American Film Producers",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_male_screenwriters",
+              "name": "Canadian Male Screenwriters",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:american_male_television_writers",
+              "name": "American Male Television Writers",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_american_male_writers",
+              "name": "21st-century American Male Writers",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_impressionists_entertainers",
+              "name": "Canadian Impressionists (entertainers)",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_editorial_cartoonists",
+              "name": "Canadian Editorial Cartoonists",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_male_film_actors",
+              "name": "Canadian Male Film Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_expatriate_male_actors_in_united_states",
+              "name": "Canadian Expatriate Male Actors In The United States",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:genre:media:media:fantasy",
+              "name": "Fantasy",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:biography_signature",
+              "name": "Biography With Signature",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_american_novelists",
+              "name": "21st-century American Novelists",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_american_male_actors",
+              "name": "21st-century American Male Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_people_irish_descent",
+              "name": "Canadian People Of Irish Descent",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:comedians_from_toronto",
+              "name": "Comedians From Toronto",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:canadian_sketch_comedians",
+              "name": "Canadian Sketch Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:21st_century_american_screenwriters",
+              "name": "21st-century American Screenwriters",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:20th_century_canadian_comedians",
+              "name": "20th-century Canadian Comedians",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:occupation:person:voice_actor",
+              "name": "Voice Actor",
+              "type": "urn:tag:occupation:person"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:people_multiple_nationality",
+              "name": "People With Multiple Nationality",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:20th_century_canadian_male_actors",
+              "name": "20th-century Canadian Male Actors",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            },
+            {
+              "id": "urn:tag:wikipedia_category:wikidata:homeless_people",
+              "name": "Homeless People",
+              "type": "urn:tag:wikipedia_category:wikidata"
+            }
+          ],
+          "external": {
+            "twitter_username": [
+              {
+                "id": "JimCarrey"
+              }
+            ],
+            "metacritic_id": [
+              {
+                "id": "person/jim-carrey"
+              }
+            ],
+            "rotten_tomatoes_id": [
+              {
+                "id": "celebrity/jim_carey"
+              }
+            ],
+            "musicbrainz_artist_id": [
+              {
+                "id": "f7e7acc2-b61c-4e8c-80fd-ab354bf856e8"
+              }
+            ],
+            "library_of_congress_authority_id": [
+              {
+                "id": "n95000325"
+              }
+            ],
+            "imdb_id": [
+              {
+                "id": "nm0000120"
+              }
+            ]
+          },
+          "properties": {
+            "akas": [
+              {
+                "value": "جيم كاري",
+                "language": "ar"
+              },
+              {
+                "value": "Jim Eugene Carey",
+                "language": "en"
+              },
+              {
+                "value": "James Carey",
+                "language": "en"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "fr"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "br"
+              },
+              {
+                "value": "Ջիմ Քերրի",
+                "language": "hy"
+              },
+              {
+                "value": "ジム・キャリー",
+                "language": "ja"
+              },
+              {
+                "value": "ಜಿಮ್‌ ಕ್ಯಾರ್ರಿ",
+                "language": "kn"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "br"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "cy"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "xh"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "mg"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "is"
+              },
+              {
+                "value": "Jim Eugene Carrey",
+                "language": "es"
+              },
+              {
+                "value": "Carrey, Jim",
+                "language": "fr"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "et"
+              },
+              {
+                "value": "Džimas Keris",
+                "language": "lt"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "fj"
+              },
+              {
+                "value": "Jim Carey",
+                "language": "vi"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "en"
+              },
+              {
+                "value": "Джым Керы",
+                "language": "be"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "vo"
+              },
+              {
+                "value": "Джим Кери",
+                "language": "bg"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "uz"
+              },
+              {
+                "value": "જેમ્સ કેરી",
+                "language": "gu"
+              },
+              {
+                "value": "ജിം ക്യാരി",
+                "language": "ml"
+              },
+              {
+                "value": "ჯიმ ქერი",
+                "language": "ka"
+              },
+              {
+                "value": "James Eugene \"Jim\" Carrey",
+                "language": "hu"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "sr"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ia"
+              },
+              {
+                "value": "ཅིན་ཁའེ་རུའེ།",
+                "language": "bo"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "sk"
+              },
+              {
+                "value": "Джим Керри",
+                "language": "ru"
+              },
+              {
+                "value": "જિમ કેરી",
+                "language": "gu"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ff"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "bi"
+              },
+              {
+                "value": "James Carrey",
+                "language": "de"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "et"
+              },
+              {
+                "value": "Jim Carey",
+                "language": "en"
+              },
+              {
+                "value": "Jim Eugene Carrey",
+                "language": "en"
+              },
+              {
+                "value": "Τζιμ Κάρεϊ",
+                "language": "el"
+              },
+              {
+                "value": "Жим Керри",
+                "language": "mn"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "pl"
+              },
+              {
+                "value": "ジェームズ・ユージーン・キャリー",
+                "language": "ja"
+              },
+              {
+                "value": "Джим Керри",
+                "language": "ce"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "lt"
+              },
+              {
+                "value": "जिम कैरी",
+                "language": "hi"
+              },
+              {
+                "value": "ஜிம் கேரி",
+                "language": "ta"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "tl"
+              },
+              {
+                "value": "James Carrey",
+                "language": "id"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "sq"
+              },
+              {
+                "value": "ג'ים קארי",
+                "language": "he"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ml"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "co"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "sr"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "eo"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "io"
+              },
+              {
+                "value": "جيم كيري",
+                "language": "ar"
+              },
+              {
+                "value": "ჯიმ კერი",
+                "language": "ka"
+              },
+              {
+                "value": "James Eugene Redmond Carrey",
+                "language": "ca"
+              },
+              {
+                "value": "Кэрри, Джим",
+                "language": "ru"
+              },
+              {
+                "value": "Керри Джим",
+                "language": "ru"
+              },
+              {
+                "value": "Ҷим Керрӣ",
+                "language": "tg"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "fi"
+              },
+              {
+                "value": "James Carrey",
+                "language": "hu"
+              },
+              {
+                "value": "짐 캐리",
+                "language": "ko"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "kl"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "yo"
+              },
+              {
+                "value": "James Carrey",
+                "language": "fr"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "tr"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "wa"
+              },
+              {
+                "value": "جیم کری",
+                "language": "fa"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "fo"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "vi"
+              },
+              {
+                "value": "Carrey, Jim",
+                "language": "de"
+              },
+              {
+                "value": "ജിം കേറി",
+                "language": "ml"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "es"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "is"
+              },
+              {
+                "value": "James Eugene Carey",
+                "language": "en"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "id"
+              },
+              {
+                "value": "Cim Kerri",
+                "language": "az"
+              },
+              {
+                "value": "Джеймс Юджин «Джим» Ке́рри",
+                "language": "kk"
+              },
+              {
+                "value": "Džims Kerijs",
+                "language": "lv"
+              },
+              {
+                "value": "ജെയിംസ് യൂജീൻ ക്യാരി",
+                "language": "ml"
+              },
+              {
+                "value": "Џим Кери",
+                "language": "mk"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ro"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "hu"
+              },
+              {
+                "value": "ਜਿਮ ਕੈਰੀ",
+                "language": "pa"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "bs"
+              },
+              {
+                "value": "Керри, Джим",
+                "language": "ru"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "sw"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ga"
+              },
+              {
+                "value": "James Eugene Carey",
+                "language": "es"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "vi"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "pt"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "zh"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ca"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "th"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "it"
+              },
+              {
+                "value": "Джим Керрі",
+                "language": "uk"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "oc"
+              },
+              {
+                "value": "Керри Д.",
+                "language": "ru"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "af"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "sc"
+              },
+              {
+                "value": "Џим Кери",
+                "language": "sr"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "es"
+              },
+              {
+                "value": "Джим Керри",
+                "language": "cv"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ms"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "cs"
+              },
+              {
+                "value": "Iacobus Carrey",
+                "language": "la"
+              },
+              {
+                "value": "Jim Eugene Carrey",
+                "language": "id"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "hr"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "cs"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "sv"
+              },
+              {
+                "value": "James Eugene Redmond Carrey",
+                "language": "it"
+              },
+              {
+                "value": "James Carey",
+                "language": "es"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "lv"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "fr"
+              },
+              {
+                "value": "Jim Carey",
+                "language": "es"
+              },
+              {
+                "value": "Жим Керри",
+                "language": "ky"
+              },
+              {
+                "value": "जिम कैरे",
+                "language": "hi"
+              },
+              {
+                "value": "ג'ים קרי",
+                "language": "he"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "an"
+              },
+              {
+                "value": "จิม แคร์รี่",
+                "language": "th"
+              },
+              {
+                "value": "جم کیری",
+                "language": "ur"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "nb"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "id"
+              },
+              {
+                "value": "金·凯瑞",
+                "language": "zh"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "sk"
+              },
+              {
+                "value": "Jim carry",
+                "language": "ar"
+              },
+              {
+                "value": "จิม แคร์รี",
+                "language": "th"
+              },
+              {
+                "value": "Керрі Джим",
+                "language": "uk"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "nl"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "da"
+              },
+              {
+                "value": "จิม แคร์รี่ย์",
+                "language": "th"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "pt"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "gv"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "zu"
+              },
+              {
+                "value": "제임스 유진 캐리",
+                "language": "ko"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "sl"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "tk"
+              },
+              {
+                "value": "جيم كارى",
+                "language": "ar"
+              },
+              {
+                "value": "Jim Eugene Carey",
+                "language": "es"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "eu"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "gl"
+              },
+              {
+                "value": "Carrey",
+                "language": "sv"
+              },
+              {
+                "value": "James Carrey",
+                "language": "en"
+              },
+              {
+                "value": "金凯瑞",
+                "language": "zh"
+              },
+              {
+                "value": "Jim Carey",
+                "language": "id"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ty"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "nn"
+              },
+              {
+                "value": "Джим Керри",
+                "language": "kk"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "ak"
+              },
+              {
+                "value": "James Carey",
+                "language": "id"
+              },
+              {
+                "value": "จิม แคร์รีย์",
+                "language": "th"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "de"
+              },
+              {
+                "value": "Jim Eugene Carey",
+                "language": "id"
+              },
+              {
+                "value": "Cim Keri",
+                "language": "az"
+              },
+              {
+                "value": "James Eugene Carey",
+                "language": "id"
+              },
+              {
+                "value": "James Carrey",
+                "language": "es"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "de"
+              },
+              {
+                "value": "Jim Carrey",
+                "language": "fy"
+              },
+              {
+                "value": "Carrey",
+                "language": "lv"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "sq"
+              },
+              {
+                "value": "James Eugene Carrey",
+                "language": "hu"
+              },
+              {
+                "value": "জিম ক্যারি",
+                "language": "bn"
+              }
+            ],
+            "short_descriptions": [
+              {
+                "value": "કેનેડિયન-અમેરિકન અભિનેતા",
+                "language": "gu"
+              },
+              {
+                "value": "attore, comico, produttore cinematografico, cabarettista e imitatore canadese con cittadinanza statunitense (1962-)",
+                "language": "it"
+              },
+              {
+                "value": "kanadensisk skådespelare, filmproducent och komiker",
+                "language": "sv"
+              },
+              {
+                "value": "actor canadenc",
+                "language": "ca"
+              },
+              {
+                "value": "Kanadaly wäşi we aktýor",
+                "language": "tk"
+              },
+              {
+                "value": "Kanadese akteur",
+                "language": "af"
+              },
+              {
+                "value": "sgriptiwr ffilm a aned yn Newmarket yn 1962",
+                "language": "cy"
+              },
+              {
+                "value": "kanadischer Komiker und Schauspieler",
+                "language": "de"
+              },
+              {
+                "value": "aktore kanadarra",
+                "language": "eu"
+              },
+              {
+                "value": "aisteoir Ceanadach-Meiriceánach",
+                "language": "ga"
+              },
+              {
+                "value": "कनाडाई-अमेरिकी अभिनेता",
+                "language": "hi"
+              },
+              {
+                "value": "Kanada näitleja",
+                "language": "et"
+              },
+              {
+                "value": "カナダの俳優",
+                "language": "ja"
+              },
+              {
+                "value": "Kanadalı-Amerikalı oyuncu ve komedyen",
+                "language": "tr"
+              },
+              {
+                "value": "Pelakon Kanada-Amerika Syarikat",
+                "language": "ms"
+              },
+              {
+                "value": "কানাডীয় অভিনেতা",
+                "language": "bn"
+              },
+              {
+                "value": "캐나다 태생의 미국의 배우이자 코미디언",
+                "language": "ko"
+              },
+              {
+                "value": "канадо-американский актёр, комик, сценарист, продюсер и художник",
+                "language": "ru"
+              },
+              {
+                "value": "kanadský herec a komik",
+                "language": "cs"
+              },
+              {
+                "value": "بازیگر و کمدین کانادایی",
+                "language": "fa"
+              },
+              {
+                "value": "actor canadian",
+                "language": "ro"
+              },
+              {
+                "value": "Καναδός ηθοποιός",
+                "language": "el"
+              },
+              {
+                "value": "അമേരിക്കന്‍ ചലചിത്ര നടന്‍",
+                "language": "ml"
+              },
+              {
+                "value": "nam diễn viên người Mỹ gốc Canada.",
+                "language": "vi"
+              },
+              {
+                "value": "Òṣèré Ọmọ Orílẹ̀-èdè America",
+                "language": "yo"
+              },
+              {
+                "value": "Канадски актьор",
+                "language": "bg"
+              },
+              {
+                "value": "kanadsko–ameriški igralec",
+                "language": "sl"
+              },
+              {
+                "value": "acteur canadien",
+                "language": "fr"
+              },
+              {
+                "value": "skuespiller, komiker og produsent",
+                "language": "nb"
+              },
+              {
+                "value": "aktor kanadyjski",
+                "language": "pl"
+              },
+              {
+                "value": "kanadisk skodespelar",
+                "language": "nn"
+              },
+              {
+                "value": "Ҳунарпеша ва ҳаҷвнигори Канада ва ИМА.",
+                "language": "tg"
+              },
+              {
+                "value": "ator e comediante Canadense",
+                "language": "pt"
+              },
+              {
+                "value": "Canadees en Amerikaans acteur",
+                "language": "nl"
+              },
+              {
+                "value": "canadisk skuespiller",
+                "language": "da"
+              },
+              {
+                "value": "kanadai humorista és színész",
+                "language": "hu"
+              },
+              {
+                "value": "kanadský komik a herec",
+                "language": "sk"
+              },
+              {
+                "value": "އެމެރިކާއަށް އުފަން އެކްޓަރެއް",
+                "language": "dv"
+              },
+              {
+                "value": "aktor kanadez",
+                "language": "sq"
+              },
+              {
+                "value": "Canadian comedian and actor",
+                "language": "en"
+              },
+              {
+                "value": "Kanada aktyoru",
+                "language": "az"
+              },
+              {
+                "value": "ممثل كندي/ أمريكي",
+                "language": "ar"
+              },
+              {
+                "value": "амерыкана-канадскі кінаакцёр",
+                "language": "be"
+              },
+              {
+                "value": "actor canadense",
+                "language": "gl"
+              },
+              {
+                "value": "actor y comediante canadoestadounidense",
+                "language": "es"
+              },
+              {
+                "value": "שחקן קנדי-אמריקאי",
+                "language": "he"
+              },
+              {
+                "value": "加拿大裔美國男演員",
+                "language": "zh"
+              },
+              {
+                "value": "kanadalais-yhdysvaltalainen näyttelijä",
+                "language": "fi"
+              },
+              {
+                "value": "Aktor Kanada",
+                "language": "id"
+              }
+            ],
+            "award_received": [
+              "Ordre des Arts et des Lettres",
+              "Chevalier des Arts et des Lettres",
+              "Golden Globe Awards",
+              "Canada's Walk of Fame",
+              "MTV Movie Award for Best Villain"
+            ],
+            "child": [
+              "Jane Carrey"
+            ],
+            "citizenship": [
+              "United States of America",
+              "Canada"
+            ],
+            "date_of_birth": "1962-01-17",
+            "image": {
+              "url": [
+                "https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/Jim%20Carrey%202008.jpg"
+              ]
+            },
+            "father": [
+              "Percy Car"
+            ],
+            "gender": [
+              "male"
+            ],
+            "notable_work": [
+              "The Mask"
+            ],
+            "official_website": [
+              "http://www.jimcarrey.com/"
+            ],
+            "spouse": [
+              "Melissa Womer",
+              "Lauren Holly"
+            ],
+            "unmarried_partner": [
+              "Laurie Holden",
+              "Renée Zellweger",
+              "Jenny McCarthy",
+              "Ginger Gonzaga"
+            ],
+            "work_period_start": "1981-01-01"
+          },
+          "disambiguation": "1962-01-17",
+          "query": {
+            "affinity": 0.9541616203236367,
+            "measurements": {
+              "audience_growth": 0
+            },
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "D5854F6A-8F53-4FD5-A3C4-45CCBA96EE3C",
+                  "score": 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "query": {
+      "explainability": {
+        "signal.interests.entities": {
+          "effect_on_top3_recs": [
+            {
+              "entity_id": "D5854F6A-8F53-4FD5-A3C4-45CCBA96EE3C",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top5_recs": [
+            {
+              "entity_id": "D5854F6A-8F53-4FD5-A3C4-45CCBA96EE3C",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top10_recs": [
+            {
+              "entity_id": "D5854F6A-8F53-4FD5-A3C4-45CCBA96EE3C",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_all_recs": [
+            {
+              "entity_id": "D5854F6A-8F53-4FD5-A3C4-45CCBA96EE3C",
+              "avg_score": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

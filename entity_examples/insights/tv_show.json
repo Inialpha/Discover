@@ -1,0 +1,485 @@
+{
+  "response": {
+    "success": true,
+    "results": {
+      "entities": [
+        {
+          "name": "Conversations with Friends",
+          "tags": [
+            {
+              "id": "urn:tag:keyword:media:marriage",
+              "name": "Marriage",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:theme:qloo:complex_relationships",
+              "name": "Complex relationships",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:queer",
+              "name": "Queer",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:lesbian",
+              "name": "Lesbian",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:relationships",
+              "name": "Relationships",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:archetype:qloo:the_outsider",
+              "name": "The outsider",
+              "type": "urn:tag:archetype:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:drama",
+              "name": "Drama",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:ireland",
+              "name": "Ireland",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:novel",
+              "name": "Novel",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:genre:media:drama",
+              "name": "Drama",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:emotional",
+              "name": "Emotional",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:friend",
+              "name": "Friend",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:intimacy",
+              "name": "Intimacy",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:archetype:qloo:the_lover",
+              "name": "The lover",
+              "type": "urn:tag:archetype:qloo"
+            },
+            {
+              "id": "urn:tag:genre:media:romance",
+              "name": "Romance",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:love",
+              "name": "Love",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:illicit_relationship",
+              "name": "Illicit relationship",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:class",
+              "name": "Class",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:domestic_drama",
+              "name": "Domestic drama",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:complexity",
+              "name": "Complexity",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:adaptation",
+              "name": "Adaptation",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:fiction",
+              "name": "Fiction",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:university",
+              "name": "University",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:theme:qloo:intellectual_entanglement",
+              "name": "Intellectual entanglement",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:emotional_vulnerability",
+              "name": "Emotional vulnerability",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:ireland",
+              "name": "Ireland",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:college",
+              "name": "College",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:lgbt",
+              "name": "Lgbt",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:subgenre:qloo:psychological_drama",
+              "name": "Psychological drama",
+              "type": "urn:tag:subgenre:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:coming_of_age_drama",
+              "name": "Coming of age drama",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:genre:qloo:romance",
+              "name": "Romance",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:friendship",
+              "name": "Friendship",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:bbc",
+              "name": "Bbc",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:archetype:qloo:the_intellectual",
+              "name": "The intellectual",
+              "type": "urn:tag:archetype:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:college",
+              "name": "College",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:based_on_novel",
+              "name": "Based on novel",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:contemporary",
+              "name": "Contemporary",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:love",
+              "name": "Love",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:qloo:friendship",
+              "name": "Friendship",
+              "type": "urn:tag:keyword:qloo"
+            },
+            {
+              "id": "urn:tag:theme:qloo:love",
+              "name": "Love",
+              "type": "urn:tag:theme:qloo"
+            },
+            {
+              "id": "urn:tag:keyword:media:academy",
+              "name": "Academy",
+              "type": "urn:tag:keyword:media"
+            },
+            {
+              "id": "urn:tag:keyword:media:hulu",
+              "name": "Hulu",
+              "type": "urn:tag:keyword:media"
+            }
+          ],
+          "type": "urn:entity",
+          "enabled": true,
+          "subtype": "urn:entity:tv_show",
+          "external": {
+            "imdb": [
+              {
+                "id": "tt11997646",
+                "user_rating": 6.8,
+                "user_rating_count": 10715
+              }
+            ],
+            "wikidata": [
+              {
+                "id": "q107980534"
+              }
+            ],
+            "rottentomatoes": [
+              {
+                "id": "conversations_with_friends/s01",
+                "user_rating": 64,
+                "critic_rating": null,
+                "user_rating_count": null,
+                "critic_rating_count": null
+              }
+            ]
+          },
+          "entity_id": "B38B71B1-DDB5-4B83-A53F-B6828672AA20",
+          "popularity": 0.9103118143740443,
+          "properties": {
+            "akas": [
+              {
+                "value": "\"聊天紀錄\"",
+                "languages": [
+                  "zh"
+                ]
+              },
+              {
+                "value": "\"Conversations entre amis\"",
+                "languages": [
+                  "fr"
+                ]
+              },
+              {
+                "value": "\"Conversations with Friends\"",
+                "languages": [
+                  "es_ar",
+                  "de",
+                  "es",
+                  "it",
+                  "en_au",
+                  "id"
+                ]
+              },
+              {
+                "value": "\"שיחות עם חברים\"",
+                "languages": [
+                  "he"
+                ]
+              },
+              {
+                "value": "\"Conversations with Friends (série de televisão)\"",
+                "languages": [
+                  "pt",
+                  "pt_pt"
+                ]
+              },
+              {
+                "value": "\"Keskusteluja ystävien kesken\"",
+                "languages": [
+                  "fi"
+                ]
+              },
+              {
+                "value": "\"Conversations With Friends\"",
+                "languages": [
+                  "sv"
+                ]
+              },
+              {
+                "value": "\"Разговоры с друзьями\"",
+                "languages": [
+                  "ru"
+                ]
+              }
+            ],
+            "image": {
+              "url": "https://m.media-amazon.com/images/M/MV5BNWY1NWM3YjEtMzA5My00YWY0LTkyMGQtMjIzYTY5ZTRjYmJkXkEyXkFqcGc@._V1_.jpg"
+            },
+            "genres": [
+              "Drama",
+              "Romance"
+            ],
+            "duration": 30,
+            "keywords": [
+              "female nudity",
+              "bisexual",
+              "female rear nudity",
+              "female topless nudity",
+              "college",
+              "hulu",
+              "illicit relationship",
+              "love",
+              "bisexual woman",
+              "female female kiss",
+              "coming of age drama",
+              "lgbt",
+              "lesbian",
+              "academy",
+              "bbc",
+              "university",
+              "friend",
+              "class",
+              "student",
+              "domestic drama",
+              "cheating",
+              "infidelity",
+              "affair",
+              "female frontal nudity",
+              "cunnilingus",
+              "marriage",
+              "queer",
+              "fiction",
+              "contemporary",
+              "ireland",
+              "male rear nudity",
+              "male nudity",
+              "bare chested male",
+              "based on novel",
+              "lesbian sex"
+            ],
+            "websites": [
+              "https://www.rogerebert.com/reviews/conversations-with-friends-tv-review-2022",
+              "https://www.bfi.org.uk/sight-and-sound/reviews/conversations-with-friends-dampens-sally-rooneys-love-quadrangle",
+              "https://www.ageratingjuju.com/conversations-with-friends-parents-guide/",
+              "https://www.benzinemag.net/2022/09/14/canal-conversations-with-friends-des-gens-vraiment-normaux/",
+              "https://butwhythopodcast.com/2022/05/13/conversations-with-friends-asks-what-is-love/",
+              "https://cinemagavia.es/conversaciones-entre-amigos-critica-serie/",
+              "https://www.commonsensemedia.org/tv-reviews/conversations-with-friends",
+              "https://dvd-fever.co.uk/conversations-with-friends-the-dvdfever-review-bbc-sally-rooney/",
+              "https://filmtett.ro/cikk/a-valtozas-megfoghatatlansaga-barati-beszelgetesek-kritika",
+              "https://filmyrating.com/conversations-with-friends-parents-guide-2022/",
+              "https://www.leisurebyte.com/conversations-with-friends-review-joe-alwyn/",
+              "https://loudandclearreviews.com/conversations-with-friends-review-hulu-series/",
+              "https://oldaintdead.com/conversations-with-friends-bring-on-the-dysfunctional-relationships/",
+              "https://popculturemaniacs.com/conversations-with-friends-review/",
+              "https://www.quotenmeter.de/n/144146/die-kritiker-conversation-with-friends",
+              "https://www.serietotaal.nl/nieuws/22120/recensie-hbo-max-serie-conversations-with-friends",
+              "https://www.thereviewgeek.com/conversationswithfriends-s1review/",
+              "https://whatsworthseeing.com/conversations-with-friends-review/",
+              "https://filmyrating.com/conversations-with-friends-parents-guide-2022/",
+              "https://deadline.com/2020/02/bbc-adapting-sally-rooney-conversations-with-friends-1202866729/",
+              "https://mubi.com/films/282643",
+              "https://www.wikidata.org/wiki/Q107980534",
+              "https://en.wikipedia.org/wiki/Conversations_with_Friends_(TV_series)",
+              "https://es.wikipedia.org/wiki/Conversations_with_Friends",
+              "https://sv.wikipedia.org/wiki/Conversations_With_Friends",
+              "https://brieftake.com/video-interview-conversations-with-friends-alison-oliver/"
+            ],
+            "title_type": "TV Series",
+            "description": "Conversations with Friends (2022), directed by Lenny Abrahamson and Leanne Welham, is a drama-romance adaptation of Sally Rooney’s novel that follows Frances (Alison Oliver), her ex-girlfriend Bobbi (Sasha Lane), and a complicated relationship they form with a married couple, Nick (Joe Alwyn) and Melissa (Jemima Kirke). The series is a character-led exploration of desire and friendship: through intimate conversations, artistic performance, and shifting power dynamics it traces how attraction, jealousy, and vulnerability reshape the characters’ identities and connections. Blending dramatic realism with psychological depth, the show foregrounds themes of love, friendship, intellectual entanglement, and emotional exposure, and maintains a quietly intense, lyrical, and atmospheric tone throughout.",
+            "finale_year": 2022,
+            "wikidata_id": "q107980534",
+            "plot_summary": "A young university student and aspiring poet becomes entangled in a shifting network of desire and obligation when she and her former girlfriend meet and form a complicated relationship with a charismatic, older married man and his partner. The story traces the slow, intimate unspooling of friendships and affairs: flirtations that begin as intellectual stimulation and performance, then deepen into jealousy, secrecy, and moral uncertainty. Interpersonal power balances—age, social status, charisma—are tested as characters use conversation, sex, and art to probe one another’s weaknesses and longings. The narrative focuses on interior life and small gestures, showing how private conversations accumulate into life-changing choices and leave each person more exposed and uncertain about who they are and what they want.",
+            "release_date": "2022-05-15",
+            "release_year": 2022,
+            "collaborators": [
+              "Alice Birch",
+              "Mark O'Halloran",
+              "Meadhbh McHugh",
+              "Susan Soon He Stanton",
+              "Ed Guiney",
+              "Andrew Lowe",
+              "Emma Norton",
+              "Sally Rooney",
+              "Tommy Bulfin",
+              "Rose Garnett",
+              "Catherine Magee",
+              "Jeanie Igoe"
+            ],
+            "content_rating": "TV-MA",
+            "release_country": [
+              "Ireland",
+              "United Kingdom",
+              "United States"
+            ],
+            "filming_location": "Hvar, Croatia, Bray, County Wicklow, Ireland, Belfast, Northern Ireland, Dublin, Ireland",
+            "audience_identity": null,
+            "genre_description": "A character-driven drama with strong romantic elements, structured as a psychological drama. The show emphasizes interpersonal conflict, interiority, and moral ambiguity typical of contemporary drama, while its romantic subplot explores attraction, betrayal, and longing. The psychological-drama subgenre focuses on characters’ motivations, cognitive dissonance, and emotional complexity rather than plot-driven action.",
+            "style_description": "Visually intimate and carefully composed, the style favors close framing, naturalistic performances, and a muted, aesthetic color palette that underscores emotional nuance. Direction leans lyrical and atmospheric, using understated camerawork, restrained editing, and a curated soundtrack to create a contemplative mood. The overall approach balances cinematic polish with an observational, almost documentary sensitivity to everyday detail.",
+            "short_descriptions": [
+              {
+                "value": "Two Dublin college students form an unexpected connection with a married couple, exploring complex relationships and personal boundaries.",
+                "languages": [
+                  "en"
+                ]
+              }
+            ],
+            "production_companies": [
+              "Element Pictures",
+              "Fifth Season",
+              "BBC Three",
+              "British Broadcasting Corporation (BBC)",
+              "Disney+",
+              "Hulu",
+              "Embassy Films Croatia",
+              "Hungarian Filmlab / Magyar Filmlabor",
+              "Representation Upson Edwards",
+              "Setkeeper",
+              "So Speedy"
+            ],
+            "situational_contexts": null,
+            "influenced_other_media": null,
+            "plot_themes_description": "The series examines the porous boundaries between love and friendship, and how emotional vulnerability can be both liberating and destructive. It foregrounds intellectual attraction and performative intimacy as engines of romantic entanglement, while probing power imbalances that emerge from age, status, and charisma. Themes include the ethics of desire, the instability of identity in close relationships, and the tension between public selves and private needs.",
+            "emotional_tone_description": "Quietly intense and often melancholic, the tone is contemplative and observant, privileging awkward silences and charged small moments over melodrama. Viewers can expect a blend of yearning and irony: scenes that feel intimate and raw alongside a cool, distanced gaze that invites reflection rather than easy catharsis. Emotional responses tend toward empathy, discomfort, and lingering unease."
+          },
+          "disambiguation": "2022,2022",
+          "index_properties_latest_known_year": 2022,
+          "query": {
+            "affinity": 0.9662633870107793,
+            "measurements": {
+              "audience_growth": 0
+            },
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "19DF9974-2931-42F7-AF6F-DC29B9E17974",
+                  "score": 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "query": {
+      "explainability": {
+        "signal.interests.entities": {
+          "effect_on_top3_recs": [
+            {
+              "entity_id": "19DF9974-2931-42F7-AF6F-DC29B9E17974",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top5_recs": [
+            {
+              "entity_id": "19DF9974-2931-42F7-AF6F-DC29B9E17974",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top10_recs": [
+            {
+              "entity_id": "19DF9974-2931-42F7-AF6F-DC29B9E17974",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_all_recs": [
+            {
+              "entity_id": "19DF9974-2931-42F7-AF6F-DC29B9E17974",
+              "avg_score": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}
