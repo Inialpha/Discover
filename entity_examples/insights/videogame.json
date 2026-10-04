@@ -1,0 +1,268 @@
+{
+  "response": {
+    "success": true,
+    "results": {
+      "entities": [
+        {
+          "name": "The Last of Us: Left Behind",
+          "tags": [
+            {
+              "id": "urn:tag:art_style:qloo:3d",
+              "name": "3D",
+              "type": "urn:tag:art_style:qloo"
+            },
+            {
+              "id": "urn:tag:art_style:qloo:realistic",
+              "name": "Realistic",
+              "type": "urn:tag:art_style:qloo"
+            },
+            {
+              "id": "urn:tag:audience:qloo:story_driven",
+              "name": "Story-driven",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:audience:qloo:cinematic",
+              "name": "Cinematic",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:audience:qloo:touching",
+              "name": "Touching",
+              "type": "urn:tag:audience:qloo"
+            },
+            {
+              "id": "urn:tag:emotional_tone:qloo:emotional",
+              "name": "Emotional",
+              "type": "urn:tag:emotional_tone:qloo"
+            },
+            {
+              "id": "urn:tag:emotional_tone:qloo:intense",
+              "name": "Intense",
+              "type": "urn:tag:emotional_tone:qloo"
+            },
+            {
+              "id": "urn:tag:gameplay_type:qloo:single_player",
+              "name": "Single-player",
+              "type": "urn:tag:gameplay_type:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:action",
+              "name": "Action",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:genre:qloo:adventure",
+              "name": "Adventure",
+              "type": "urn:tag:genre:qloo"
+            },
+            {
+              "id": "urn:tag:platform:qloo:playstation_3",
+              "name": "PlayStation 3",
+              "type": "urn:tag:platform:qloo"
+            },
+            {
+              "id": "urn:tag:platform:qloo:playstation_4",
+              "name": "PlayStation 4",
+              "type": "urn:tag:platform:qloo"
+            },
+            {
+              "id": "urn:tag:player_mode:qloo:single_player",
+              "name": "Single-player",
+              "type": "urn:tag:player_mode:qloo"
+            },
+            {
+              "id": "urn:tag:skill_level:qloo:casual",
+              "name": "Casual",
+              "type": "urn:tag:skill_level:qloo"
+            },
+            {
+              "id": "urn:tag:category:qloo:story_rich",
+              "name": "Story Rich",
+              "type": "urn:tag:category:qloo"
+            },
+            {
+              "id": "urn:tag:category:qloo:narrative",
+              "name": "Narrative",
+              "type": "urn:tag:category:qloo"
+            },
+            {
+              "id": "urn:tag:category:qloo:action",
+              "name": "Action",
+              "type": "urn:tag:category:qloo"
+            }
+          ],
+          "type": "urn:entity",
+          "subtype": "urn:entity:videogame",
+          "external": {
+            "igdb": [
+              {
+                "id": "the-last-of-us-left-behind"
+              }
+            ],
+            "imdb": [
+              {
+                "id": "tt3468818"
+              }
+            ],
+            "steam": [],
+            "itunes": [],
+            "twitch": [
+              {
+                "id": "the last of us: left behind"
+              }
+            ],
+            "netflix": [],
+            "twitter": [],
+            "facebook": [],
+            "wikidata": [
+              {
+                "id": "q19880755"
+              }
+            ],
+            "instagram": [],
+            "letterboxd": [],
+            "metacritic": [
+              {
+                "id": "1400463358",
+                "critic_rating": 88
+              }
+            ],
+            "google_play": [],
+            "rottentomatoes": []
+          },
+          "entity_id": "24C32B22-D975-49E3-9A0B-071771D7A659",
+          "popularity": 0.9777893098079917,
+          "properties": {
+            "akas": [
+              {
+                "value": "The Last of Us: Left Behind",
+                "languages": [
+                  "pt_pt",
+                  "pl",
+                  "pt",
+                  "tr"
+                ]
+              },
+              {
+                "value": "The Last Of Us Left Behind –残されたもの-",
+                "languages": [
+                  "ja"
+                ]
+              }
+            ],
+            "slug": "the-last-of-us-left-behind",
+            "genre": [
+              "Action",
+              "Adventure"
+            ],
+            "image": {
+              "url": "https://www.metacritic.com/a/img/catalog/provider/6/12/6-1-556672-52.jpg?auto=webp&fit=crop&height=675&width=1200"
+            },
+            "universe": "The Last of Us",
+            "art_style": [
+              "3D",
+              "Realistic"
+            ],
+            "developer": "Naughty Dog",
+            "platforms": [
+              "PlayStation 3",
+              "PlayStation 4"
+            ],
+            "publisher": "SCEA",
+            "steam_tags": [
+              "Story Rich",
+              "Narrative",
+              "Action"
+            ],
+            "description": "The Last of Us: Left Behind is an action-adventure prequel DLC to The Last of Us, focusing on the story of Ellie and her friend Riley. The game explores themes of friendship, survival, and the impact of choices during a zombie apocalypse.",
+            "player_mode": [
+              "Single-player"
+            ],
+            "skill_level": [
+              "Casual"
+            ],
+            "release_date": "2014-02-14",
+            "audience_tags": [
+              "Story-driven",
+              "Cinematic",
+              "Touching"
+            ],
+            "gameplay_type": [
+              "Single-player"
+            ],
+            "content_rating": "M",
+            "emotional_tone": [
+              "Emotional",
+              "Intense"
+            ],
+            "progression_type": [
+              "Fixed progression"
+            ],
+            "camera_perspective": [
+              "Third-person"
+            ],
+            "short_descriptions": [
+              {
+                "value": "Ellie and her best friend Riley explore an abandoned mall, facing dangers that test their bond and reveal a life-changing secret.",
+                "languages": [
+                  "en"
+                ]
+              }
+            ],
+            "player_demographics": {
+              "primarygender": "All",
+              "popularregions": [
+                "North America",
+                "Europe"
+              ],
+              "targetagegroup": "Teens"
+            }
+          },
+          "disambiguation": "2014-02-14, Naughty Dog",
+          "query": {
+            "affinity": 0.9346605704236846,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "3C16E021-A5ED-4CFD-9849-45A133F32840",
+                  "score": 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "query": {
+      "explainability": {
+        "signal.interests.entities": {
+          "effect_on_top3_recs": [
+            {
+              "entity_id": "3C16E021-A5ED-4CFD-9849-45A133F32840",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top5_recs": [
+            {
+              "entity_id": "3C16E021-A5ED-4CFD-9849-45A133F32840",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top10_recs": [
+            {
+              "entity_id": "3C16E021-A5ED-4CFD-9849-45A133F32840",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_all_recs": [
+            {
+              "entity_id": "3C16E021-A5ED-4CFD-9849-45A133F32840",
+              "avg_score": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

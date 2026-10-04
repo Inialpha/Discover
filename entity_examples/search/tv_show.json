@@ -1,0 +1,710 @@
+{
+  "response": {
+    "results": [
+      {
+        "name": "Normal People",
+        "entity_id": "19DF9974-2931-42F7-AF6F-DC29B9E17974",
+        "types": [
+          "urn:entity:tv_show"
+        ],
+        "properties": {
+          "akas": [
+            {
+              "language": "et",
+              "value": "\"Normaalsed inimesed\""
+            },
+            {
+              "language": "fi",
+              "value": "\"Normaaleja ihmisiä\""
+            },
+            {
+              "language": "zh",
+              "value": "\"普通人\""
+            },
+            {
+              "language": "pt",
+              "value": "\"Pessoas Normais\""
+            },
+            {
+              "language": "uk",
+              "value": "\"Нормальні люди\""
+            },
+            {
+              "language": "ko",
+              "value": "\"노멀 피플\""
+            },
+            {
+              "language": "pl",
+              "value": "\"Normalni ludzie (serial telewizyjny)\""
+            },
+            {
+              "language": "sv",
+              "value": "\"Normala människor\""
+            },
+            {
+              "language": "ja",
+              "value": "\"ふつうの人々\""
+            },
+            {
+              "language": "nb",
+              "value": "\"Normal people\""
+            },
+            {
+              "language": "nn",
+              "value": "\"Normal people\""
+            },
+            {
+              "language": "ar",
+              "value": "\"أناس عاديون\""
+            },
+            {
+              "language": "he",
+              "value": "\"אנשים נורמלים\""
+            },
+            {
+              "language": "lv",
+              "value": "\"Normāli cilvēki\""
+            },
+            {
+              "language": "sr",
+              "value": "\"Нормални људи (мини серија)\""
+            },
+            {
+              "language": "it",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "tr",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "pt_pt",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "ca",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "id",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "es_ar",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "fr",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "de",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "en_au",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "hi",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "es",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "nl",
+              "value": "\"Normal People\""
+            },
+            {
+              "language": "et",
+              "value": "\"Normaalsed ადამიანები\""
+            },
+            {
+              "language": "km",
+              "value": "\"មនុស្សសាមញ្ញ\""
+            },
+            {
+              "language": "ka",
+              "value": "\"Normal People (სერიალი)\""
+            },
+            {
+              "language": "bn",
+              "value": "\"নরমাল পিপল\""
+            },
+            {
+              "language": "ru",
+              "value": "\"Нормальные люди\""
+            },
+            {
+              "language": "cs",
+              "value": "\"Normální lidi\""
+            }
+          ],
+          "content_rating": "Not Rated",
+          "description": "Normal People (2020) is a television adaptation of Sally Rooney's bestselling novel, directed in part by Lenny Abrahamson and Hettie Macdonald and adapted for the screen by Sally Rooney with Alice Birch. Starring Daisy Edgar-Jones and Paul Mescal, the series is a restrained romantic drama that tracks an intense, intermittent relationship from adolescence into early adulthood. Set largely in Ireland and at university, the narrative concentrates on how class, self-worth, mental health and communication shape intimacy and identity. Tonally quiet and emotionally observant, the series favors close, naturalistic cinematography and small, revealing performances to explore themes of desire, shame, connection and personal growth.",
+          "external": {
+            "imdb": {
+              "id": "tt9059760",
+              "user_rating": 8.4,
+              "user_rating_count": 119220
+            },
+            "instagram": {
+              "id": "normalpeoplehulu"
+            },
+            "twitter": {
+              "id": "normalpeople"
+            },
+            "wikidata": {
+              "id": "q81672757"
+            }
+          },
+          "filming_location": "Sligo, County Sligo, Ireland, Trinity College Dublin, The University of Dublin, College Green, Dublin, County Dublin, Ireland, Dublin, County Dublin, Ireland, Sweden, Italy, Wild Atlantic Way, County Donegal, Ireland, Knockmore House, Enniskerry, County Wicklow, Ireland, Enniskerry, County Wicklow, Ireland, Shankill, Dublin, County Dublin, Ireland, Tubbercurry, County Sligo, Ireland, Stimigliano, Rieti, Lazio, Italy, Rome, Lazio, Italy, Lazio, Italy, Luleå, Sweden, Baltic Sea, Clonsilla, Fingal, County Dublin, Ireland, Ballsbridge, Dublin, County Dublin, Ireland, Fingal, County Dublin, Ireland, Sant'Oreste, Rome, Lazio, Italy, Hartstown Community School, Hartstown, Clonsilla, County Dublin, Ireland, Streedagh Point, County Donegal, Ireland",
+          "finale_year": 2020,
+          "image": {
+            "url": "https://images.qloo.com/i/19DF9974-2931-42F7-AF6F-DC29B9E17974-420x-auto.jpg"
+          },
+          "is_special": false,
+          "production_company": "Element Pictures",
+          "release_country": "Ireland",
+          "release_date": "2020-04-29",
+          "release_year": 2020,
+          "short_descriptions": [
+            {
+              "language": "en",
+              "value": "An on-again/off-again romance follows two young people from school into university as class, mental health and intimacy test their bond and shape who they become."
+            },
+            {
+              "language": "de",
+              "value": "Eine immer wiederkehrende Beziehung begleitet zwei Jugendliche von der Schule bis zur Uni, wo Klasse, psychische Gesundheit und Intimität ihre Bindung prüfen und sie verändern."
+            },
+            {
+              "language": "es",
+              "value": "Una relación intermitente sigue a dos jóvenes desde el instituto hasta la universidad, donde la clase social, la salud mental y la intimidad ponen a prueba su vínculo y los transforman."
+            },
+            {
+              "language": "fr",
+              "value": "Une relation intermittente suit deux jeunes du lycée à l'université, où la classe sociale, la santé mentale et l'intimité mettent leur lien à l'épreuve et les transforment."
+            }
+          ],
+          "website": "https://www.rogerebert.com/streaming/hulus-normal-people-has-all-the-appeal-of-a-bad-date-that-refuses-to-end"
+        },
+        "popularity": 0.9966092680007979,
+        "disambiguation": "2020,2020",
+        "tags": [
+          {
+            "name": "Class and social mobility",
+            "tag_id": "urn:tag:theme:qloo:class_and_social_mobility",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Straight man",
+            "tag_id": "urn:tag:keyword:media:straight_man",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Elliptical",
+            "tag_id": "urn:tag:style:qloo:elliptical",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Intimacy and desire",
+            "tag_id": "urn:tag:theme:qloo:intimacy_and_desire",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Straight woman",
+            "tag_id": "urn:tag:keyword:media:straight_woman",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Intimate",
+            "tag_id": "urn:tag:style:qloo:intimate",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Sensual",
+            "tag_id": "urn:tag:plot:qloo:sensual",
+            "type": "urn:tag:plot:qloo"
+          },
+          {
+            "name": "Epic drama",
+            "tag_id": "urn:tag:keyword:media:epic_drama",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Loneliness",
+            "tag_id": "urn:tag:keyword:qloo:loneliness",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Male body",
+            "tag_id": "urn:tag:keyword:media:male_body",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Intimacy",
+            "tag_id": "urn:tag:keyword:qloo:intimacy",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Female protagonist",
+            "tag_id": "urn:tag:keyword:media:female_protagonist",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Muted",
+            "tag_id": "urn:tag:style:qloo:muted",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Teenage boy",
+            "tag_id": "urn:tag:keyword:media:teenage_boy",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Drama",
+            "tag_id": "urn:tag:genre:media:drama",
+            "type": "urn:tag:genre:media"
+          },
+          {
+            "name": "Teenage girl as protagonist",
+            "tag_id": "urn:tag:keyword:media:teenage_girl_as_protagonist",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Tv mini series",
+            "tag_id": "urn:tag:keyword:media:tv_mini_series",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Intimate",
+            "tag_id": "urn:tag:plot:qloo:intimate",
+            "type": "urn:tag:plot:qloo"
+          },
+          {
+            "name": "Adult fiction",
+            "tag_id": "urn:tag:keyword:media:adult_fiction",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Drama",
+            "tag_id": "urn:tag:genre:qloo:drama",
+            "type": "urn:tag:genre:qloo"
+          },
+          {
+            "name": "University",
+            "tag_id": "urn:tag:keyword:qloo:university",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Understated",
+            "tag_id": "urn:tag:style:qloo:understated",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Vulnerable",
+            "tag_id": "urn:tag:character:qloo:vulnerable",
+            "type": "urn:tag:character:qloo"
+          },
+          {
+            "name": "Star crossed lovers",
+            "tag_id": "urn:tag:archetype:qloo:star_crossed_lovers",
+            "type": "urn:tag:archetype:qloo"
+          },
+          {
+            "name": "Epic romance",
+            "tag_id": "urn:tag:keyword:media:epic_romance",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Communication and miscommunication",
+            "tag_id": "urn:tag:theme:qloo:communication_and_miscommunication",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Romance",
+            "tag_id": "urn:tag:keyword:qloo:romance",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Coming of age",
+            "tag_id": "urn:tag:keyword:media:coming_of_age",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Romance",
+            "tag_id": "urn:tag:genre:media:romance",
+            "type": "urn:tag:genre:media"
+          },
+          {
+            "name": "Character driven",
+            "tag_id": "urn:tag:plot:qloo:character_driven",
+            "type": "urn:tag:plot:qloo"
+          },
+          {
+            "name": "Naturalistic",
+            "tag_id": "urn:tag:style:qloo:naturalistic",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "The outsider",
+            "tag_id": "urn:tag:archetype:qloo:the_outsider",
+            "type": "urn:tag:archetype:qloo"
+          },
+          {
+            "name": "Teenage boy protagonist",
+            "tag_id": "urn:tag:keyword:media:teenage_boy_protagonist",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Melancholic",
+            "tag_id": "urn:tag:plot:qloo:melancholic",
+            "type": "urn:tag:plot:qloo"
+          },
+          {
+            "name": "Based on novel",
+            "tag_id": "urn:tag:keyword:media:based_on_novel",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Mental health",
+            "tag_id": "urn:tag:keyword:qloo:mental_health",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "2010s",
+            "tag_id": "urn:tag:keyword:media:2010s",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Complex",
+            "tag_id": "urn:tag:character:qloo:complex",
+            "type": "urn:tag:character:qloo"
+          },
+          {
+            "name": "Close up driven",
+            "tag_id": "urn:tag:style:qloo:close_up_driven",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Collegeuniversity drama",
+            "tag_id": "urn:tag:subgenre:qloo:college_university_drama",
+            "type": "urn:tag:subgenre:qloo"
+          },
+          {
+            "name": "Steamy romance",
+            "tag_id": "urn:tag:keyword:media:steamy_romance",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Teenage boy teenage girl relationship",
+            "tag_id": "urn:tag:keyword:media:teenage_boy_teenage_girl_relationship",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Introspective",
+            "tag_id": "urn:tag:audience:qloo:introspective",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "Teenage love",
+            "tag_id": "urn:tag:keyword:media:teenage_love",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Teenage girl",
+            "tag_id": "urn:tag:keyword:media:teenage_girl",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Two word series title",
+            "tag_id": "urn:tag:keyword:media:two_word_series_title",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Sexuality",
+            "tag_id": "urn:tag:keyword:qloo:sexuality",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Romance",
+            "tag_id": "urn:tag:genre:qloo:romance",
+            "type": "urn:tag:genre:qloo"
+          },
+          {
+            "name": "Emotionally attuned",
+            "tag_id": "urn:tag:audience:qloo:emotionally_attuned",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "Room scale",
+            "tag_id": "urn:tag:style:qloo:room_scale",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Male and female protagonists",
+            "tag_id": "urn:tag:keyword:media:male_and_female_protagonists",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "University",
+            "tag_id": "urn:tag:keyword:media:university",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "The wounded healer",
+            "tag_id": "urn:tag:archetype:qloo:the_wounded_healer",
+            "type": "urn:tag:archetype:qloo"
+          },
+          {
+            "name": "Good man",
+            "tag_id": "urn:tag:keyword:media:good_man",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Realistic",
+            "tag_id": "urn:tag:plot:qloo:realistic",
+            "type": "urn:tag:plot:qloo"
+          },
+          {
+            "name": "Observant",
+            "tag_id": "urn:tag:character:qloo:observant",
+            "type": "urn:tag:character:qloo"
+          },
+          {
+            "name": "Europe",
+            "tag_id": "urn:tag:keyword:media:europe",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Teen romance",
+            "tag_id": "urn:tag:keyword:media:teen_romance",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Romantic drama",
+            "tag_id": "urn:tag:subgenre:qloo:romantic_drama",
+            "type": "urn:tag:subgenre:qloo"
+          },
+          {
+            "name": "Literary minded",
+            "tag_id": "urn:tag:audience:qloo:literary_minded",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "Socially conscious",
+            "tag_id": "urn:tag:audience:qloo:socially_conscious",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "Cinematic",
+            "tag_id": "urn:tag:style:qloo:cinematic",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Restrained",
+            "tag_id": "urn:tag:plot:qloo:restrained",
+            "type": "urn:tag:plot:qloo"
+          },
+          {
+            "name": "Identity",
+            "tag_id": "urn:tag:keyword:qloo:identity",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Literary adaptation",
+            "tag_id": "urn:tag:subgenre:qloo:literary_adaptation",
+            "type": "urn:tag:subgenre:qloo"
+          },
+          {
+            "name": "Psychological drama",
+            "tag_id": "urn:tag:keyword:media:psychological_drama",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Sexuality",
+            "tag_id": "urn:tag:theme:qloo:sexuality",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Family",
+            "tag_id": "urn:tag:keyword:qloo:family",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Codependency",
+            "tag_id": "urn:tag:keyword:qloo:codependency",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "School",
+            "tag_id": "urn:tag:keyword:media:school",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Male wears underwear",
+            "tag_id": "urn:tag:keyword:media:male_wears_underwear",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Close up heavy",
+            "tag_id": "urn:tag:style:qloo:close_up_heavy",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Coming of age drama",
+            "tag_id": "urn:tag:subgenre:qloo:coming_of_age_drama",
+            "type": "urn:tag:subgenre:qloo"
+          },
+          {
+            "name": "Quiet intimate",
+            "tag_id": "urn:tag:style:qloo:quiet_intimate",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Male protagonist",
+            "tag_id": "urn:tag:keyword:media:male_protagonist",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Male female relationship",
+            "tag_id": "urn:tag:keyword:media:male_female_relationship",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Identity formation",
+            "tag_id": "urn:tag:theme:qloo:identity_formation",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Fiction",
+            "tag_id": "urn:tag:keyword:media:fiction",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Contemporary",
+            "tag_id": "urn:tag:keyword:media:contemporary",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Friendship",
+            "tag_id": "urn:tag:keyword:qloo:friendship",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Observational",
+            "tag_id": "urn:tag:style:qloo:observational",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "Realist drama",
+            "tag_id": "urn:tag:subgenre:qloo:realist_drama",
+            "type": "urn:tag:subgenre:qloo"
+          },
+          {
+            "name": "Class differences",
+            "tag_id": "urn:tag:keyword:qloo:class_differences",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Mental health",
+            "tag_id": "urn:tag:theme:qloo:mental_health",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Young adult aware",
+            "tag_id": "urn:tag:audience:qloo:young_adult_aware",
+            "type": "urn:tag:audience:qloo"
+          },
+          {
+            "name": "Loneliness",
+            "tag_id": "urn:tag:theme:qloo:loneliness",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Power imbalance in relationships",
+            "tag_id": "urn:tag:theme:qloo:power_imbalance_in_relationships",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Breathless",
+            "tag_id": "urn:tag:style:qloo:breathless",
+            "type": "urn:tag:style:qloo"
+          },
+          {
+            "name": "The confidant",
+            "tag_id": "urn:tag:archetype:qloo:the_confidant",
+            "type": "urn:tag:archetype:qloo"
+          },
+          {
+            "name": "Coming of age",
+            "tag_id": "urn:tag:theme:qloo:coming_of_age",
+            "type": "urn:tag:theme:qloo"
+          },
+          {
+            "name": "Coming of age",
+            "tag_id": "urn:tag:archetype:qloo:coming_of_age",
+            "type": "urn:tag:archetype:qloo"
+          },
+          {
+            "name": "21st century",
+            "tag_id": "urn:tag:keyword:media:21st_century",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Teen drama",
+            "tag_id": "urn:tag:keyword:media:teen_drama",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Intelligent",
+            "tag_id": "urn:tag:character:qloo:intelligent",
+            "type": "urn:tag:character:qloo"
+          },
+          {
+            "name": "Contradictory",
+            "tag_id": "urn:tag:character:qloo:contradictory",
+            "type": "urn:tag:character:qloo"
+          },
+          {
+            "name": "Bittersweet",
+            "tag_id": "urn:tag:plot:qloo:bittersweet",
+            "type": "urn:tag:plot:qloo"
+          },
+          {
+            "name": "Reserved",
+            "tag_id": "urn:tag:character:qloo:reserved",
+            "type": "urn:tag:character:qloo"
+          },
+          {
+            "name": "Sweaty male body",
+            "tag_id": "urn:tag:keyword:media:sweaty_male_body",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Emotionally guarded",
+            "tag_id": "urn:tag:character:qloo:emotionally_guarded",
+            "type": "urn:tag:character:qloo"
+          },
+          {
+            "name": "Secondary school",
+            "tag_id": "urn:tag:keyword:qloo:secondary_school",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Erotica",
+            "tag_id": "urn:tag:keyword:media:erotica",
+            "type": "urn:tag:keyword:media"
+          },
+          {
+            "name": "Ireland",
+            "tag_id": "urn:tag:keyword:media:ireland",
+            "type": "urn:tag:keyword:media"
+          }
+        ]
+      }
+    ]
+  }
+}

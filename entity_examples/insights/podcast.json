@@ -1,0 +1,125 @@
+{
+  "response": {
+    "success": true,
+    "results": {
+      "entities": [
+        {
+          "name": "Monday Morning Podcast",
+          "tags": [
+            {
+              "id": "urn:tag:genre:media:comedy",
+              "name": "Comedy",
+              "type": "urn:tag:genre:media"
+            },
+            {
+              "id": "urn:tag:genre:media:podcasts",
+              "name": "Podcasts",
+              "type": "urn:tag:genre:media"
+            }
+          ],
+          "type": "urn:entity",
+          "subtype": "urn:entity:podcast",
+          "external": {
+            "itunes": [
+              {
+                "id": "480486345",
+                "user_rating": 4
+              }
+            ],
+            "wikidata": [
+              {
+                "id": "q20022708"
+              }
+            ]
+          },
+          "entity_id": "853C9C96-DC04-4F4C-9772-CD5C33396085",
+          "popularity": 0.997376501803655,
+          "properties": {
+            "akas": [],
+            "image": {
+              "url": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/ba/a3/6b/baa36bc4-21cc-869b-0ca1-25300deff899/mza_4932700917255071769.jpg/1200x1200bf.webp"
+            },
+            "rating": 4.8,
+            "channel": "Monday Morning Podcast",
+            "description": "Bill Burr rants about relationship advice, sports and the Illuminati.",
+            "release_date": "2024-07-11",
+            "episode_count": "15",
+            "content_rating": "Explicit",
+            "short_description": "Bill Burr shares candid rants on relationships, sports, and current events in a comedic format.",
+            "short_descriptions": [
+              {
+                "value": "Bill Burr teilt offene Monologe über Beziehungen, Sport und aktuelle Ereignisse in einem komödiantischen Format.",
+                "languages": [
+                  "de"
+                ]
+              },
+              {
+                "value": "Bill Burr comparte monólogos sinceros sobre relaciones, deportes y actualidad con un toque cómico.",
+                "languages": [
+                  "es"
+                ]
+              },
+              {
+                "value": "Bill Burr partage des monologues francs sur les relations, le sport et l'actualité dans un format comique.",
+                "languages": [
+                  "fr"
+                ]
+              },
+              {
+                "value": "Bill Burr shares candid rants on relationships, sports, and current events in a comedic format.",
+                "languages": [
+                  "en"
+                ]
+              }
+            ]
+          },
+          "disambiguation": "",
+          "query": {
+            "affinity": 0.9154042134873462,
+            "measurements": {
+              "audience_growth": 0
+            },
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "2BBC8913-13CA-47A3-BCD0-B48E70D6B005",
+                  "score": 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "query": {
+      "explainability": {
+        "signal.interests.entities": {
+          "effect_on_top3_recs": [
+            {
+              "entity_id": "2BBC8913-13CA-47A3-BCD0-B48E70D6B005",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top5_recs": [
+            {
+              "entity_id": "2BBC8913-13CA-47A3-BCD0-B48E70D6B005",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_top10_recs": [
+            {
+              "entity_id": "2BBC8913-13CA-47A3-BCD0-B48E70D6B005",
+              "avg_score": 1
+            }
+          ],
+          "effect_on_all_recs": [
+            {
+              "entity_id": "2BBC8913-13CA-47A3-BCD0-B48E70D6B005",
+              "avg_score": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}
