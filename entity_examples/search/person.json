@@ -1,0 +1,1613 @@
+{
+  "response": {
+    "results": [
+      {
+        "name": "Tom Hanks",
+        "entity_id": "D5854F6A-8F53-4FD5-A3C4-45CCBA96EE3C",
+        "types": [
+          "urn:entity:person"
+        ],
+        "properties": {
+          "akas": [
+            {
+              "language": "g",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Том Генкс"
+            },
+            {
+              "language": "k",
+              "value": "Том Генкс"
+            },
+            {
+              "language": "k",
+              "value": "ಟಾಮ್ ಹ್ಯಾಂಕ್ಸ್"
+            },
+            {
+              "language": "n",
+              "value": "ಟಾಮ್ ಹ್ಯಾಂಕ್ಸ್"
+            },
+            {
+              "language": "b",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "r",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Τομ Χανκς"
+            },
+            {
+              "language": "l",
+              "value": "Τομ Χανκς"
+            },
+            {
+              "language": "f",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "n",
+              "value": "टम ह्याङ्क्स"
+            },
+            {
+              "language": "e",
+              "value": "टम ह्याङ्क्स"
+            },
+            {
+              "language": "p",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "v",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Tomaso Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tomaso Hanks"
+            },
+            {
+              "language": "g",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "d",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "q",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "m",
+              "value": "သောမတ်စ် ဂျက်ဖရေး ဟန့်ခ်"
+            },
+            {
+              "language": "y",
+              "value": "သောမတ်စ် ဂျက်ဖရေး ဟန့်ခ်"
+            },
+            {
+              "language": "k",
+              "value": "ტომ ჰენქსი"
+            },
+            {
+              "language": "a",
+              "value": "ტომ ჰენქსი"
+            },
+            {
+              "language": "t",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "r",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "j",
+              "value": "トム・ハンクス"
+            },
+            {
+              "language": "a",
+              "value": "トム・ハンクス"
+            },
+            {
+              "language": "n",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "r",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "n",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "b",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "p",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "w",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "h",
+              "value": "Թոմ Հենքս"
+            },
+            {
+              "language": "y",
+              "value": "Թոմ Հենքս"
+            },
+            {
+              "language": "z",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "n",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "n",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "v",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "m",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "k",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "g",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "v",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "m",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "n",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "c",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "c",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Томас Җеффри «Том» Һәңкс"
+            },
+            {
+              "language": "t",
+              "value": "Томас Җеффри «Том» Һәңкс"
+            },
+            {
+              "language": "a",
+              "value": "توم هانكس"
+            },
+            {
+              "language": "r",
+              "value": "توم هانكس"
+            },
+            {
+              "language": "n",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "b",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Том Ҳэнкс"
+            },
+            {
+              "language": "g",
+              "value": "Том Ҳэнкс"
+            },
+            {
+              "language": "h",
+              "value": "टॉम हैंक्स"
+            },
+            {
+              "language": "i",
+              "value": "टॉम हैंक्स"
+            },
+            {
+              "language": "g",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "v",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "f",
+              "value": "توماس جفری هنکس"
+            },
+            {
+              "language": "a",
+              "value": "توماس جفری هنکس"
+            },
+            {
+              "language": "j",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "v",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "b",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "e",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "h",
+              "value": "Thomas Jeffrey \"Tom\" Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Thomas Jeffrey \"Tom\" Hanks"
+            },
+            {
+              "language": "g",
+              "value": "થોમસ જેફ્રી \"ટોમ\" હેંક્સ્"
+            },
+            {
+              "language": "u",
+              "value": "થોમસ જેફ્રી \"ટોમ\" હેંક્સ્"
+            },
+            {
+              "language": "h",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "f",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "r",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "c",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "y",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "b",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "k",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "k",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "m",
+              "value": "टॉम हँक्स"
+            },
+            {
+              "language": "r",
+              "value": "टॉम हँक्स"
+            },
+            {
+              "language": "f",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "y",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Thomas Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Thomas Hanks"
+            },
+            {
+              "language": "m",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "g",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "n",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "f",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "b",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Tom Henks"
+            },
+            {
+              "language": "z",
+              "value": "Tom Henks"
+            },
+            {
+              "language": "g",
+              "value": "થોમસ જેફ્રી હેંક્સ્"
+            },
+            {
+              "language": "u",
+              "value": "થોમસ જેફ્રી હેંક્સ્"
+            },
+            {
+              "language": "p",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "c",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "v",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "r",
+              "value": "Хэнкс, Том"
+            },
+            {
+              "language": "u",
+              "value": "Хэнкс, Том"
+            },
+            {
+              "language": "d",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "n",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "d",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "f",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "r",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "w",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "k",
+              "value": "톰 행크스"
+            },
+            {
+              "language": "o",
+              "value": "톰 행크스"
+            },
+            {
+              "language": "f",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "c",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "b",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Том Һәңкс"
+            },
+            {
+              "language": "t",
+              "value": "Том Һәңкс"
+            },
+            {
+              "language": "b",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "m",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "q",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "h",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "t",
+              "value": "ทอม แฮงส์"
+            },
+            {
+              "language": "h",
+              "value": "ทอม แฮงส์"
+            },
+            {
+              "language": "m",
+              "value": "ടോം ഹാങ്ക്സ്"
+            },
+            {
+              "language": "l",
+              "value": "ടോം ഹാങ്ക്സ്"
+            },
+            {
+              "language": "r",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "u",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "t",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "q",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "r",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "m",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "c",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "b",
+              "value": "Том Ханкс"
+            },
+            {
+              "language": "g",
+              "value": "Том Ханкс"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "v",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "h",
+              "value": "थोमस जेफ्री \"टॉम\" हैंक्स"
+            },
+            {
+              "language": "i",
+              "value": "थोमस जेफ्री \"टॉम\" हैंक्स"
+            },
+            {
+              "language": "u",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "z",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "d",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "g",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "g",
+              "value": "ટોમ હેંક્સ્"
+            },
+            {
+              "language": "u",
+              "value": "ટોમ હેંક્સ્"
+            },
+            {
+              "language": "r",
+              "value": "Томас Джеффри Хэнкс"
+            },
+            {
+              "language": "u",
+              "value": "Томас Джеффри Хэнкс"
+            },
+            {
+              "language": "e",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "z",
+              "value": "汤姆·汉克斯"
+            },
+            {
+              "language": "h",
+              "value": "汤姆·汉克斯"
+            },
+            {
+              "language": "a",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "f",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "h",
+              "value": "טום הנקס"
+            },
+            {
+              "language": "e",
+              "value": "טום הנקס"
+            },
+            {
+              "language": "b",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "j",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "b",
+              "value": "টম হ্যাঙ্কস"
+            },
+            {
+              "language": "n",
+              "value": "টম হ্যাঙ্কস"
+            },
+            {
+              "language": "e",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "m",
+              "value": "တွမ်ဟန့်ခ်"
+            },
+            {
+              "language": "y",
+              "value": "တွမ်ဟန့်ခ်"
+            },
+            {
+              "language": "m",
+              "value": "Том Хенкс"
+            },
+            {
+              "language": "k",
+              "value": "Том Хенкс"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "t",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "p",
+              "value": "ਟੌਮ ਹੈਂਕਸ"
+            },
+            {
+              "language": "a",
+              "value": "ਟੌਮ ਹੈਂਕਸ"
+            },
+            {
+              "language": "h",
+              "value": "थोमस जेफ्री हैंक्स"
+            },
+            {
+              "language": "i",
+              "value": "थोमस जेफ्री हैंक्स"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "k",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "டொம் ஹாங்க்ஸ்"
+            },
+            {
+              "language": "a",
+              "value": "டொம் ஹாங்க்ஸ்"
+            },
+            {
+              "language": "r",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Томас Джеффрі Генкс"
+            },
+            {
+              "language": "k",
+              "value": "Томас Джеффрі Генкс"
+            },
+            {
+              "language": "c",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "h",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "u",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "y",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "o",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "n",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "n",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "v",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Thomas Jeffrey Hanks"
+            },
+            {
+              "language": "c",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "i",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "a",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "l",
+              "value": "Toms Henkss"
+            },
+            {
+              "language": "v",
+              "value": "Toms Henkss"
+            },
+            {
+              "language": "a",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "n",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "s",
+              "value": "Том Хенкс"
+            },
+            {
+              "language": "r",
+              "value": "Том Хенкс"
+            },
+            {
+              "language": "k",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "w",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "f",
+              "value": "تام هنکس"
+            },
+            {
+              "language": "a",
+              "value": "تام هنکس"
+            },
+            {
+              "language": "d",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "e",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "k",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "y",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "s",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "w",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "u",
+              "value": "ٹام ہینکس"
+            },
+            {
+              "language": "r",
+              "value": "ٹام ہینکس"
+            },
+            {
+              "language": "b",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "a",
+              "value": "Том Хэнкс"
+            },
+            {
+              "language": "a",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "f",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "h",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "r",
+              "value": "Tom Hanks"
+            },
+            {
+              "language": "t",
+              "value": "టామ్ హ్యాంక్స్"
+            },
+            {
+              "language": "e",
+              "value": "టామ్ హ్యాంక్స్"
+            }
+          ],
+          "external": {
+            "goodreads": {
+              "id": "416300"
+            },
+            "lastfm": {
+              "id": "Tom+Hanks"
+            },
+            "instagram": {
+              "id": "tomhanks"
+            },
+            "metacritic": {
+              "id": "person/tom-hanks"
+            },
+            "twitter": {
+              "id": "tomhanks"
+            },
+            "spotify": {
+              "id": "3OCGqx0Y3UyrBnyzjIokIr"
+            },
+            "imdb": {
+              "id": "nm0000158"
+            },
+            "library_of_congress": {
+              "id": "n87910188"
+            },
+            "goodreads_author": {
+              "id": "416300"
+            },
+            "musicbrainz": {
+              "id": "065d44ce-48cf-4b1c-85ad-555d0345ba6e"
+            }
+          },
+          "child": [
+            "Elizabeth Hanks",
+            "Chet Hanks",
+            "Colin Hanks",
+            "Truman Hanks"
+          ],
+          "citizenship": [
+            "United States of America",
+            "Greece"
+          ],
+          "date_of_birth": "1956-07-09",
+          "image": {
+            "url": "https://images.qloo.com/i/D5854F6A-8F53-4FD5-A3C4-45CCBA96EE3C-420x-auto.jpg"
+          },
+          "gender": [
+            "male"
+          ],
+          "notable_work": [
+            "Cast Away",
+            "Saving Private Ryan",
+            "The Green Mile",
+            "Toy Story",
+            "Forrest Gump",
+            "Philadelphia",
+            "Big"
+          ],
+          "spouse": [
+            "Rita Wilson",
+            "Samantha Lewes"
+          ],
+          "work_period_start": "1977-01-01",
+          "short_description": "American actor and film producer (born 1956)"
+        },
+        "popularity": 0.9968308672443222,
+        "disambiguation": "1956-07-09",
+        "tags": [
+          {
+            "name": "Cecil B. Demille Award Golden Globe Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:cecil_b_demille_award_golden_globe_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:cecil_b_demille_award_golden_globe_winners"
+          },
+          {
+            "name": "American Male Film Actors",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_male_film_actors",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_male_film_actors"
+          },
+          {
+            "name": "American Male Screenwriters",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_male_screenwriters",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_male_screenwriters"
+          },
+          {
+            "name": "Presidential Medal Of Freedom Recipients",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:presidential_medal_freedom_recipients",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:presidential_medal_freedom_recipients"
+          },
+          {
+            "name": "Action",
+            "tag_id": "urn:tag:genre:media:media:action",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:media:action"
+          },
+          {
+            "name": "Kennedy Center Honorees",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:kennedy_center_honorees",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:kennedy_center_honorees"
+          },
+          {
+            "name": "Film Actor",
+            "tag_id": "urn:tag:occupation:person:film_actor",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:film_actor"
+          },
+          {
+            "name": "Composer",
+            "tag_id": "urn:tag:occupation:person:composer",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:composer"
+          },
+          {
+            "name": "Voice Actor",
+            "tag_id": "urn:tag:occupation:person:voice_actor",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:voice_actor"
+          },
+          {
+            "name": "Television Presenter",
+            "tag_id": "urn:tag:occupation:person:television_presenter",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:television_presenter"
+          },
+          {
+            "name": "Television Producers From California",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:television_producers_from_california",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:television_producers_from_california"
+          },
+          {
+            "name": "Fantasy",
+            "tag_id": "urn:tag:genre:media:media:fantasy",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:media:fantasy"
+          },
+          {
+            "name": "American Male Short Story Writers",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_male_short_story_writers",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_male_short_story_writers"
+          },
+          {
+            "name": "American Sketch Comedians",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_sketch_comedians",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_sketch_comedians"
+          },
+          {
+            "name": "Executive Producer",
+            "tag_id": "urn:tag:occupation:person:executive_producer",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:executive_producer"
+          },
+          {
+            "name": "American Philanthropists",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_philanthropists",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_philanthropists"
+          },
+          {
+            "name": "Short Story Writer",
+            "tag_id": "urn:tag:occupation:person:short_story_writer",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:short_story_writer"
+          },
+          {
+            "name": "Screenwriter",
+            "tag_id": "urn:tag:occupation:person:screenwriter",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:screenwriter"
+          },
+          {
+            "name": "American People Of English Descent",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_people_english_descent",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_people_english_descent"
+          },
+          {
+            "name": "21st-century American Male Actors",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:21st_century_american_male_actors",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:21st_century_american_male_actors"
+          },
+          {
+            "name": "Television Actor",
+            "tag_id": "urn:tag:occupation:person:television_actor",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:television_actor"
+          },
+          {
+            "name": "Comedians From California",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:comedians_from_california",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:comedians_from_california"
+          },
+          {
+            "name": "Chabot College Alumni",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:chabot_college_alumni",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:chabot_college_alumni"
+          },
+          {
+            "name": "American Lgbt Rights Activists",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_lgbt_rights_activists",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_lgbt_rights_activists"
+          },
+          {
+            "name": "Voiceover Artiste",
+            "tag_id": "urn:tag:occupation:person:voiceover_artiste",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:voiceover_artiste"
+          },
+          {
+            "name": "Comedy",
+            "tag_id": "urn:tag:genre:media:media:comedy",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:media:comedy"
+          },
+          {
+            "name": "Animation",
+            "tag_id": "urn:tag:genre:media:media:animation",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:media:animation"
+          },
+          {
+            "name": "American Male Voice Actors",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_male_voice_actors",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_male_voice_actors"
+          },
+          {
+            "name": "Director",
+            "tag_id": "urn:tag:occupation:person:director",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:director"
+          },
+          {
+            "name": "Tom Hanks",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:tom_hanks",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:tom_hanks"
+          },
+          {
+            "name": "Primetime Emmy Award Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:primetime_emmy_award_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:primetime_emmy_award_winners"
+          },
+          {
+            "name": "Converts To Eastern Orthodoxy",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:converts_to_eastern_orthodoxy",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:converts_to_eastern_orthodoxy"
+          },
+          {
+            "name": "People Appearing On C-span",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:people_appearing_on_c_span",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:people_appearing_on_c_span"
+          },
+          {
+            "name": "Actor",
+            "tag_id": "urn:tag:occupation:person:actor",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:actor"
+          },
+          {
+            "name": "Greek Orthodox Christians From The United States",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:greek_orthodox_christians_from_united_states",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:greek_orthodox_christians_from_united_states"
+          },
+          {
+            "name": "Male Actors From California",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:male_actors_from_california",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:male_actors_from_california"
+          },
+          {
+            "name": "Silver Bear For Best Actor Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:silver_bear_best_actor_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:silver_bear_best_actor_winners"
+          },
+          {
+            "name": "Documentary",
+            "tag_id": "urn:tag:genre:media:media:documentary",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:media:documentary"
+          },
+          {
+            "name": "Character Actor",
+            "tag_id": "urn:tag:occupation:person:character_actor",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:character_actor"
+          },
+          {
+            "name": "Stage Actor",
+            "tag_id": "urn:tag:occupation:person:stage_actor",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:stage_actor"
+          },
+          {
+            "name": "History",
+            "tag_id": "urn:tag:genre:media:media:history",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:media:history"
+          },
+          {
+            "name": "People With Multiple Nationality",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:people_multiple_nationality",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:people_multiple_nationality"
+          },
+          {
+            "name": "Space Advocates",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:space_advocates",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:space_advocates"
+          },
+          {
+            "name": "Comedian",
+            "tag_id": "urn:tag:occupation:person:comedian",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:comedian"
+          },
+          {
+            "name": "Television Director",
+            "tag_id": "urn:tag:occupation:person:television_director",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:television_director"
+          },
+          {
+            "name": "Film Producer",
+            "tag_id": "urn:tag:occupation:person:film_producer",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:film_producer"
+          },
+          {
+            "name": "Actor",
+            "tag_id": "urn:tag:genre:person:actor",
+            "type": "urn:tag:genre:person",
+            "value": "urn:tag:genre:person:actor"
+          },
+          {
+            "name": "Writer",
+            "tag_id": "urn:tag:occupation:person:writer",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:writer"
+          },
+          {
+            "name": "Film Producers From California",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:film_producers_from_california",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:film_producers_from_california"
+          },
+          {
+            "name": "Filmmakers From Cleveland",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:filmmakers_from_cleveland",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:filmmakers_from_cleveland"
+          },
+          {
+            "name": "Person",
+            "tag_id": "urn:tag:category:wikidata:person",
+            "type": "urn:tag:category:wikidata",
+            "value": "urn:tag:category:wikidata:person"
+          },
+          {
+            "name": "Outstanding Performance By A Male Actor In A Leading Role Screen Actors Guild Award Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:outstanding_performance_a_male_actor_in_a_leading_role_screen_actors_guild_award_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:outstanding_performance_a_male_actor_in_a_leading_role_screen_actors_guild_award_winners"
+          },
+          {
+            "name": "Film Directors From Los Angeles",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:film_directors_from_los_angeles",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:film_directors_from_los_angeles"
+          },
+          {
+            "name": "American Male Television Actors",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_male_television_actors",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_male_television_actors"
+          },
+          {
+            "name": "American People Of Portuguese Descent",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:american_people_portuguese_descent",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:american_people_portuguese_descent"
+          },
+          {
+            "name": "Knights Of The Legion Of Honour",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:knights_legion_honour",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:knights_legion_honour"
+          },
+          {
+            "name": "Drama",
+            "tag_id": "urn:tag:genre:media:media:drama",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:media:drama"
+          },
+          {
+            "name": "Writers From Los Angeles",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:writers_from_los_angeles",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:writers_from_los_angeles"
+          },
+          {
+            "name": "Outstanding Performance By A Cast In A Motion Picture Screen Actors Guild Award Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:outstanding_performance_a_cast_in_a_motion_picture_screen_actors_guild_award_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:outstanding_performance_a_cast_in_a_motion_picture_screen_actors_guild_award_winners"
+          },
+          {
+            "name": "Male Motion Capture Actors",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:male_motion_capture_actors",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:male_motion_capture_actors"
+          },
+          {
+            "name": "21st-century American Short Story Writers",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:21st_century_american_short_story_writers",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:21st_century_american_short_story_writers"
+          },
+          {
+            "name": "Best Musical Or Comedy Actor Golden Globe (film) Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:best_musical_comedy_actor_golden_globe_film_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:best_musical_comedy_actor_golden_globe_film_winners"
+          },
+          {
+            "name": "Television Producer",
+            "tag_id": "urn:tag:occupation:person:television_producer",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:television_producer"
+          },
+          {
+            "name": "Naturalized Citizens Of Greece",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:naturalized_citizens_greece",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:naturalized_citizens_greece"
+          },
+          {
+            "name": "Adventure",
+            "tag_id": "urn:tag:genre:media:media:adventure",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:media:adventure"
+          },
+          {
+            "name": "Best Drama Actor Golden Globe (film) Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:best_drama_actor_golden_globe_film_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:best_drama_actor_golden_globe_film_winners"
+          },
+          {
+            "name": "20th-century American Male Actors",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:20th_century_american_male_actors",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:20th_century_american_male_actors"
+          },
+          {
+            "name": "Theatre World Award Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:theatre_world_award_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:theatre_world_award_winners"
+          },
+          {
+            "name": "Screenwriters From California",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:screenwriters_from_california",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:screenwriters_from_california"
+          },
+          {
+            "name": "Best Actor Academy Award Winners",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:best_actor_academy_award_winners",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:best_actor_academy_award_winners"
+          },
+          {
+            "name": "Afi Life Achievement Award Recipients",
+            "tag_id": "urn:tag:wikipedia_category:wikidata:afi_life_achievement_award_recipients",
+            "type": "urn:tag:wikipedia_category:wikidata",
+            "value": "urn:tag:wikipedia_category:wikidata:afi_life_achievement_award_recipients"
+          },
+          {
+            "name": "Film Director",
+            "tag_id": "urn:tag:occupation:person:film_director",
+            "type": "urn:tag:occupation:person",
+            "value": "urn:tag:occupation:person:film_director"
+          }
+        ]
+      }
+    ]
+  }
+}

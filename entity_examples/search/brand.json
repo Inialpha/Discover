@@ -1,0 +1,1091 @@
+{
+  "response": {
+    "results": [
+      {
+        "name": "Nike",
+        "entity_id": "C70CE2B8-0AD1-4150-BF18-5A6347F2E860",
+        "types": [
+          "urn:entity:brand"
+        ],
+        "properties": {
+          "akas": [
+            {
+              "language": "ru",
+              "value": "Найк"
+            },
+            {
+              "language": "bg",
+              "value": "Найк"
+            },
+            {
+              "language": "uk",
+              "value": "Найк"
+            },
+            {
+              "language": "es",
+              "value": "Nike, Inc."
+            },
+            {
+              "language": "es_ar",
+              "value": "Nike, Inc."
+            },
+            {
+              "language": "sr",
+              "value": "Најки"
+            },
+            {
+              "language": "hi",
+              "value": "नाइकी"
+            },
+            {
+              "language": "zh",
+              "value": "耐克"
+            },
+            {
+              "language": "ko",
+              "value": "나이키"
+            },
+            {
+              "language": "lv",
+              "value": "Nike"
+            },
+            {
+              "language": "bs",
+              "value": "Nike"
+            },
+            {
+              "language": "hr",
+              "value": "Nike"
+            },
+            {
+              "language": "ka",
+              "value": "Nike"
+            },
+            {
+              "language": "cs",
+              "value": "Nike"
+            },
+            {
+              "language": "el",
+              "value": "Nike"
+            },
+            {
+              "language": "et",
+              "value": "Nike"
+            },
+            {
+              "language": "da",
+              "value": "Nike"
+            },
+            {
+              "language": "nn",
+              "value": "Nike"
+            },
+            {
+              "language": "id",
+              "value": "Nike"
+            },
+            {
+              "language": "ro",
+              "value": "Nike"
+            },
+            {
+              "language": "no",
+              "value": "Nike"
+            },
+            {
+              "language": "vi",
+              "value": "Nike"
+            },
+            {
+              "language": "fi",
+              "value": "Nike"
+            },
+            {
+              "language": "az",
+              "value": "Nike"
+            },
+            {
+              "language": "sl",
+              "value": "Nike"
+            },
+            {
+              "language": "ca",
+              "value": "Nike"
+            },
+            {
+              "language": "sk",
+              "value": "Nike"
+            },
+            {
+              "language": "nb",
+              "value": "Nike"
+            },
+            {
+              "language": "hu",
+              "value": "Nike"
+            },
+            {
+              "language": "sv",
+              "value": "Nike"
+            },
+            {
+              "language": "ar",
+              "value": "نايك"
+            },
+            {
+              "language": "it",
+              "value": "NIKE"
+            },
+            {
+              "language": "de",
+              "value": "NIKE"
+            },
+            {
+              "language": "nl",
+              "value": "NIKE"
+            },
+            {
+              "language": "en_au",
+              "value": "NIKE"
+            },
+            {
+              "language": "fr",
+              "value": "NIKE"
+            },
+            {
+              "language": "lt",
+              "value": "NIKE"
+            },
+            {
+              "language": "he",
+              "value": "נייקי"
+            }
+          ],
+          "description": "Nike is a premier global powerhouse in athletic performance, renowned for its relentless commitment to technological innovation and design excellence. Established in 1964, the brand serves a vast, diverse audience ranging from world-class elite athletes to everyday fitness enthusiasts. It maintains a strong market position through a comprehensive range of sportswear, footwear, and equipment that blends high functionality with universal cultural appeal. Beyond its products, the company actively engages in significant social advocacy, supporting community well-being and equality initiatives through its influential platform.",
+          "external": {
+            "facebook": {
+              "id": "nike"
+            },
+            "instagram": {
+              "id": "nikebasketball"
+            },
+            "twitter": {
+              "id": "nikebasketball"
+            },
+            "wikidata": {
+              "id": "Q26265300"
+            }
+          },
+          "founded_year": "1964",
+          "headquartered": "Beaverton",
+          "image": {
+            "url": "https://images.qloo.com/i/C70CE2B8-0AD1-4150-BF18-5A6347F2E860-420x-auto.jpg"
+          },
+          "inception": "1964-01-25",
+          "industry": [
+            "industry",
+            "retail",
+            "clothing industry"
+          ],
+          "official_site": "https://www.nike.com",
+          "products": [
+            "sports equipment",
+            "footwear",
+            "clothing"
+          ],
+          "short_description": "Nike is a global brand specializing in athletic footwear, apparel, equipment, and accessories for men, women, and kids.",
+          "short_descriptions": [
+            {
+              "language": "de",
+              "value": "Ein weltweit führendes Unternehmen für sportliche Innovationen, das leistungsstarke Schuhe, Bekleidung und Ausrüstung für Sportler aller Niveaus anbietet."
+            },
+            {
+              "language": "fr",
+              "value": "Un leader mondial de l'innovation athlétique proposant des chaussures, des vêtements et des équipements de performance pour les athlètes de tous niveaux."
+            },
+            {
+              "language": "es",
+              "value": "Líder global en innovación atlética que ofrece calzado, ropa y equipamiento de alto rendimiento para deportistas de todos los niveles."
+            },
+            {
+              "language": "en",
+              "value": "A global leader in athletic innovation delivering performance-focused footwear, apparel, and equipment for athletes of all levels."
+            }
+          ],
+          "subsidiary": [
+            "Hurley International",
+            "Air Jordan product line",
+            "Cole Haan",
+            "Converse",
+            "Umbro"
+          ]
+        },
+        "popularity": 0.9999915241307996,
+        "disambiguation": "",
+        "tags": [
+          {
+            "name": "Nike",
+            "tag_id": "urn:tag:wikipedia_category:nike",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Fashion",
+            "tag_id": "urn:tag:genre:brand:fashion",
+            "type": "urn:tag:genre:brand"
+          },
+          {
+            "name": "1970s fashion",
+            "tag_id": "urn:tag:wikipedia_category:1970s_fashion",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Watch manufacturing companies of the United States",
+            "tag_id": "urn:tag:wikipedia_category:watch_manufacturing_companies_of_the_united_states",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Clothing companies established in 1964",
+            "tag_id": "urn:tag:wikipedia_category:clothing_companies_established_in_1964",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Sportswear brands",
+            "tag_id": "urn:tag:wikipedia_category:sportswear_brands",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Running",
+            "tag_id": "urn:tag:genre:brand:fashion:footwear:sneaker:running",
+            "type": "urn:tag:genre:brand"
+          },
+          {
+            "name": "Basketball",
+            "tag_id": "urn:tag:genre:brand:fashion:footwear:sneaker:basketball",
+            "type": "urn:tag:genre:brand"
+          },
+          {
+            "name": "Lifestyle / Casual",
+            "tag_id": "urn:tag:genre:brand:fashion:footwear:sneaker:lifestyle",
+            "type": "urn:tag:genre:brand"
+          },
+          {
+            "name": "Companies listed on the New York Stock Exchange",
+            "tag_id": "urn:tag:wikipedia_category:companies_listed_on_the_new_york_stock_exchange",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Multinational companies headquartered in the United States",
+            "tag_id": "urn:tag:wikipedia_category:multinational_companies_headquartered_in_the_united_states",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Footwear",
+            "tag_id": "urn:tag:genre:brand:fashion:footwear",
+            "type": "urn:tag:genre:brand"
+          },
+          {
+            "name": "Nike brands",
+            "tag_id": "urn:tag:wikipedia_category:nike_brands",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Swimwear manufacturers",
+            "tag_id": "urn:tag:wikipedia_category:swimwear_manufacturers",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Sneakers",
+            "tag_id": "urn:tag:genre:brand:fashion:footwear:sneakers",
+            "type": "urn:tag:genre:brand"
+          },
+          {
+            "name": "1964 establishments in Oregon",
+            "tag_id": "urn:tag:wikipedia_category:1964_establishments_in_oregon",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Companies in the Dow Jones Industrial Average",
+            "tag_id": "urn:tag:wikipedia_category:companies_in_the_dow_jones_industrial_average",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "1990s fashion",
+            "tag_id": "urn:tag:wikipedia_category:1990s_fashion",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "2010s fashion",
+            "tag_id": "urn:tag:wikipedia_category:2010s_fashion",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Shoe brands",
+            "tag_id": "urn:tag:wikipedia_category:shoe_brands",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Shoe companies of the United States",
+            "tag_id": "urn:tag:wikipedia_category:shoe_companies_of_the_united_states",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Athletic",
+            "tag_id": "urn:tag:genre:brand:fashion:athletic",
+            "type": "urn:tag:genre:brand"
+          },
+          {
+            "name": "Companies based in Beaverton",
+            "tag_id": "urn:tag:wikipedia_category:companies_based_in_beaverton",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "1980s fashion",
+            "tag_id": "urn:tag:wikipedia_category:1980s_fashion",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "2000s fashion",
+            "tag_id": "urn:tag:wikipedia_category:2000s_fashion",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "2020s fashion",
+            "tag_id": "urn:tag:wikipedia_category:2020s_fashion",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Retail companies established in 1964",
+            "tag_id": "urn:tag:wikipedia_category:retail_companies_established_in_1964",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Athletic shoe brands",
+            "tag_id": "urn:tag:wikipedia_category:athletic_shoe_brands",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Sporting goods manufacturers of the United States",
+            "tag_id": "urn:tag:wikipedia_category:sporting_goods_manufacturers_of_the_united_states",
+            "type": "urn:tag:wikipedia_category"
+          },
+          {
+            "name": "Minimalist Logo Design",
+            "tag_id": "urn:tag:aesthetic_property:qloo:minimalist_logo_design",
+            "type": "urn:tag:aesthetic_property:qloo"
+          },
+          {
+            "name": "Technological Aesthetics",
+            "tag_id": "urn:tag:aesthetic_property:qloo:technological_aesthetics",
+            "type": "urn:tag:aesthetic_property:qloo"
+          },
+          {
+            "name": "Performance-Driven Silhouettes",
+            "tag_id": "urn:tag:aesthetic_property:qloo:performance_driven_silhouettes",
+            "type": "urn:tag:aesthetic_property:qloo"
+          },
+          {
+            "name": "Dynamic Motion Lines",
+            "tag_id": "urn:tag:aesthetic_property:qloo:dynamic_motion_lines",
+            "type": "urn:tag:aesthetic_property:qloo"
+          },
+          {
+            "name": "Professional Athletic Achievement",
+            "tag_id": "urn:tag:lifestyle:qloo:professional_athletic_achievement",
+            "type": "urn:tag:lifestyle:qloo"
+          },
+          {
+            "name": "Personal Peak Performance",
+            "tag_id": "urn:tag:lifestyle:qloo:personal_peak_performance",
+            "type": "urn:tag:lifestyle:qloo"
+          },
+          {
+            "name": "Global Community Leadership",
+            "tag_id": "urn:tag:lifestyle:qloo:global_community_leadership",
+            "type": "urn:tag:lifestyle:qloo"
+          },
+          {
+            "name": "Social Advocacy",
+            "tag_id": "urn:tag:lifestyle:qloo:social_advocacy",
+            "type": "urn:tag:lifestyle:qloo"
+          },
+          {
+            "name": "Fashion",
+            "tag_id": "urn:tag:brand_subtype:qloo:fashion",
+            "type": "urn:tag:brand_subtype:qloo"
+          },
+          {
+            "name": "Corporate Brand",
+            "tag_id": "urn:tag:brand_type:qloo:corporate_brand",
+            "type": "urn:tag:brand_type:qloo"
+          },
+          {
+            "name": "B2C",
+            "tag_id": "urn:tag:business_model:qloo:b2c",
+            "type": "urn:tag:business_model:qloo"
+          },
+          {
+            "name": "B2B",
+            "tag_id": "urn:tag:business_model:qloo:b2b",
+            "type": "urn:tag:business_model:qloo"
+          },
+          {
+            "name": "Seasonal",
+            "tag_id": "urn:tag:collection_cadence:qloo:seasonal",
+            "type": "urn:tag:collection_cadence:qloo"
+          },
+          {
+            "name": "Drops",
+            "tag_id": "urn:tag:collection_cadence:qloo:drops",
+            "type": "urn:tag:collection_cadence:qloo"
+          },
+          {
+            "name": "Permanent",
+            "tag_id": "urn:tag:collection_cadence:qloo:permanent",
+            "type": "urn:tag:collection_cadence:qloo"
+          },
+          {
+            "name": "Adidas",
+            "tag_id": "urn:tag:competitor_brand:qloo:adidas",
+            "type": "urn:tag:competitor_brand:qloo"
+          },
+          {
+            "name": "Puma",
+            "tag_id": "urn:tag:competitor_brand:qloo:puma",
+            "type": "urn:tag:competitor_brand:qloo"
+          },
+          {
+            "name": "Under Armour",
+            "tag_id": "urn:tag:competitor_brand:qloo:under_armour",
+            "type": "urn:tag:competitor_brand:qloo"
+          },
+          {
+            "name": "New Balance",
+            "tag_id": "urn:tag:competitor_brand:qloo:new_balance",
+            "type": "urn:tag:competitor_brand:qloo"
+          },
+          {
+            "name": "Reebok",
+            "tag_id": "urn:tag:competitor_brand:qloo:reebok",
+            "type": "urn:tag:competitor_brand:qloo"
+          },
+          {
+            "name": "Innovation",
+            "tag_id": "urn:tag:core_value:qloo:innovation",
+            "type": "urn:tag:core_value:qloo"
+          },
+          {
+            "name": "Excellence",
+            "tag_id": "urn:tag:core_value:qloo:excellence",
+            "type": "urn:tag:core_value:qloo"
+          },
+          {
+            "name": "Inclusivity",
+            "tag_id": "urn:tag:core_value:qloo:inclusivity",
+            "type": "urn:tag:core_value:qloo"
+          },
+          {
+            "name": "Performance",
+            "tag_id": "urn:tag:core_value:qloo:performance",
+            "type": "urn:tag:core_value:qloo"
+          },
+          {
+            "name": "Equality",
+            "tag_id": "urn:tag:core_value:qloo:equality",
+            "type": "urn:tag:core_value:qloo"
+          },
+          {
+            "name": "Global Sports Culture",
+            "tag_id": "urn:tag:cultural_relevance:qloo:global_sports_culture",
+            "type": "urn:tag:cultural_relevance:qloo"
+          },
+          {
+            "name": "Hip-Hop",
+            "tag_id": "urn:tag:cultural_relevance:qloo:hip_hop",
+            "type": "urn:tag:cultural_relevance:qloo"
+          },
+          {
+            "name": "Streetwear Movement",
+            "tag_id": "urn:tag:cultural_relevance:qloo:streetwear_movement",
+            "type": "urn:tag:cultural_relevance:qloo"
+          },
+          {
+            "name": "Social Justice Advocacy",
+            "tag_id": "urn:tag:cultural_relevance:qloo:social_justice_advocacy",
+            "type": "urn:tag:cultural_relevance:qloo"
+          },
+          {
+            "name": "Professional Athletes",
+            "tag_id": "urn:tag:customer_segment:qloo:professional_athletes",
+            "type": "urn:tag:customer_segment:qloo"
+          },
+          {
+            "name": "Fitness Enthusiasts",
+            "tag_id": "urn:tag:customer_segment:qloo:fitness_enthusiasts",
+            "type": "urn:tag:customer_segment:qloo"
+          },
+          {
+            "name": "Urban Youth",
+            "tag_id": "urn:tag:customer_segment:qloo:urban_youth",
+            "type": "urn:tag:customer_segment:qloo"
+          },
+          {
+            "name": "Casual Wearers",
+            "tag_id": "urn:tag:customer_segment:qloo:casual_wearers",
+            "type": "urn:tag:customer_segment:qloo"
+          },
+          {
+            "name": "Performance Engineering",
+            "tag_id": "urn:tag:design_inspiration:qloo:performance_engineering",
+            "type": "urn:tag:design_inspiration:qloo"
+          },
+          {
+            "name": "Athletic Heritage",
+            "tag_id": "urn:tag:design_inspiration:qloo:athletic_heritage",
+            "type": "urn:tag:design_inspiration:qloo"
+          },
+          {
+            "name": "Urban Architecture",
+            "tag_id": "urn:tag:design_inspiration:qloo:urban_architecture",
+            "type": "urn:tag:design_inspiration:qloo"
+          },
+          {
+            "name": "Human Movement",
+            "tag_id": "urn:tag:design_inspiration:qloo:human_movement",
+            "type": "urn:tag:design_inspiration:qloo"
+          },
+          {
+            "name": "Bold",
+            "tag_id": "urn:tag:emotional_tone:qloo:bold",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "Motivating",
+            "tag_id": "urn:tag:emotional_tone:qloo:motivating",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "Energetic",
+            "tag_id": "urn:tag:emotional_tone:qloo:energetic",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "Empowering",
+            "tag_id": "urn:tag:emotional_tone:qloo:empowering",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "Confident",
+            "tag_id": "urn:tag:emotional_tone:qloo:confident",
+            "type": "urn:tag:emotional_tone:qloo"
+          },
+          {
+            "name": "Sportswear",
+            "tag_id": "urn:tag:fashion_segment:qloo:sportswear",
+            "type": "urn:tag:fashion_segment:qloo"
+          },
+          {
+            "name": "Athleisure",
+            "tag_id": "urn:tag:fashion_segment:qloo:athleisure",
+            "type": "urn:tag:fashion_segment:qloo"
+          },
+          {
+            "name": "Activewear",
+            "tag_id": "urn:tag:fashion_segment:qloo:activewear",
+            "type": "urn:tag:fashion_segment:qloo"
+          },
+          {
+            "name": "Heritage",
+            "tag_id": "urn:tag:fashion_segment:qloo:heritage",
+            "type": "urn:tag:fashion_segment:qloo"
+          },
+          {
+            "name": "Fashion & Apparel",
+            "tag_id": "urn:tag:industry:qloo:fashion_apparel",
+            "type": "urn:tag:industry:qloo"
+          },
+          {
+            "name": "Sports & Fitness",
+            "tag_id": "urn:tag:industry:qloo:sports_fitness",
+            "type": "urn:tag:industry:qloo"
+          },
+          {
+            "name": "Retail",
+            "tag_id": "urn:tag:industry:qloo:retail",
+            "type": "urn:tag:industry:qloo"
+          },
+          {
+            "name": "Footwear Manufacturing",
+            "tag_id": "urn:tag:industry:qloo:footwear_manufacturing",
+            "type": "urn:tag:industry:qloo"
+          },
+          {
+            "name": "Athletic Equipment",
+            "tag_id": "urn:tag:industry:qloo:athletic_equipment",
+            "type": "urn:tag:industry:qloo"
+          },
+          {
+            "name": "Professional Athletes",
+            "tag_id": "urn:tag:influencer_appeal:qloo:professional_athletes",
+            "type": "urn:tag:influencer_appeal:qloo"
+          },
+          {
+            "name": "Fitness Trainers",
+            "tag_id": "urn:tag:influencer_appeal:qloo:fitness_trainers",
+            "type": "urn:tag:influencer_appeal:qloo"
+          },
+          {
+            "name": "Cultural Icons",
+            "tag_id": "urn:tag:influencer_appeal:qloo:cultural_icons",
+            "type": "urn:tag:influencer_appeal:qloo"
+          },
+          {
+            "name": "Street Style Influencers",
+            "tag_id": "urn:tag:influencer_appeal:qloo:street_style_influencers",
+            "type": "urn:tag:influencer_appeal:qloo"
+          },
+          {
+            "name": "Social Activists",
+            "tag_id": "urn:tag:influencer_appeal:qloo:social_activists",
+            "type": "urn:tag:influencer_appeal:qloo"
+          },
+          {
+            "name": "Professional Sports",
+            "tag_id": "urn:tag:interest_adjacency:qloo:professional_sports",
+            "type": "urn:tag:interest_adjacency:qloo"
+          },
+          {
+            "name": "Fitness Training",
+            "tag_id": "urn:tag:interest_adjacency:qloo:fitness_training",
+            "type": "urn:tag:interest_adjacency:qloo"
+          },
+          {
+            "name": "Street Culture",
+            "tag_id": "urn:tag:interest_adjacency:qloo:street_culture",
+            "type": "urn:tag:interest_adjacency:qloo"
+          },
+          {
+            "name": "Tech Innovation",
+            "tag_id": "urn:tag:interest_adjacency:qloo:tech_innovation",
+            "type": "urn:tag:interest_adjacency:qloo"
+          },
+          {
+            "name": "Community Activism",
+            "tag_id": "urn:tag:interest_adjacency:qloo:community_activism",
+            "type": "urn:tag:interest_adjacency:qloo"
+          },
+          {
+            "name": "North America",
+            "tag_id": "urn:tag:key_market:qloo:north_america",
+            "type": "urn:tag:key_market:qloo"
+          },
+          {
+            "name": "Europe",
+            "tag_id": "urn:tag:key_market:qloo:europe",
+            "type": "urn:tag:key_market:qloo"
+          },
+          {
+            "name": "Greater China",
+            "tag_id": "urn:tag:key_market:qloo:greater_china",
+            "type": "urn:tag:key_market:qloo"
+          },
+          {
+            "name": "Asia Pacific",
+            "tag_id": "urn:tag:key_market:qloo:asia_pacific",
+            "type": "urn:tag:key_market:qloo"
+          },
+          {
+            "name": "Latin America",
+            "tag_id": "urn:tag:key_market:qloo:latin_america",
+            "type": "urn:tag:key_market:qloo"
+          },
+          {
+            "name": "Innovation",
+            "tag_id": "urn:tag:keyword:qloo:innovation",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Sport",
+            "tag_id": "urn:tag:keyword:qloo:sport",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Performance",
+            "tag_id": "urn:tag:keyword:qloo:performance",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Movement",
+            "tag_id": "urn:tag:keyword:qloo:movement",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Empowerment",
+            "tag_id": "urn:tag:keyword:qloo:empowerment",
+            "type": "urn:tag:keyword:qloo"
+          },
+          {
+            "name": "Kevin Durant",
+            "tag_id": "urn:tag:partnership:qloo:kevin_durant",
+            "type": "urn:tag:partnership:qloo"
+          },
+          {
+            "name": "Colin Kaepernick",
+            "tag_id": "urn:tag:partnership:qloo:colin_kaepernick",
+            "type": "urn:tag:partnership:qloo"
+          },
+          {
+            "name": "Anna Cockrell",
+            "tag_id": "urn:tag:partnership:qloo:anna_cockrell",
+            "type": "urn:tag:partnership:qloo"
+          },
+          {
+            "name": "Daryl Homer",
+            "tag_id": "urn:tag:partnership:qloo:daryl_homer",
+            "type": "urn:tag:partnership:qloo"
+          },
+          {
+            "name": "Saroya Tinker",
+            "tag_id": "urn:tag:partnership:qloo:saroya_tinker",
+            "type": "urn:tag:partnership:qloo"
+          },
+          {
+            "name": "Active Living",
+            "tag_id": "urn:tag:lifestyle:qloo:active_living",
+            "type": "urn:tag:lifestyle:qloo"
+          },
+          {
+            "name": "Daily Training",
+            "tag_id": "urn:tag:lifestyle:qloo:daily_training",
+            "type": "urn:tag:lifestyle:qloo"
+          },
+          {
+            "name": "Urban Commuting",
+            "tag_id": "urn:tag:lifestyle:qloo:urban_commuting",
+            "type": "urn:tag:lifestyle:qloo"
+          },
+          {
+            "name": "Casual Sporty Style",
+            "tag_id": "urn:tag:lifestyle:qloo:casual_sporty_style",
+            "type": "urn:tag:lifestyle:qloo"
+          },
+          {
+            "name": "Mainstream",
+            "tag_id": "urn:tag:market_archetype:qloo:mainstream",
+            "type": "urn:tag:market_archetype:qloo"
+          },
+          {
+            "name": "Heritage",
+            "tag_id": "urn:tag:market_archetype:qloo:heritage",
+            "type": "urn:tag:market_archetype:qloo"
+          },
+          {
+            "name": "Challenger",
+            "tag_id": "urn:tag:market_archetype:qloo:challenger",
+            "type": "urn:tag:market_archetype:qloo"
+          },
+          {
+            "name": "Synthetic Fabrics",
+            "tag_id": "urn:tag:material:qloo:synthetic_fabrics",
+            "type": "urn:tag:material:qloo"
+          },
+          {
+            "name": "Engineered Mesh",
+            "tag_id": "urn:tag:material:qloo:engineered_mesh",
+            "type": "urn:tag:material:qloo"
+          },
+          {
+            "name": "Rubber",
+            "tag_id": "urn:tag:material:qloo:rubber",
+            "type": "urn:tag:material:qloo"
+          },
+          {
+            "name": "Recycled Polyester",
+            "tag_id": "urn:tag:material:qloo:recycled_polyester",
+            "type": "urn:tag:material:qloo"
+          },
+          {
+            "name": "Leather",
+            "tag_id": "urn:tag:material:qloo:leather",
+            "type": "urn:tag:material:qloo"
+          },
+          {
+            "name": "Sporty",
+            "tag_id": "urn:tag:personal_style:qloo:sporty",
+            "type": "urn:tag:personal_style:qloo"
+          },
+          {
+            "name": "Minimalist",
+            "tag_id": "urn:tag:personal_style:qloo:minimalist",
+            "type": "urn:tag:personal_style:qloo"
+          },
+          {
+            "name": "Functional",
+            "tag_id": "urn:tag:personal_style:qloo:functional",
+            "type": "urn:tag:personal_style:qloo"
+          },
+          {
+            "name": "Urban",
+            "tag_id": "urn:tag:personal_style:qloo:urban",
+            "type": "urn:tag:personal_style:qloo"
+          },
+          {
+            "name": "$$",
+            "tag_id": "urn:tag:price_level:qloo:_",
+            "type": "urn:tag:price_level:qloo"
+          },
+          {
+            "name": "Footwear",
+            "tag_id": "urn:tag:product_category:qloo:footwear",
+            "type": "urn:tag:product_category:qloo"
+          },
+          {
+            "name": "Apparel",
+            "tag_id": "urn:tag:product_category:qloo:apparel",
+            "type": "urn:tag:product_category:qloo"
+          },
+          {
+            "name": "Outerwear",
+            "tag_id": "urn:tag:product_category:qloo:outerwear",
+            "type": "urn:tag:product_category:qloo"
+          },
+          {
+            "name": "Sports Equipment",
+            "tag_id": "urn:tag:product_category:qloo:sports_equipment",
+            "type": "urn:tag:product_category:qloo"
+          },
+          {
+            "name": "Accessories",
+            "tag_id": "urn:tag:product_category:qloo:accessories",
+            "type": "urn:tag:product_category:qloo"
+          },
+          {
+            "name": "Running Shoes",
+            "tag_id": "urn:tag:product_service:qloo:running_shoes",
+            "type": "urn:tag:product_service:qloo"
+          },
+          {
+            "name": "Athletic Apparel",
+            "tag_id": "urn:tag:product_service:qloo:athletic_apparel",
+            "type": "urn:tag:product_service:qloo"
+          },
+          {
+            "name": "Training Equipment",
+            "tag_id": "urn:tag:product_service:qloo:training_equipment",
+            "type": "urn:tag:product_service:qloo"
+          },
+          {
+            "name": "Sport-Specific Footwear",
+            "tag_id": "urn:tag:product_service:qloo:sport_specific_footwear",
+            "type": "urn:tag:product_service:qloo"
+          },
+          {
+            "name": "Sportswear Accessories",
+            "tag_id": "urn:tag:product_service:qloo:sportswear_accessories",
+            "type": "urn:tag:product_service:qloo"
+          },
+          {
+            "name": "Direct-to-Consumer",
+            "tag_id": "urn:tag:retail_channel:qloo:direct_to_consumer",
+            "type": "urn:tag:retail_channel:qloo"
+          },
+          {
+            "name": "Department Store",
+            "tag_id": "urn:tag:retail_channel:qloo:department_store",
+            "type": "urn:tag:retail_channel:qloo"
+          },
+          {
+            "name": "Wholesale",
+            "tag_id": "urn:tag:retail_channel:qloo:wholesale",
+            "type": "urn:tag:retail_channel:qloo"
+          },
+          {
+            "name": "Online Marketplace",
+            "tag_id": "urn:tag:retail_channel:qloo:online_marketplace",
+            "type": "urn:tag:retail_channel:qloo"
+          },
+          {
+            "name": "Social Commerce",
+            "tag_id": "urn:tag:retail_channel:qloo:social_commerce",
+            "type": "urn:tag:retail_channel:qloo"
+          },
+          {
+            "name": "Air Force 1",
+            "tag_id": "urn:tag:signature_piece:qloo:air_force_1",
+            "type": "urn:tag:signature_piece:qloo"
+          },
+          {
+            "name": "Air Max",
+            "tag_id": "urn:tag:signature_piece:qloo:air_max",
+            "type": "urn:tag:signature_piece:qloo"
+          },
+          {
+            "name": "Air Jordan",
+            "tag_id": "urn:tag:signature_piece:qloo:air_jordan",
+            "type": "urn:tag:signature_piece:qloo"
+          },
+          {
+            "name": "Pegasus",
+            "tag_id": "urn:tag:signature_piece:qloo:pegasus",
+            "type": "urn:tag:signature_piece:qloo"
+          },
+          {
+            "name": "Waffle Racer",
+            "tag_id": "urn:tag:signature_piece:qloo:waffle_racer",
+            "type": "urn:tag:signature_piece:qloo"
+          },
+          {
+            "name": "Lululemon",
+            "tag_id": "urn:tag:similar_brand:qloo:lululemon",
+            "type": "urn:tag:similar_brand:qloo"
+          },
+          {
+            "name": "Asics",
+            "tag_id": "urn:tag:similar_brand:qloo:asics",
+            "type": "urn:tag:similar_brand:qloo"
+          },
+          {
+            "name": "Salomon",
+            "tag_id": "urn:tag:similar_brand:qloo:salomon",
+            "type": "urn:tag:similar_brand:qloo"
+          },
+          {
+            "name": "Hoka",
+            "tag_id": "urn:tag:similar_brand:qloo:hoka",
+            "type": "urn:tag:similar_brand:qloo"
+          },
+          {
+            "name": "On Running",
+            "tag_id": "urn:tag:similar_brand:qloo:on_running",
+            "type": "urn:tag:similar_brand:qloo"
+          },
+          {
+            "name": "Jordan Brand",
+            "tag_id": "urn:tag:subsidiary:qloo:jordan_brand",
+            "type": "urn:tag:subsidiary:qloo"
+          },
+          {
+            "name": "Converse",
+            "tag_id": "urn:tag:subsidiary:qloo:converse",
+            "type": "urn:tag:subsidiary:qloo"
+          },
+          {
+            "name": "Move To Zero",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:move_to_zero",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Circular Design",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:circular_design",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Carbon Neutral",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:carbon_neutral",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Eco-Friendly Packaging",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:eco_friendly_packaging",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Recycled Materials",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:recycled_materials",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Reduced Carbon Emissions",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:reduced_carbon_emissions",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Renewable Energy",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:renewable_energy",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Water Conservation",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:water_conservation",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Zero Waste",
+            "tag_id": "urn:tag:sustainability_initiative:qloo:zero_waste",
+            "type": "urn:tag:sustainability_initiative:qloo"
+          },
+          {
+            "name": "Children",
+            "tag_id": "urn:tag:target_age_group:qloo:children",
+            "type": "urn:tag:target_age_group:qloo"
+          },
+          {
+            "name": "Teens",
+            "tag_id": "urn:tag:target_age_group:qloo:teens",
+            "type": "urn:tag:target_age_group:qloo"
+          },
+          {
+            "name": "Young Adults",
+            "tag_id": "urn:tag:target_age_group:qloo:young_adults",
+            "type": "urn:tag:target_age_group:qloo"
+          },
+          {
+            "name": "Adults",
+            "tag_id": "urn:tag:target_age_group:qloo:adults",
+            "type": "urn:tag:target_age_group:qloo"
+          },
+          {
+            "name": "Middle-Aged",
+            "tag_id": "urn:tag:target_age_group:qloo:middle_aged",
+            "type": "urn:tag:target_age_group:qloo"
+          },
+          {
+            "name": "Seniors",
+            "tag_id": "urn:tag:target_age_group:qloo:seniors",
+            "type": "urn:tag:target_age_group:qloo"
+          },
+          {
+            "name": "Male",
+            "tag_id": "urn:tag:target_gender:qloo:male",
+            "type": "urn:tag:target_gender:qloo"
+          },
+          {
+            "name": "Female",
+            "tag_id": "urn:tag:target_gender:qloo:female",
+            "type": "urn:tag:target_gender:qloo"
+          },
+          {
+            "name": "Non-Binary",
+            "tag_id": "urn:tag:target_gender:qloo:non_binary",
+            "type": "urn:tag:target_gender:qloo"
+          },
+          {
+            "name": "Gender-Neutral",
+            "tag_id": "urn:tag:target_gender:qloo:gender_neutral",
+            "type": "urn:tag:target_gender:qloo"
+          },
+          {
+            "name": "Low to Medium",
+            "tag_id": "urn:tag:target_income_level:qloo:low_to_medium",
+            "type": "urn:tag:target_income_level:qloo"
+          },
+          {
+            "name": "Medium",
+            "tag_id": "urn:tag:target_income_level:qloo:medium",
+            "type": "urn:tag:target_income_level:qloo"
+          },
+          {
+            "name": "Medium to High",
+            "tag_id": "urn:tag:target_income_level:qloo:medium_to_high",
+            "type": "urn:tag:target_income_level:qloo"
+          },
+          {
+            "name": "High",
+            "tag_id": "urn:tag:target_income_level:qloo:high",
+            "type": "urn:tag:target_income_level:qloo"
+          }
+        ]
+      }
+    ]
+  }
+}

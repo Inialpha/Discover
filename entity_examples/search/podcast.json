@@ -1,0 +1,144 @@
+{
+  "response": {
+    "results": [
+      {
+        "name": "The Joe Rogan Experience",
+        "entity_id": "2BBC8913-13CA-47A3-BCD0-B48E70D6B005",
+        "types": [
+          "urn:entity:podcast"
+        ],
+        "properties": {
+          "akas": [
+            {
+              "language": "pl",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "fr",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "de",
+              "value": "Podcast von Joe Rogan"
+            },
+            {
+              "language": "fi",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "ja",
+              "value": "ザ・ジョー・ローガン・エクスペリエンス"
+            },
+            {
+              "language": "id",
+              "value": "Podcastnya Joe Rogan"
+            },
+            {
+              "language": "es",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "en",
+              "value": "JRE"
+            },
+            {
+              "language": "de",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "nb",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "ja",
+              "value": "ジョー・ローガン・エクスペリエンス"
+            },
+            {
+              "language": "id",
+              "value": "Pengalaman Joe Rogan"
+            },
+            {
+              "language": "eo",
+              "value": "JRE"
+            },
+            {
+              "language": "en",
+              "value": "Joe Rogan Experience"
+            },
+            {
+              "language": "de",
+              "value": "Die Joe-Rogan-Erfahrung"
+            },
+            {
+              "language": "pt",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "ar",
+              "value": "تجربة جو روغان"
+            },
+            {
+              "language": "id",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "he",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "eo",
+              "value": "The Joe Rogan Experience"
+            },
+            {
+              "language": "en",
+              "value": "Joe Rogan Experience Podcast"
+            }
+          ],
+          "external": {
+            "wikidata": {
+              "id": "q30323986"
+            }
+          },
+          "image": {
+            "url": "https://images.qloo.com/i/2BBC8913-13CA-47A3-BCD0-B48E70D6B005-420x-auto.jpg"
+          },
+          "short_description": "Comedian Joe Rogan hosts in-depth conversations with a variety of guests, exploring diverse topics and ideas.",
+          "short_descriptions": [
+            {
+              "language": "de",
+              "value": "Comedian Joe Rogan führt tiefgründige Gespräche mit verschiedenen Gästen und erkundet vielfältige Themen und Ideen."
+            },
+            {
+              "language": "es",
+              "value": "El comediante Joe Rogan conduce conversaciones profundas con diversos invitados, explorando temas e ideas variadas."
+            },
+            {
+              "language": "fr",
+              "value": "Le comédien Joe Rogan anime des conversations approfondies avec divers invités, explorant une variété de sujets et d'idées."
+            },
+            {
+              "language": "en",
+              "value": "Comedian Joe Rogan hosts in-depth conversations with a variety of guests, exploring diverse topics and ideas."
+            }
+          ]
+        },
+        "popularity": 0.9914438183823748,
+        "disambiguation": "",
+        "tags": [
+          {
+            "name": "Podcasts",
+            "tag_id": "urn:tag:genre:media:podcasts",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:podcasts"
+          },
+          {
+            "name": "Comedy",
+            "tag_id": "urn:tag:genre:media:comedy",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:comedy"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,427 @@
+{
+  "response": {
+    "results": [
+      {
+        "name": "Normal People",
+        "entity_id": "28D688C4-0760-4042-BEC1-F6EE75E71CC7",
+        "types": [
+          "urn:entity:book"
+        ],
+        "properties": {
+          "akas": [
+            {
+              "language": "es",
+              "value": "Gente normal"
+            },
+            {
+              "language": "fr",
+              "value": "Normal People"
+            }
+          ],
+          "description": "At school Connell and Marianne pretend not to know each other. He’s popular and well-adjusted, star of the school soccer team while she is lonely, proud, and intensely private. But when Connell comes to pick his mother up from her housekeeping job at Marianne’s house, a strange and indelible connection grows between the two teenagers - one they are determined to conceal.<br /><br />A year later, they’re both studying at Trinity College in Dublin. Marianne has found her feet in a new social world while Connell hangs at the sidelines, shy and uncertain. Throughout their years in college, Marianne and Connell circle one another, straying toward other people and possibilities but always magnetically, irresistibly drawn back together. Then, as she veers into self-destruction and he begins to search for meaning elsewhere, each must confront how far they are willing to go to save the other.<br /><br />Sally Rooney brings her brilliant psychological acuity and perfectly spare prose to a story that explores the subtleties of class, the electricity of first love, and the complex entanglements of family and friendship.",
+          "external": {
+            "goodreads": {
+              "id": "41057294",
+              "user_rating": 3.81,
+              "user_ratings_count": 1672751
+            }
+          },
+          "format": "Hardcover",
+          "image": {
+            "url": "https://images.qloo.com/i/28D688C4-0760-4042-BEC1-F6EE75E71CC7-420x-auto.jpg"
+          },
+          "isbn10": "1984822179",
+          "isbn13": "9781984822178",
+          "page_count": 273,
+          "publication_date": "2018-08-28",
+          "publication_year": 2018,
+          "short_description": "Two teenagers from different social classes form a complex relationship that evolves through their school and college years.",
+          "short_descriptions": [
+            {
+              "language": "de",
+              "value": "Zwei Teenager aus unterschiedlichen sozialen Schichten führen eine komplizierte Beziehung, die sich durch Schul- und Studienzeit entwickelt."
+            },
+            {
+              "language": "es",
+              "value": "Dos adolescentes de clases sociales distintas mantienen una relación compleja que evoluciona durante sus años de instituto y universidad."
+            },
+            {
+              "language": "fr",
+              "value": "Deux adolescents de milieux sociaux différents vivent une relation complexe qui évolue au fil du lycée et de l'université."
+            }
+          ]
+        },
+        "popularity": 0.9981741897754628,
+        "disambiguation": "2018, Sally Rooney",
+        "tags": [
+          {
+            "name": "Adult Fiction",
+            "tag_id": "urn:tag:genre:media:adult_fiction",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:adult_fiction"
+          },
+          {
+            "name": "Adult",
+            "tag_id": "urn:tag:genre:media:adult",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:adult"
+          },
+          {
+            "name": "Novels",
+            "tag_id": "urn:tag:genre:media:novels",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:novels"
+          },
+          {
+            "name": "Contemporary",
+            "tag_id": "urn:tag:genre:media:contemporary",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:contemporary"
+          },
+          {
+            "name": "Audiobook",
+            "tag_id": "urn:tag:genre:media:audiobook",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:audiobook"
+          },
+          {
+            "name": "Coming Of Age",
+            "tag_id": "urn:tag:genre:media:coming_age",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:coming_age"
+          },
+          {
+            "name": "Irish Literature",
+            "tag_id": "urn:tag:genre:media:irish_literature",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:irish_literature"
+          },
+          {
+            "name": "Fiction",
+            "tag_id": "urn:tag:genre:media:fiction",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:fiction"
+          },
+          {
+            "name": "Literary Fiction",
+            "tag_id": "urn:tag:genre:media:literary_fiction",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:literary_fiction"
+          },
+          {
+            "name": "Ireland",
+            "tag_id": "urn:tag:genre:media:ireland",
+            "type": "urn:tag:genre:media",
+            "value": "urn:tag:genre:media:ireland"
+          },
+          {
+            "name": "18-24",
+            "tag_id": "urn:tag:age_ranges:qloo:18_24",
+            "type": "urn:tag:age_ranges:qloo",
+            "value": "urn:tag:age_ranges:qloo:18_24"
+          },
+          {
+            "name": "25-29",
+            "tag_id": "urn:tag:age_ranges:qloo:25_29",
+            "type": "urn:tag:age_ranges:qloo",
+            "value": "urn:tag:age_ranges:qloo:25_29"
+          },
+          {
+            "name": "30-34",
+            "tag_id": "urn:tag:age_ranges:qloo:30_34",
+            "type": "urn:tag:age_ranges:qloo",
+            "value": "urn:tag:age_ranges:qloo:30_34"
+          },
+          {
+            "name": "Critically acclaimed",
+            "tag_id": "urn:tag:critical_descriptor:qloo:critically_acclaimed",
+            "type": "urn:tag:critical_descriptor:qloo",
+            "value": "urn:tag:critical_descriptor:qloo:critically_acclaimed"
+          },
+          {
+            "name": "Insightful",
+            "tag_id": "urn:tag:critical_descriptor:qloo:insightful",
+            "type": "urn:tag:critical_descriptor:qloo",
+            "value": "urn:tag:critical_descriptor:qloo:insightful"
+          },
+          {
+            "name": "Emotionally resonant",
+            "tag_id": "urn:tag:critical_descriptor:qloo:emotionally_resonant",
+            "type": "urn:tag:critical_descriptor:qloo",
+            "value": "urn:tag:critical_descriptor:qloo:emotionally_resonant"
+          },
+          {
+            "name": "Realistic",
+            "tag_id": "urn:tag:critical_descriptor:qloo:realistic",
+            "type": "urn:tag:critical_descriptor:qloo",
+            "value": "urn:tag:critical_descriptor:qloo:realistic"
+          },
+          {
+            "name": "Thought-provoking",
+            "tag_id": "urn:tag:critical_descriptor:qloo:thought_provoking",
+            "type": "urn:tag:critical_descriptor:qloo",
+            "value": "urn:tag:critical_descriptor:qloo:thought_provoking"
+          },
+          {
+            "name": "Hardcover",
+            "tag_id": "urn:tag:book_format:qloo:hardcover",
+            "type": "urn:tag:book_format:qloo",
+            "value": "urn:tag:book_format:qloo:hardcover"
+          },
+          {
+            "name": "Paperback",
+            "tag_id": "urn:tag:book_format:qloo:paperback",
+            "type": "urn:tag:book_format:qloo",
+            "value": "urn:tag:book_format:qloo:paperback"
+          },
+          {
+            "name": "Romance",
+            "tag_id": "urn:tag:genre:qloo:romance",
+            "type": "urn:tag:genre:qloo",
+            "value": "urn:tag:genre:qloo:romance"
+          },
+          {
+            "name": "Class",
+            "tag_id": "urn:tag:keyword:qloo:class",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:class"
+          },
+          {
+            "name": "Love",
+            "tag_id": "urn:tag:keyword:qloo:love",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:love"
+          },
+          {
+            "name": "Friendship",
+            "tag_id": "urn:tag:keyword:qloo:friendship",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:friendship"
+          },
+          {
+            "name": "Family",
+            "tag_id": "urn:tag:keyword:qloo:family",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:family"
+          },
+          {
+            "name": "Socioeconomic Status",
+            "tag_id": "urn:tag:keyword:qloo:socioeconomic_status",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:socioeconomic_status"
+          },
+          {
+            "name": "Ireland",
+            "tag_id": "urn:tag:keyword:qloo:ireland",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:ireland"
+          },
+          {
+            "name": "Trinity College",
+            "tag_id": "urn:tag:keyword:qloo:trinity_college",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:trinity_college"
+          },
+          {
+            "name": "Teenagers",
+            "tag_id": "urn:tag:keyword:qloo:teenagers",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:teenagers"
+          },
+          {
+            "name": "Relationships",
+            "tag_id": "urn:tag:keyword:qloo:relationships",
+            "type": "urn:tag:keyword:qloo",
+            "value": "urn:tag:keyword:qloo:relationships"
+          },
+          {
+            "name": "Print",
+            "tag_id": "urn:tag:media_type:qloo:print",
+            "type": "urn:tag:media_type:qloo",
+            "value": "urn:tag:media_type:qloo:print"
+          },
+          {
+            "name": "Digital",
+            "tag_id": "urn:tag:media_type:qloo:digital",
+            "type": "urn:tag:media_type:qloo",
+            "value": "urn:tag:media_type:qloo:digital"
+          },
+          {
+            "name": "third person limited",
+            "tag_id": "urn:tag:narrative:qloo:third_person_limited",
+            "type": "urn:tag:narrative:qloo",
+            "value": "urn:tag:narrative:qloo:third_person_limited"
+          },
+          {
+            "name": "Emotional",
+            "tag_id": "urn:tag:character:qloo:emotional",
+            "type": "urn:tag:character:qloo",
+            "value": "urn:tag:character:qloo:emotional"
+          },
+          {
+            "name": "Introspective",
+            "tag_id": "urn:tag:character:qloo:introspective",
+            "type": "urn:tag:character:qloo",
+            "value": "urn:tag:character:qloo:introspective"
+          },
+          {
+            "name": "Realistic",
+            "tag_id": "urn:tag:character:qloo:realistic",
+            "type": "urn:tag:character:qloo",
+            "value": "urn:tag:character:qloo:realistic"
+          },
+          {
+            "name": "Character-driven",
+            "tag_id": "urn:tag:character:qloo:character_driven",
+            "type": "urn:tag:character:qloo",
+            "value": "urn:tag:character:qloo:character_driven"
+          },
+          {
+            "name": "Thought-provoking",
+            "tag_id": "urn:tag:character:qloo:thought_provoking",
+            "type": "urn:tag:character:qloo",
+            "value": "urn:tag:character:qloo:thought_provoking"
+          },
+          {
+            "name": "Class",
+            "tag_id": "urn:tag:theme:qloo:class",
+            "type": "urn:tag:theme:qloo",
+            "value": "urn:tag:theme:qloo:class"
+          },
+          {
+            "name": "Love",
+            "tag_id": "urn:tag:theme:qloo:love",
+            "type": "urn:tag:theme:qloo",
+            "value": "urn:tag:theme:qloo:love"
+          },
+          {
+            "name": "Friendship",
+            "tag_id": "urn:tag:theme:qloo:friendship",
+            "type": "urn:tag:theme:qloo",
+            "value": "urn:tag:theme:qloo:friendship"
+          },
+          {
+            "name": "Identity",
+            "tag_id": "urn:tag:theme:qloo:identity",
+            "type": "urn:tag:theme:qloo",
+            "value": "urn:tag:theme:qloo:identity"
+          },
+          {
+            "name": "Socioeconomic Status",
+            "tag_id": "urn:tag:theme:qloo:socioeconomic_status",
+            "type": "urn:tag:theme:qloo",
+            "value": "urn:tag:theme:qloo:socioeconomic_status"
+          },
+          {
+            "name": "County Sligo, Ireland",
+            "tag_id": "urn:tag:setting:qloo:county_sligo_ireland",
+            "type": "urn:tag:setting:qloo",
+            "value": "urn:tag:setting:qloo:county_sligo_ireland"
+          },
+          {
+            "name": "Dublin, Ireland",
+            "tag_id": "urn:tag:setting:qloo:dublin_ireland",
+            "type": "urn:tag:setting:qloo",
+            "value": "urn:tag:setting:qloo:dublin_ireland"
+          },
+          {
+            "name": "Class Divide",
+            "tag_id": "urn:tag:motif:qloo:class_divide",
+            "type": "urn:tag:motif:qloo",
+            "value": "urn:tag:motif:qloo:class_divide"
+          },
+          {
+            "name": "First Love",
+            "tag_id": "urn:tag:motif:qloo:first_love",
+            "type": "urn:tag:motif:qloo",
+            "value": "urn:tag:motif:qloo:first_love"
+          },
+          {
+            "name": "Social Mobility",
+            "tag_id": "urn:tag:motif:qloo:social_mobility",
+            "type": "urn:tag:motif:qloo",
+            "value": "urn:tag:motif:qloo:social_mobility"
+          },
+          {
+            "name": "Contemporary Romance",
+            "tag_id": "urn:tag:subgenre:qloo:contemporary_romance",
+            "type": "urn:tag:subgenre:qloo",
+            "value": "urn:tag:subgenre:qloo:contemporary_romance"
+          },
+          {
+            "name": "Literary Fiction",
+            "tag_id": "urn:tag:subgenre:qloo:literary_fiction",
+            "type": "urn:tag:subgenre:qloo",
+            "value": "urn:tag:subgenre:qloo:literary_fiction"
+          },
+          {
+            "name": "2010s",
+            "tag_id": "urn:tag:time_period:qloo:2010s",
+            "type": "urn:tag:time_period:qloo",
+            "value": "urn:tag:time_period:qloo:2010s"
+          },
+          {
+            "name": "Psychologically-acute",
+            "tag_id": "urn:tag:style:qloo:psychologically_acute",
+            "type": "urn:tag:style:qloo",
+            "value": "urn:tag:style:qloo:psychologically_acute"
+          },
+          {
+            "name": "Spare",
+            "tag_id": "urn:tag:style:qloo:spare",
+            "type": "urn:tag:style:qloo",
+            "value": "urn:tag:style:qloo:spare"
+          },
+          {
+            "name": "Realistic",
+            "tag_id": "urn:tag:style:qloo:realistic",
+            "type": "urn:tag:style:qloo",
+            "value": "urn:tag:style:qloo:realistic"
+          },
+          {
+            "name": "Insightful",
+            "tag_id": "urn:tag:style:qloo:insightful",
+            "type": "urn:tag:style:qloo",
+            "value": "urn:tag:style:qloo:insightful"
+          },
+          {
+            "name": "Contemporary",
+            "tag_id": "urn:tag:style:qloo:contemporary",
+            "type": "urn:tag:style:qloo",
+            "value": "urn:tag:style:qloo:contemporary"
+          },
+          {
+            "name": "Introspective",
+            "tag_id": "urn:tag:viewer_characteristic:qloo:introspective",
+            "type": "urn:tag:viewer_characteristic:qloo",
+            "value": "urn:tag:viewer_characteristic:qloo:introspective"
+          },
+          {
+            "name": "Emotionally-aware",
+            "tag_id": "urn:tag:viewer_characteristic:qloo:emotionally_aware",
+            "type": "urn:tag:viewer_characteristic:qloo",
+            "value": "urn:tag:viewer_characteristic:qloo:emotionally_aware"
+          },
+          {
+            "name": "Socially-conscious",
+            "tag_id": "urn:tag:viewer_characteristic:qloo:socially_conscious",
+            "type": "urn:tag:viewer_characteristic:qloo",
+            "value": "urn:tag:viewer_characteristic:qloo:socially_conscious"
+          },
+          {
+            "name": "Romantic",
+            "tag_id": "urn:tag:viewer_characteristic:qloo:romantic",
+            "type": "urn:tag:viewer_characteristic:qloo",
+            "value": "urn:tag:viewer_characteristic:qloo:romantic"
+          },
+          {
+            "name": "Thoughtful",
+            "tag_id": "urn:tag:viewer_characteristic:qloo:thoughtful",
+            "type": "urn:tag:viewer_characteristic:qloo",
+            "value": "urn:tag:viewer_characteristic:qloo:thoughtful"
+          }
+        ]
+      }
+    ]
+  }
+}
