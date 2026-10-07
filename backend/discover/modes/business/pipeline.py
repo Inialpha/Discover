@@ -155,6 +155,8 @@ async def run_pipeline(client: QlooClient, brief: Brief, steps: set[str], take: 
         tasks: list[tuple[str, str, calls.CallSpec]] = []
         if "taste" in steps:
             tasks.append(("taste", "taste", calls.insights_tags("taste", f"{seg_label}-taste", sig, "urn:tag:genre:media")))
+            # media-genre tags are book-genre heavy in real runs; also ask for tags of any type for comparison
+            tasks.append(("taste", "taste-all", calls.insights_tags("taste", f"{seg_label}-taste-all", sig, None)))
         if "affinity" in steps:
             for kind in brief.domains:
                 tasks.append(("affinity", kind, calls.insights_entities(
