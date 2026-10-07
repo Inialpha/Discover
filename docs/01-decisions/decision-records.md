@@ -113,3 +113,9 @@ Each record: **Context → Decision → Consequences**. Status: *Accepted* unles
 **Decision.** Static/edge frontend host; containerized backend on a managed host; managed Postgres. Vendors are defaults (Vercel, Render, managed Postgres) and revisitable. SSE buffering disabled; heartbeats on; cold-start UI and keep-warm ping.  
 **Status.** Accepted; vendors pending confirmation at M0.  
 **Consequences.** Must verify long-lived streams in staging before the demo (DEP-003).
+
+## ADR-017 — Business-first sequencing with mode modules
+**Context.** The team narrowed hackathon focus to Discover for Business (market discovery), validated through a Qloo Ask-AI workflow, while insisting the other modes stay in scope.  
+**Decision.** Build Business to full depth first as a *mode module* on shared foundations (Qloo client, evidence model, LLM client, run recorder, validation). Other modes are added later as sibling modules; unbuilt modes return `501 mode_not_available`. A CLI harness (REQUIREMENTS §11.3) is the first deliverable and verifies real Qloo behaviour before any UI.  
+**Consequences.** Scope is unchanged; sequencing changes. Shared code must stay free of business vocabulary (FOC-003). Unverified Qloo parameter spellings are isolated as variants in one file and corrected after the first live run.
+
