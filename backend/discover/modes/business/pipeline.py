@@ -48,6 +48,31 @@ def _pick(cands: list[dict[str, Any]], query: str) -> dict[str, Any] | None:
     return (exact or cands)[0]
 
 
+_TAG_DENY = ("specialty_dish", "nearby_attraction", ":category:place", "genre:place", "amenit", "payments", "parking", "accessibility")
+_TAG_PREFER = {
+    "advertising": ("urn:tag:genre:brand", "urn:tag:industry", "urn:tag:interests", "urn:tag:genre:media", "urn:tag:keyword"),
+    "media": ("urn:tag:genre:media", "urn:tag:keyword:media", "urn:tag:genre"),
+    "audience": ("urn:tag:interests", "urn:tag:genre:media", "urn:tag:genre:brand", "urn:tag:keyword"),
+}
+
+
+def _norm(text: str) -> str:
+    return "".join(ch for ch in (text or "").lower() if ch.isalnum())
+
+
+def pick_tag(cands: list[dict[str, Any]], query: str, goal: str) -> dict[str, Any] | None:
+    """Only accept a tag whose NAME matches the query (Qloo tag search is fuzzy and returns junk such as
+    dishes/attractions); among matches prefer tag families relevant to the goal. Otherwise: unresolved."""
+    q = _norm(query)
+    ok = [c for c in cands if c.get("id") and _norm(c.get("name") or "") == q
+          and not any(d in (c.get("id") or "") for d in _TAG_DENY)]
+    prefs = _TAG_PREFER.get(goal, _TAG_PREFER["audience"])
+    def rank(c):
+        cid = c.get("id") or ""
+        return next((i for i, p in enumerate(prefs) if cid.startswith(p)), len(prefs))
+    return sorted(ok, key=rank)[0] if ok else None
+
+
 async def resolve(client: QlooClient, brief: Brief, ev: Evidence) -> Resolved:
     out = Resolved()
     wanted: list[tuple[str, str]] = []  # (name, kind)
@@ -56,7 +81,7 @@ async def resolve(client: QlooClient, brief: Brief, ev: Evidence) -> Resolved:
     wanted += [(c, "brand") for c in brief.competitors]
     wanted += [(i["name"], i["kind"]) for i in brief.interests]
     specs = [("ent", n, k, calls.search_entities(f"{k}-{n}", n, k, take=5)) for n, k in wanted]
-    specs += [("tag", kw, None, calls.search_tags(f"tag-{kw}", kw, take=5)) for kw in brief.keywords]
+    specs += [("tag", kw, None, calls.search_tags(f"tag-{kw}", kw, take=10)) for kw in brief.keywords]
     results = await asyncio.gather(*(client.call(s[3]) for s in specs))
     for (kind_, name, k, _), res in zip(specs, results):
         if kind_ == "ent":
@@ -69,7 +94,7 @@ async def resolve(client: QlooClient, brief: Brief, ev: Evidence) -> Resolved:
                 out.unresolved.append(name)
         else:
             cands = nz.tags_from_body(res.body) if res.ok else []
-            top = _pick(cands, name)
+            top = pick_tag(cands, name, brief.goal)
             ev.add("resolve", f"tag:{name}", res, {"query": name, "candidates": cands[:5], "chosen": top})
             if top:
                 out.tags.append({"query": name, "id": top["id"], "name": top["name"]})

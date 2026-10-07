@@ -44,12 +44,15 @@ class RunOptions:
     concurrency: int = 2
     delay: float = 0.0
     zip: bool = True
+    location_mode: str = "auto"
 
 
 async def execute(opts: RunOptions, settings: Settings, mock_reject=None) -> tuple[int, Path, dict[str, Any]]:
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     run_dir = opts.out / f"{stamp}_{slugify(opts.question)}"
     rec = RunRecorder(run_dir)
+    from .qloo import calls as _calls
+    _calls.set_location_mode(opts.location_mode)
     started = time.time()
     rec.write_json("00_input.json", {
         **{k: (str(v) if isinstance(v, Path) else v) for k, v in opts.__dict__.items()},
@@ -68,7 +71,7 @@ async def execute(opts: RunOptions, settings: Settings, mock_reject=None) -> tup
     brief = B.heuristic_brief(opts.question)
     if llm:
         try:
-            data = await llm.chat_json("planner", prompts.PLANNER_SYSTEM, opts.question, max_tokens=1200)
+            data = await llm.chat_json("planner", prompts.PLANNER_SYSTEM, opts.question, max_tokens=800)
             brief = B.brief_from_llm(opts.question, data)
         except LLMError as exc:
             summary["warnings"].append(f"LLM planner failed ({exc}); heuristic used.")

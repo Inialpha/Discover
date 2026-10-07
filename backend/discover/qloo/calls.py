@@ -13,6 +13,17 @@ from .client import CallSpec, Variant
 ENTITY_KINDS = ("brand", "place", "movie", "tv_show", "artist", "podcast", "book", "game", "destination", "person")
 
 
+# "auto" = per-call default order with fallback; "signal"/"filter" force one spelling; "both" sends both.
+LOCATION_MODE = "auto"
+
+
+def set_location_mode(mode: str) -> None:
+    global LOCATION_MODE
+    if mode not in ("auto", "signal", "filter", "both"):
+        raise ValueError(mode)
+    LOCATION_MODE = mode
+
+
 def entity_urn(kind: str) -> str:
     return kind if kind.startswith("urn:") else f"urn:entity:{kind}"
 
@@ -77,6 +88,11 @@ def _location_variants(
 ) -> list[Variant]:
     if not location:
         return [Variant(dict(base), {**meta, "location_param": None})]
+    if LOCATION_MODE == "both":
+        return [Variant({**base, "signal.location.query": location, "filter.location.query": location},
+                        {**meta, "location_param": "both"})]
+    if LOCATION_MODE in ("signal", "filter"):
+        order = (LOCATION_MODE,)
     out = [Variant({**base, f"{k}.location.query": location}, {**meta, "location_param": f"{k}.location.query"}) for k in order]
     if allow_none:
         out.append(Variant(dict(base), {**meta, "location_param": None, "location_dropped": True}))

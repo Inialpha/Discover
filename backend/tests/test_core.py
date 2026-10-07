@@ -110,3 +110,37 @@ def test_no_key_exit3(settings, tmp_path):
     from dataclasses import replace
     code, _, s = _run(execute(RunOptions(question="q", out=tmp_path), replace(settings, qloo_api_key=None)))
     assert code == 3
+
+
+def test_pick_tag_rejects_junk():
+    from discover.modes.business.pipeline import pick_tag
+    cands = [
+        {"id": "urn:tag:specialty_dish:place:35_25", "name": "35 25"},
+        {"id": "urn:tag:specialty_dish:place:sneakers", "name": "Sneakers"},
+        {"id": "urn:tag:genre:brand:fashion:footwear:sneakers", "name": "Sneakers"},
+    ]
+    assert pick_tag(cands, "25-35", "advertising") is None
+    assert pick_tag(cands, "sneakers", "advertising")["id"].startswith("urn:tag:genre:brand")
+
+
+def test_keywords_drop_demographics():
+    from discover.modes.business.brief import Brief, clean_keywords
+    b = Brief(question="q", location="Lagos", keywords=["women", "25-35", "Lagos", "streetwear", "Streetwear"])
+    assert clean_keywords(b).keywords == ["streetwear"]
+
+
+def test_compare_and_heatmap_real_shapes():
+    cmp = {"results": {"tags": [{"tag_id": "t1", "name": "Fashion", "subtype": "s", "query": {"score": 0.73}}]}}
+    assert nz.compare_from_body(cmp)["tags"][0]["score"] == 0.73
+    hm = {"results": {"heatmap": [{"location": {"latitude": 6.6, "longitude": 3.4, "geohash": "s14mzk"},
+                                   "query": {"affinity": 1, "demographics_affinity": 0.9, "affinity_rank": 0.6}}]}}
+    p = nz.heatmap_from_body(hm)[0]
+    assert p["geohash"] == "s14mzk" and p["demographics_affinity"] == 0.9
+
+
+def test_evidence_fits_budget():
+    from discover.modes.business.synthesis import fit_evidence
+    ents = [{"name": f"E{i}", "affinity": 0.9, "tags": [{"name": f"t{j}"} for j in range(8)], "disambiguation": "x" * 100} for i in range(10)]
+    items = [{"id": f"E{i}", "step": "affinity", "label": "l", "ok": True, "data": {"kind": "movie", "entities": ents}} for i in range(12)]
+    _, text = fit_evidence(items, 3000)
+    assert len(text) <= 3000
