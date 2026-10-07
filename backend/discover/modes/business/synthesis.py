@@ -83,7 +83,7 @@ def validate_report(report: dict[str, Any], items: list[dict[str, Any]]) -> dict
             capped += 1
     if capped:
         report.setdefault("caveats", []).append("Confidence is capped at 'medium': Qloo scores are relative rankings without sample sizes.")
-    for key in ("findings", "media_recommendations", "messaging_angles"):
+    for key in ("findings", "media_recommendations", "messaging_angles", "content_ideas"):
         kept = []
         for row in report.get(key) or []:
             ids = [i for i in (row.get("evidence_ids") or []) if i in valid]
@@ -91,7 +91,7 @@ def validate_report(report: dict[str, Any], items: list[dict[str, Any]]) -> dict
                 dropped += 1
                 continue
             row["evidence_ids"] = ids
-            if key == "media_recommendations" and row.get("basis") not in ("qloo", "interpretation"):
+            if key in ("media_recommendations", "content_ideas") and row.get("basis") not in ("qloo", "interpretation"):
                 row["basis"] = "qloo" if ids else "interpretation"
             if key != "findings" and not ids:
                 row["unsupported"] = True
@@ -119,7 +119,7 @@ def template_report(brief: Brief, items: list[dict[str, Any]]) -> dict[str, Any]
             names = ", ".join(str(t["name"]) for t in d["tags"][:5])
             findings.append({"claim": f"{it['segment']} — leading taste tags: {names}", "evidence_ids": [it["id"]], "confidence": "medium"})
         elif it["step"] == "heatmap" and d.get("points"):
-            findings.append({"claim": f"{it['segment']} — {len(d['points'])} heatmap areas returned in {brief.location}", "evidence_ids": [it["id"]], "confidence": "low"})
+            findings.append({"claim": f"{it['segment']} — {len(d['points'])} heatmap areas returned", "evidence_ids": [it["id"]], "confidence": "low"})
     failed = [i for i in items if not i.get("ok")]
     return {
         "headline": f"Raw findings for: {brief.question}",
@@ -138,7 +138,7 @@ async def synthesize(llm: LLMClient | None, brief: Brief, items: list[dict[str, 
     budget = llm.s.llm_max_input_chars
     _, ev_text = fit_evidence(items, budget)
     brief_view = {"goal": brief.goal, "product": brief.product, "own_brand": brief.own_brand, "competitors": brief.competitors,
-                  "location": brief.location, "segments": [s.label for s in brief.segments]}
+                  "locations": brief.locations, "segments": [s.label for s in brief.segments]}
     user = json.dumps({"question": brief.question, "brief": brief_view}, ensure_ascii=False) + "\nEVIDENCE:" + ev_text
     try:
         report = await llm.chat_json("synthesis", prompts.SYNTH_SYSTEM, user, max_tokens=llm.s.llm_max_output_tokens)
@@ -153,7 +153,7 @@ async def synthesize(llm: LLMClient | None, brief: Brief, items: list[dict[str, 
 
 def to_markdown(brief: Brief, report: dict[str, Any], items: list[dict[str, Any]], mode: str, resolved: Any = None) -> str:
     L: list[str] = [f"# {report.get('headline') or brief.question}", "", f"> **Question:** {brief.question}",
-                    f"> **Report mode:** {mode} · **Location:** {brief.location or '—'} · "
+                    f"> **Report mode:** {mode} · **Locations:** {', '.join(brief.locations) or '—'} · "
                     f"**Segments:** {', '.join(s.label for s in brief.segments) or '—'}", ""]
     if report.get("audience_profile"):
         L += ["## Audience", "", str(report["audience_profile"]), ""]
@@ -164,8 +164,18 @@ def to_markdown(brief: Brief, report: dict[str, Any], items: list[dict[str, Any]
         L += ["## Media recommendations", ""] + [f"- **{r.get('channel_or_title')}** — {r.get('why')} {cite(r)}{' _(interpretation)_' if r.get('basis') == 'interpretation' else ''}" for r in report["media_recommendations"]] + [""]
     if report.get("messaging_angles"):
         L += ["## Messaging angles (interpretation)", ""] + [f"- **{r.get('angle')}** — {r.get('why')} {cite(r)}" for r in report["messaging_angles"]] + [""]
+    if report.get("content_ideas"):
+        L += ["## Content ideas", ""] + [
+            f"- **{r.get('idea')}** ({r.get('format', '')}) — {r.get('audience_angle', '')} {cite(r)}{' _(interpretation)_' if r.get('basis') == 'interpretation' else ''}"
+            for r in report["content_ideas"]] + [""]
     if report.get("location_notes"):
         L += ["## Location", "", str(report["location_notes"]), ""]
+    cov = report.get("data_coverage")
+    if cov:
+        L += ["## Data coverage — what to expect", "", cov["note"], ""]
+        for loc, row in (cov.get("per_location") or {}).items():
+            L.append(f"- {loc}: {row['places_returned']} places, {row['heatmap_areas']} heatmap areas ({row['heatmap_areas_named']} near a returned place)")
+        L.append("")
     if report.get("caveats"):
         L += ["## Caveats", ""] + [f"- {c}" for c in report["caveats"]] + [""]
     if report.get("next_steps"):

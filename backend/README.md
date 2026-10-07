@@ -34,6 +34,15 @@ The LLM only sees a compact view of the evidence (`LLM_MAX_INPUT_CHARS`, default
 Without LLM settings the planner is heuristic and the report is a plain template. With them, an LLM plans the
 brief and writes the evidence-cited report (claims citing no valid evidence are removed).
 
+## Which markets does Qloo cover well?
+```bash
+discover coverage --location Lagos --location "New York" --location London --location Mumbai --location Tokyo \
+    --gender women --age 25-35
+```
+Writes `coverage.md/json`: per city, how much the location changes the results (0 = nothing, i.e. global taste),
+place/heatmap counts, and overlap between cities. Send the zip back; we choose demo markets from this.
+Multi-market questions: `discover run "what content should I create for women 25-35?" --location Tokyo --location "New York"`.
+
 ## Run folder (`runs/<timestamp>_<slug>/`, plus a `.zip`)
 | File | Content |
 |---|---|

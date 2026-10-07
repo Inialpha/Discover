@@ -142,23 +142,25 @@ async def run_pipeline(client: QlooClient, brief: Brief, steps: set[str], take: 
     has_interest = bool(resolved.entities or resolved.tags)
     segments = brief.segments or [Segment("Overall audience")]
 
-    for seg in segments:
-        sig = _signals(seg, resolved, brief.location)
+    locs: list[str | None] = list(brief.locations) or [None]
+    for seg, loc in [(sg, lc) for sg in segments for lc in locs]:
+        seg_label = f"{seg.label} @ {loc}" if loc and len(locs) > 1 else seg.label
+        sig = _signals(seg, resolved, loc)
         no_signal = sig.is_empty() and not sig.location
         if no_signal:
-            ev.items.append({"id": f"E{len(ev.items) + 1:03d}", "step": "plan", "label": "no signals", "segment": seg.label,
+            ev.items.append({"id": f"E{len(ev.items) + 1:03d}", "step": "plan", "label": "no signals", "segment": seg_label,
                              "ok": False, "error": "no demographic, interest or location signal to query with",
                              "source_files": [], "data": None})
             continue
         tasks: list[tuple[str, str, calls.CallSpec]] = []
         if "taste" in steps:
-            tasks.append(("taste", "taste", calls.insights_tags("taste", f"{seg.label}-taste", sig, "urn:tag:genre:media")))
+            tasks.append(("taste", "taste", calls.insights_tags("taste", f"{seg_label}-taste", sig, "urn:tag:genre:media")))
         if "affinity" in steps:
             for kind in brief.domains:
                 tasks.append(("affinity", kind, calls.insights_entities(
-                    "affinity", f"{seg.label}-{kind}", kind, sig, take=take, allow_no_location=False)))
-        if "heatmap" in steps and brief.location and not sig.is_empty():
-            tasks.append(("heatmap", "heatmap", calls.insights_heatmap("heatmap", f"{seg.label}-heatmap", sig)))
+                    "affinity", f"{seg_label}-{kind}", kind, sig, take=take, allow_no_location=False)))
+        if "heatmap" in steps and loc and not sig.is_empty():
+            tasks.append(("heatmap", "heatmap", calls.insights_heatmap("heatmap", f"{seg_label}-heatmap", sig)))
         results = await asyncio.gather(*(client.call(t[2]) for t in tasks))
         for (step, tag, _), res in zip(tasks, results):
             if step == "taste":
@@ -167,15 +169,17 @@ async def run_pipeline(client: QlooClient, brief: Brief, steps: set[str], take: 
                 data = {"kind": tag, "entities": nz.entities_from_insights(res.body)[:take]} if res.ok else None
             else:
                 data = {"points": nz.heatmap_from_body(res.body)[:30]} if res.ok else None
-            ev.add(step, f"{seg.label}:{tag}", res, data, seg.label)
+            ev.add(step, f"{seg_label}:{tag}", res, data, seg_label)
 
     _annotate_heatmaps(ev)
 
     if "demographics" in steps and has_interest:
-        sig = calls.Signals(entities=[e["entity_id"] for e in resolved.entities],
-                            tags=[t["id"] for t in resolved.tags], location=brief.location)
-        res = await client.call(calls.insights_demographics("demographics", "audience-demographics", sig))
-        ev.add("demographics", "interest-audience", res, nz.demographics_from_body(res.body) if res.ok else None)
+        for loc in locs:
+            sig = calls.Signals(entities=[e["entity_id"] for e in resolved.entities],
+                                tags=[t["id"] for t in resolved.tags], location=loc)
+            tag = f"audience-demographics{' @ ' + loc if loc and len(locs) > 1 else ''}"
+            res = await client.call(calls.insights_demographics("demographics", tag, sig))
+            ev.add("demographics", tag, res, nz.demographics_from_body(res.body) if res.ok else None)
 
     if "compare" in steps and brief.own_brand and brief.competitors:
         own = [e["entity_id"] for e in resolved.entities if e["query"] == brief.own_brand]

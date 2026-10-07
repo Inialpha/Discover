@@ -26,7 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="run the business workflow end to end")
     r.add_argument("question")
-    r.add_argument("--product"); r.add_argument("--own-brand"); r.add_argument("--location")
+    r.add_argument("--product"); r.add_argument("--own-brand"); r.add_argument("--location", action="append", default=[], help="city; repeat to compare several markets")
     r.add_argument("--keyword", action="append", default=[], help="repeatable theme/interest phrase")
     r.add_argument("--brand", action="append", default=[], help="competitor/reference brand, repeatable")
     r.add_argument("--interest", action="append", default=[], help='"name:kind", e.g. "Burna Boy:artist"')
@@ -44,6 +44,15 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--no-zip", action="store_true")
     r.add_argument("--location-mode", choices=["auto", "signal", "filter", "both"], default="auto",
                    help="how the location is sent to Qloo (experiment: filter may localise movies/artists better)")
+    c = sub.add_parser("coverage", help="measure how much each location changes Qloo's answers (which markets are strong?)")
+    c.add_argument("--location", action="append", required=True, help="city; repeat (e.g. Lagos, New York, London, Mumbai)")
+    c.add_argument("--gender"); c.add_argument("--age")
+    c.add_argument("--kinds", default="movie,tv_show,artist,podcast,brand,place")
+    c.add_argument("--take", type=int, default=10); c.add_argument("--out", default="runs")
+    c.add_argument("--max-calls", type=int, default=150); c.add_argument("--concurrency", type=int, default=2)
+    c.add_argument("--delay", type=float, default=0.0); c.add_argument("--mock", action="store_true")
+    c.add_argument("--no-zip", action="store_true")
+    c.add_argument("--location-mode", choices=["auto", "signal", "filter", "both"], default="auto")
     sub.add_parser("probe", help="check key/base URL with two tiny calls")
     return p
 
@@ -69,9 +78,21 @@ def main(argv: list[str] | None = None) -> int:
     settings = Settings.from_env()
     if args.cmd == "probe":
         return asyncio.run(_probe(settings))
+    if args.cmd == "coverage":
+        from .runner import execute_coverage
+        code, run_dir, summary = asyncio.run(execute_coverage(
+            args.location, args.gender, args.age, _split(args.kinds) or [], args.take, Path(args.out), settings,
+            mock=args.mock, max_calls=args.max_calls, concurrency=args.concurrency, delay=args.delay,
+            location_mode=args.location_mode, zip_=not args.no_zip))
+        print(f"run folder : {run_dir}\nstatus     : {summary.get('status')} (exit {code})")
+        if (run_dir / "coverage.md").exists():
+            print((run_dir / "coverage.md").read_text()[:2500])
+        if summary.get("zip"):
+            print(f"send me    : {summary['zip']}")
+        return code
     opts = RunOptions(
         question=args.question, out=Path(args.out), product=args.product, own_brand=args.own_brand,
-        keywords=args.keyword, competitors=args.brand, interests=args.interest, location=args.location,
+        keywords=args.keyword, competitors=args.brand, interests=args.interest, locations=args.location,
         segments=args.segment, gender=args.gender, age=args.age, domains=_split(args.domains), take=args.take,
         steps=_split(args.steps), skip=_split(args.skip) or [], no_llm=args.no_llm, mock=args.mock,
         dry_run=args.dry_run, plan_only=args.plan_only, max_calls=args.max_calls,

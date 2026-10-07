@@ -145,7 +145,7 @@ These enums are authoritative. Code, database, API, prompts, and UI must use exa
 | `someone_else` | Discover for Someone Else | One other person | Gifts, outings, and occasions are *goals* within this mode (`goal_type = gift` etc.), not a separate mode. Replaces `gift`. |
 | `group` | Discover for a Group | Two or more specific people | Blended tastes for shared plans. |
 | `community` | Discover for Community | A community, audience, or place-based group | Context, not individual taste. |
-| `business` | Discover for Business | A business, brand, or market | Cultural intelligence and opportunity exploration. |
+| `business` | Discover for Business | A business, brand, or market | Cultural intelligence and opportunity exploration; built first (§1a). Demo markets are chosen from measured coverage (MOD-056), not assumed. |
 
 **TAX-001 (P0)** `mode` may be omitted by the client; the agent infers it, records it in state with a confidence note, and the user can change it at any time.  
 **TAX-002 (P0)** Legacy values (`personal`, `gift`) must not appear in code or docs except in a migration note.
@@ -257,6 +257,10 @@ Every result and every explanation fragment carries provenance:
 | MOD-050 | Advertising advice: for a product/brand, output audience profile, media environments, messaging angles (labelled interpretation), location notes, caveats, next steps. Messaging angles are interpretation (TAX-007) and must not be presented as measured. | P1 |
 | MOD-051 | Every claim in a business report cites evidence IDs; claims citing no valid evidence are removed and the removal is disclosed. Affinity scores are described as relative scores, never as percentages of people. | P0 |
 | MOD-052 | Failed or skipped Qloo calls are recorded as evidence (`ok=false`) and surfaced in report caveats; a partial report is preferable to none. | P0 |
+| MOD-053 | **Market coverage honesty.** Qloo's strength varies by market and media type. Every business report includes a code-generated "Data coverage — what to expect" section: places/heatmap areas returned per location, and a standing note that non-place recommendations may reflect global taste for the demographic. The product never implies local sales or chart data. | P0 |
+| MOD-054 | **Multi-market briefs.** A brief may name up to four locations (cities); each segment is run per location and labelled `segment @ location`. Regions ("Asia", "America") are mapped by the planner to named major cities and the mapping is stated in the report. | P1 |
+| MOD-055 | **Content goal.** `goal = content` answers "what social/video content should I create for this audience": 3–6 content ideas with format and audience angle, hooks drawn from evidence (titles, artists, brands, taste tags); platform/format choices are labelled `interpretation`. | P1 |
+| MOD-056 | **Coverage probe.** A repeatable probe measures per location how much the location changes results (1 − overlap of top results with/without location), place and heatmap counts, and overlap between cities, so strong demo markets (e.g. New York) can be chosen from data rather than assumed. Grade thresholds are heuristics and labelled as such. | P1 |
 
 ## 5.2 Analysis intents
 
@@ -1017,6 +1021,8 @@ The backend ships a CLI (`backend/`, command `discover`) that runs the Business 
 **CLI-006 (P0)** `--mock` uses a synthetic Qloo transport; all evidence and the report are flagged synthetic (TST-003, TST-012). `--dry-run` writes planned requests without any network call.  
 **CLI-007 (P0)** The default Qloo base URL is the hackathon host (`https://hackathon.api.qloo.com`), overridable by `QLOO_BASE_URL`.  
 **CLI-008 (P1)** `discover probe` makes two minimal calls to verify the key and base URL.
+**CLI-009 (P1)** `discover coverage --location <city> [--location ...] [--gender] [--age] [--kinds]` runs the coverage probe (MOD-056) and writes `coverage.json`/`coverage.md` to the run folder with all raw responses.  
+**CLI-010 (P0)** `discover run --location` is repeatable (MOD-054); `--location-mode auto|signal|filter|both` selects how location is sent to Qloo (experiment).  
 
 ---
 

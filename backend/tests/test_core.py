@@ -28,7 +28,7 @@ def test_heuristic_brief():
 
 
 def test_overrides_win():
-    b = apply_overrides(heuristic_brief("x"), gender="men", age="30-40", location="Abuja")
+    b = apply_overrides(heuristic_brief("x"), gender="men", age="30-40", locations=["Abuja"])
     assert b.location == "Abuja" and b.segments[0].gender == "male"
 
 
@@ -97,7 +97,7 @@ def test_dry_run_makes_no_requests(settings, tmp_path):
 def test_mock_e2e(settings, tmp_path):
     opts = RunOptions(question="advise ad for my sneaker brand in Lagos", out=tmp_path, own_brand="Nike",
                       competitors=["Adidas"], keywords=["streetwear"], gender="women", age="25-35",
-                      location="Lagos", mock=True, zip=False)
+                      locations=["Lagos"], mock=True, zip=False)
     code, run_dir, s = _run(execute(opts, settings))
     assert code == 0 and s["qloo_ok"] == s["qloo_calls"] > 5
     for name in ("01_brief.json", "03_evidence.json", "04_report.md", "99_run_summary.json", "calls.jsonl"):
@@ -125,7 +125,7 @@ def test_pick_tag_rejects_junk():
 
 def test_keywords_drop_demographics():
     from discover.modes.business.brief import Brief, clean_keywords
-    b = Brief(question="q", location="Lagos", keywords=["women", "25-35", "Lagos", "streetwear", "Streetwear"])
+    b = Brief(question="q", locations=["Lagos"], keywords=["women", "25-35", "Lagos", "streetwear", "Streetwear"])
     assert clean_keywords(b).keywords == ["streetwear"]
 
 
@@ -180,3 +180,28 @@ def test_llm_truncation_retries(settings, tmp_path):
     s = replace(settings, llm_api_key="k", llm_base_url="https://llm.invalid/v1", llm_model="m")
     out = _run(LLMClient(s, RunRecorder(tmp_path), transport=httpx.MockTransport(h)).chat_json("t", "s", "u", max_tokens=1000))
     assert out == {"a": 1} and calls == [1000, 1500]
+
+
+def test_multi_location_pipeline_and_coverage(settings, tmp_path):
+    opts = RunOptions(question="content for women 25-35", out=tmp_path, gender="women", age="25-35",
+                      locations=["New York", "Mumbai"], mock=True, zip=False)
+    code, run_dir, s = _run(execute(opts, settings))
+    ev = json.loads((run_dir / "03_evidence.json").read_text())
+    segs = {e.get("segment") for e in ev if e.get("segment")}
+    assert any("New York" in x for x in segs) and any("Mumbai" in x for x in segs)
+    rep = json.loads((run_dir / "04_report.json").read_text())["report"]
+    assert set(rep["data_coverage"]["per_location"]) >= {"New York", "Mumbai"}
+    assert "Data coverage" in (run_dir / "04_report.md").read_text()
+
+
+def test_coverage_probe_mock(settings, tmp_path):
+    from discover.runner import execute_coverage
+    code, run_dir, s = _run(execute_coverage(["Lagos", "New York"], "women", "25-35", ["movie", "artist", "place"], 5,
+                                             tmp_path, settings, mock=True, zip_=False))
+    res = json.loads((run_dir / "coverage.json").read_text())
+    assert code == 0 and res["synthetic"] and "grade" in res["locations"]["Lagos"] and (run_dir / "coverage.md").exists()
+    assert res["locations"]["New York"]["kinds"]["movie"]["location_influence"] is not None
+
+
+def test_goal_content_heuristic():
+    assert heuristic_brief("what social media content should I create for women 25-35 in Tokyo").goal == "content"
