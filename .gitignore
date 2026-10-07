@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# CLI workflow run output (may contain provider data)
+runs/
+backend/runs/
