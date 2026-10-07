@@ -42,6 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--out", default="runs"); r.add_argument("--max-calls", type=int, default=80)
     r.add_argument("--concurrency", type=int, default=2); r.add_argument("--delay", type=float, default=0.0)
     r.add_argument("--no-zip", action="store_true")
+    r.add_argument("--location-mode", choices=["auto", "signal", "filter", "both"], default="auto",
+                   help="how the location is sent to Qloo (experiment: filter may localise movies/artists better)")
     sub.add_parser("probe", help="check key/base URL with two tiny calls")
     return p
 
@@ -73,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         segments=args.segment, gender=args.gender, age=args.age, domains=_split(args.domains), take=args.take,
         steps=_split(args.steps), skip=_split(args.skip) or [], no_llm=args.no_llm, mock=args.mock,
         dry_run=args.dry_run, plan_only=args.plan_only, max_calls=args.max_calls,
-        concurrency=args.concurrency, delay=args.delay, zip=not args.no_zip)
+        concurrency=args.concurrency, delay=args.delay, zip=not args.no_zip, location_mode=args.location_mode)
     code, run_dir, summary = asyncio.run(execute(opts, settings))
     print(f"run folder : {run_dir}")
     print(f"status     : {summary.get('status')}  (exit {code})")

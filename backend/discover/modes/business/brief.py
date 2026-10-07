@@ -109,6 +109,25 @@ def brief_from_llm(question: str, data: dict[str, Any]) -> Brief:
     return b
 
 
+_DEMO_WORDS = {"women", "woman", "men", "man", "male", "female", "girls", "boys", "people", "young", "adults", "youth"}
+
+
+def clean_keywords(b: Brief) -> Brief:
+    """Drop keywords that merely restate demographics/location: they are passed as dedicated signals, and
+    resolving them as tags produced junk matches in real runs."""
+    loc = (b.location or "").lower()
+    keep = []
+    for k in b.keywords:
+        kl = k.strip().lower()
+        if not kl or kl in _DEMO_WORDS or kl == loc or re.fullmatch(r"[\d\s\-–+to]+", kl) or kl in loc:
+            b.notes.append(f"keyword {k!r} dropped (demographic/location is a dedicated signal)")
+            continue
+        if kl not in [x.lower() for x in keep]:
+            keep.append(k)
+    b.keywords = keep
+    return b
+
+
 def apply_overrides(b: Brief, *, product=None, own_brand=None, keywords=(), competitors=(), interests=(),
                     location=None, segments=(), gender=None, age=None, domains=None) -> Brief:
     """CLI flags always win over the planner."""
@@ -136,4 +155,4 @@ def apply_overrides(b: Brief, *, product=None, own_brand=None, keywords=(), comp
         b.domains = [d for d in domains if d in ALL_KINDS]
     if not b.segments:
         b.segments.append(Segment("Overall audience"))
-    return b
+    return clean_keywords(b)

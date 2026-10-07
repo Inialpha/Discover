@@ -39,7 +39,7 @@ class LLMClient:
         self.s, self.rec, self._transport = settings, recorder, transport
         self.calls = 0
 
-    async def chat_json(self, name: str, system: str, user: str, temperature: float = 0.2, max_tokens: int = 3500) -> Any:
+    async def chat_json(self, name: str, system: str, user: str, temperature: float = 0.2, max_tokens: int = 2000) -> Any:
         payload: dict[str, Any] = {
             "model": self.s.llm_model,
             "temperature": temperature,

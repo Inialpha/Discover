@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 PROP_WHITELIST = (
-    "description", "short_description", "year", "release_year", "release_date", "genre", "genres",
+    "description", "short_description", "audience_identity", "price_level", "year", "release_year", "release_date", "genre", "genres",
     "publication_year", "address", "geocode", "price_level", "cuisines", "languages", "country", "website",
     "industry", "founded", "headquartered_in", "content_rating", "duration", "network", "streaming_platforms",
 )
@@ -100,6 +100,8 @@ def entities_from_insights(body: Any) -> list[dict[str, Any]]:
             "type": e.get("type"),
             "subtype": e.get("subtype"),
             "popularity": _num(e.get("popularity")),
+            "disambiguation": e.get("disambiguation") or None,
+            "location": e.get("location") if isinstance(e.get("location"), dict) else None,
             "affinity": _num(q.get("affinity")) if isinstance(q, dict) else None,
             "measurements": q.get("measurements") if isinstance(q, dict) else None,
             "explainability": q.get("explainability") if isinstance(q, dict) else None,
@@ -181,13 +183,26 @@ def heatmap_from_body(body: Any) -> list[dict[str, Any]]:
             "lon": _num(loc.get("longitude", loc.get("lon", loc.get("lng")))),
             "name": loc.get("name") or h.get("name"),
             "affinity": _num(q.get("affinity", h.get("affinity"))),
+            "affinity_rank": _num(q.get("affinity_rank")),
+            "demographics_affinity": _num(q.get("demographics_affinity")),
+            "tag_affinity": _num(q.get("tag_affinity")),
             "popularity": _num(q.get("popularity", h.get("popularity"))),
         })
     return out
 
 
 def compare_from_body(body: Any) -> dict[str, Any]:
+    """Real shape: results.tags[{tag_id,name,type,subtype,query{score,a.signal...,b.signal...}}]."""
     res = _results(body)
     if not isinstance(res, dict):
         return {}
-    return {k: (v if not isinstance(v, (list, dict)) else v) for k, v in res.items()}
+    out: dict[str, Any] = {"tags": [], "entities": []}
+    for key in ("tags", "entities"):
+        for t in res.get(key) or []:
+            if not isinstance(t, dict):
+                continue
+            q = t.get("query") if isinstance(t.get("query"), dict) else {}
+            out[key].append({"id": t.get("tag_id") or t.get("entity_id"), "name": t.get("name"),
+                             "subtype": t.get("subtype"), "score": _num(q.get("score")),
+                             "popularity": _num(t.get("popularity"))})
+    return out

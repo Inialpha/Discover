@@ -11,22 +11,62 @@ from . import prompts
 from .brief import Brief
 
 
-def compact_evidence(items: list[dict[str, Any]], per_list: int = 6) -> list[dict[str, Any]]:
+def _r(v: Any, n: int = 2) -> Any:
+    return round(v, n) if isinstance(v, float) else v
+
+
+def _compact_entity(e: dict[str, Any], tags_n: int) -> dict[str, Any]:
+    out = {"name": e.get("name"), "affinity": _r(e.get("affinity"))}
+    if e.get("disambiguation"):
+        out["info"] = str(e["disambiguation"])[:60]
+    if tags_n and e.get("tags"):
+        out["tags"] = [t.get("name") for t in e["tags"][:tags_n] if t.get("name")]
+    imdb = (e.get("external") or {}).get("imdb")
+    if imdb and imdb.get("rating") is not None:
+        out["imdb"] = imdb.get("rating")
+    return out
+
+
+def compact_evidence(items: list[dict[str, Any]], per_list: int = 6, tags_n: int = 3) -> list[dict[str, Any]]:
+    """Small, LLM-friendly view of the evidence (full data stays in 03_evidence.json)."""
     out = []
     for it in items:
-        row = {k: it.get(k) for k in ("id", "step", "label", "segment", "ok", "error")}
-        d = it.get("data")
-        if isinstance(d, dict):
-            d = dict(d)
-            for key in ("entities", "tags", "points", "candidates"):
-                if isinstance(d.get(key), list):
-                    d[key] = [
-                        {k: v for k, v in x.items() if k in ("name", "affinity", "popularity", "type", "types", "weight", "geohash", "lat", "lon", "tags", "explainability", "id") and v not in (None, [], {})}
-                        for x in d[key][:per_list]
-                    ]
-        row["data"] = d
+        row: dict[str, Any] = {k: it.get(k) for k in ("id", "step", "label") if it.get(k)}
+        if not it.get("ok"):
+            row["error"] = it.get("error")
+            out.append(row)
+            continue
+        d = it.get("data") or {}
+        if it["step"] == "resolve":
+            ch = d.get("chosen")
+            row["resolved"] = (ch or {}).get("name") if ch else None
+        elif it["step"] == "taste":
+            row["tags"] = [{"name": t.get("name"), "affinity": _r(t.get("affinity"))} for t in d.get("tags", [])[:per_list + 4]]
+        elif it["step"] == "affinity":
+            row["kind"] = d.get("kind")
+            row["top"] = [_compact_entity(e, tags_n) for e in d.get("entities", [])[:per_list]]
+        elif it["step"] == "demographics":
+            row["scores"] = {g: {k: _r(v) for k, v in vals.items()} for g, vals in d.get("groups", {}).items()}
+        elif it["step"] == "heatmap":
+            pts = d.get("points", [])[:min(per_list, 5)]
+            row["areas"] = [{"geohash": p.get("geohash"), "lat": _r(p.get("lat"), 3), "lon": _r(p.get("lon"), 3),
+                             "affinity": _r(p.get("affinity")), "demo_affinity": _r(p.get("demographics_affinity"))} for p in pts]
+        elif it["step"] == "compare":
+            row["shared_tags_by_similarity"] = [{"name": t.get("name"), "score": _r(t.get("score"))} for t in d.get("tags", [])[:per_list + 2]]
+        if it.get("segment"):
+            row["segment"] = it["segment"]
         out.append(row)
     return out
+
+
+def fit_evidence(items: list[dict[str, Any]], budget_chars: int) -> tuple[list[dict[str, Any]], str]:
+    """Shrink the evidence view until its JSON fits the budget (provider token limits are often small)."""
+    for per_list, tags_n in ((6, 3), (5, 2), (4, 1), (3, 0), (2, 0), (1, 0)):
+        view = compact_evidence(items, per_list, tags_n)
+        text = json.dumps(view, ensure_ascii=False, separators=(",", ":"))
+        if len(text) <= budget_chars:
+            return view, text
+    return view, text[:budget_chars]
 
 
 def _ids(items: list[dict[str, Any]]) -> set[str]:
@@ -86,9 +126,13 @@ def template_report(brief: Brief, items: list[dict[str, Any]]) -> dict[str, Any]
 async def synthesize(llm: LLMClient | None, brief: Brief, items: list[dict[str, Any]]) -> tuple[dict[str, Any], str]:
     if llm is None:
         return validate_report(template_report(brief, items), items), "template"
-    user = json.dumps({"question": brief.question, "brief": brief.to_dict(), "evidence": compact_evidence(items)}, ensure_ascii=False)
+    budget = llm.s.llm_max_input_chars
+    _, ev_text = fit_evidence(items, budget)
+    brief_view = {"goal": brief.goal, "product": brief.product, "own_brand": brief.own_brand, "competitors": brief.competitors,
+                  "location": brief.location, "segments": [s.label for s in brief.segments]}
+    user = json.dumps({"question": brief.question, "brief": brief_view}, ensure_ascii=False) + "\nEVIDENCE:" + ev_text
     try:
-        report = await llm.chat_json("synthesis", prompts.SYNTH_SYSTEM, user, max_tokens=4000)
+        report = await llm.chat_json("synthesis", prompts.SYNTH_SYSTEM, user, max_tokens=llm.s.llm_max_output_tokens)
         if not isinstance(report, dict):
             raise LLMError("synthesis was not an object")
         return validate_report(report, items), "llm"
