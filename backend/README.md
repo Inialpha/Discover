@@ -6,7 +6,7 @@ every request, raw response, evidence item and report into one run folder. Spec:
 ## Install
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate     # Python 3.12+
+python -m venv .venv && source .venv/bin/activate     # Python 3.10+
 pip install -e ".[dev]"
 cp ../.env.example .env                                # then fill in keys
 ```

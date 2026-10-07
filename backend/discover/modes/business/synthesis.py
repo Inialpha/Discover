@@ -63,9 +63,9 @@ def template_report(brief: Brief, items: list[dict[str, Any]]) -> dict[str, Any]
         if it["step"] == "affinity" and d.get("entities"):
             top = d["entities"][:3]
             names = ", ".join(f"{e['name']} (affinity {e['affinity']})" if e.get("affinity") is not None else str(e["name"]) for e in top)
-            findings.append({"claim": f"{it['segment']} — top-ranked {d["kind"]} (API order): {names}", "evidence_ids": [it["id"]], "confidence": "medium"})
+            findings.append({"claim": f"{it['segment']} — top-ranked {d['kind']} (API order): {names}", "evidence_ids": [it["id"]], "confidence": "medium"})
             if d["kind"] in ("movie", "tv_show", "artist", "podcast"):
-                media.append({"channel_or_title": top[0]["name"], "why": f"top-ranked {d["kind"]} returned for {it['segment']}", "evidence_ids": [it["id"]]})
+                media.append({"channel_or_title": top[0]["name"], "why": f"top-ranked {d['kind']} returned for {it['segment']}", "evidence_ids": [it["id"]]})
         elif it["step"] == "taste" and d.get("tags"):
             names = ", ".join(str(t["name"]) for t in d["tags"][:5])
             findings.append({"claim": f"{it['segment']} — leading taste tags: {names}", "evidence_ids": [it["id"]], "confidence": "medium"})
