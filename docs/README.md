@@ -11,6 +11,8 @@
 | `05-frontend/` | `frontend-architecture.md` | Frontend structure and components |
 | `06-discovery-modes/` | `discovery-state-and-agent-tools.md` | State models, tools, prompts |
 | `07-qloo/` | `qloo-integration.md` | Qloo adapter detail (wire formats provisional until recorded) |
+| `07-qloo/` | `market-discovery-workflow-reference.md` | Annotated Markdown of the Qloo Ask-AI marketing audience workflow (endpoints, parameters, example shapes, known issues) |
+| `backend/` | `README.md` | CLI workflow harness: run Business workflow end to end, run-folder layout, what to send back |
 | `08-api/` | `api-contract.md` | Request/response schemas and SSE examples |
 | `09-deployment/` | `deployment-architecture.md` | Hosting, Docker, environments |
 | `10-testing/` | `testing-strategy.md` | Test layers and profile mechanics |

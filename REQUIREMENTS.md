@@ -2,7 +2,7 @@
 
 **Project:** Discover  
 **Repository:** `Inialpha/Discover`  
-**Version:** 1.0 (canonical baseline)  
+**Version:** 1.1 (canonical baseline; business-first sequencing)  
 **Status:** Living specification — ready for implementation  
 **License:** MIT  
 **Primary integration:** Qloo Cultural Intelligence API  
@@ -86,6 +86,16 @@ Discover answers a broader question than "what is similar to this?":
 **PRD-002 (P0)** Users never need to know Qloo syntax, entity IDs, tags, or parameters.  
 **PRD-003 (P0)** Discover behaves as an agent, not a chatbot: it keeps state, asks, uses tools, iterates, and stops.  
 **PRD-004 (P0)** The product shows its work: users see what the agent is doing (timeline) and why each result was chosen (evidence).  
+
+## 1a. Product focus and sequencing: Discover for Business first
+
+**Scope is unchanged; sequencing is not.** All five modes remain in scope (§4.1). For the hackathon build, **Discover for Business (market discovery) is developed first and to full depth**; the other modes are built afterwards on the same foundations. The Business slice must therefore be built so that adding a mode is additive, not a rewrite.
+
+**FOC-001 (P0)** The first end-to-end deliverable is the Business market-discovery workflow: question → structured brief → Qloo evidence (resolve, taste, cross-domain affinity, demographics, heatmap, compare) → evidence package → grounded report. It must be runnable from the command line before any UI exists (§11.3).  
+**FOC-002 (P0)** Each mode is a **mode module** that supplies: a brief/state model, a planner prompt, a Qloo pipeline, a synthesis prompt, and a report renderer. Shared code (Qloo client, evidence model, LLM client, run recorder, validation) must not import from any mode module. The backend keeps a mode registry; only `business` is registered at first.  
+**FOC-003 (P0)** Shared code must not contain business-specific vocabulary (segments, campaigns, competitors); those live in the Business module. Mode-neutral concepts (subject, segment of people, evidence item, signal set) live in shared code.  
+**FOC-004 (P0)** Taxonomy values for all modes stay reserved (§4.1); unbuilt modes return `501 mode_not_available` rather than silently falling back to Business.  
+**FOC-005 (P1)** Business UI (§6.6) is built before other mode UIs, using the shared component library so later modes reuse it.
 
 ---
 
@@ -240,6 +250,13 @@ Every result and every explanation fragment carries provenance:
 | MOD-043 | Separate observed evidence from recommendations in every business output. | P0 |
 | MOD-044 | Business Workspace UI: brief builder, insights dashboard, opportunity cards, compare and trends panels, report builder (§6.7). | P1 |
 | MOD-045 | Never assert revenue, market-size, or ROI figures unless returned by a provider and cited. | P0 |
+| MOD-046 | Accept a free-text market question plus optional structured overrides (product, own brand, competitors, interests, location, segments, domains); structured input always overrides what the planner inferred. | P0 |
+| MOD-047 | Support one or more **audience segments** (label, gender, age range) per brief. Age ranges are mapped to Qloo age buckets deterministically in code, never by the LLM. A range overlapping a bucket by fewer than two years does not select that bucket. | P0 |
+| MOD-048 | Business evidence pipeline: entity/tag resolution; taste (tag) insights; cross-domain entity affinity; demographics of an interest audience; geographic heatmap for the stated location; compare of own brand vs competitors when both resolve. Each step is individually selectable. | P0 |
+| MOD-049 | Media-planning answers: for "what media does this audience like" questions, report top-ranked movies, TV, artists, podcasts and taste tags for each segment, with evidence IDs. | P0 |
+| MOD-050 | Advertising advice: for a product/brand, output audience profile, media environments, messaging angles (labelled interpretation), location notes, caveats, next steps. Messaging angles are interpretation (TAX-007) and must not be presented as measured. | P1 |
+| MOD-051 | Every claim in a business report cites evidence IDs; claims citing no valid evidence are removed and the removal is disclosed. Affinity scores are described as relative scores, never as percentages of people. | P0 |
+| MOD-052 | Failed or skipped Qloo calls are recorded as evidence (`ok=false`) and surfaced in report caveats; a partial report is preferable to none. | P0 |
 
 ## 5.2 Analysis intents
 
@@ -988,6 +1005,19 @@ When the Qloo (and LLM/search) keys become available:
 **TST-030 (P0)** CI runs unit, contract, agent, integration, and security tests on every push in `mock`/`replay`; no external network is required.  
 **TST-031 (P1)** A nightly or manual `live` smoke job runs when keys are configured.
 
+## 11.3 Command-line workflow harness
+
+The backend ships a CLI (`backend/`, command `discover`) that runs the Business workflow end to end and saves everything to one run folder. It is the primary tool for verifying real Qloo behaviour once a key exists, and it uses the same modules the API will use (FOC-002).
+
+**CLI-001 (P0)** `discover run "<question>"` runs plan → Qloo pipeline → synthesis → report with optional flags (`--product`, `--own-brand`, `--brand`, `--keyword`, `--interest name:kind`, `--segment label:gender:age`, `--gender`, `--age`, `--location`, `--domains`, `--steps/--skip`, `--take`, `--max-calls`, `--no-llm`, `--mock`, `--dry-run`, `--plan-only`).  
+**CLI-002 (P0)** Each run writes `runs/<timestamp>_<slug>/` containing: `00_input.json`, `01_brief.json`, `qloo/NNN_<step>_<label>_vN.json` (one file per HTTP attempt: request params, status, safe headers, raw response body, variant metadata), `llm/NN_*.json`, `02_resolved.json`, `03_evidence.json`, `04_report.json`, `04_report.md`, `calls.jsonl`, `99_run_summary.json`, and a `.zip` of the folder.  
+**CLI-003 (P0)** API keys are never written to run output; request records show `X-Api-Key: ***redacted***`.  
+**CLI-004 (P0)** Parameters not yet verified against the live API (location parameter placement, `types` vs `filter.type`, tag query name, compare spelling) are expressed as ordered **variants**; the client advances to the next variant on HTTP 400/422 and records which variant succeeded. Corrections replace the variant lists in `backend/discover/qloo/calls.py`.  
+**CLI-005 (P0)** Execution is bounded: global call budget (`--max-calls`), per-request timeout, bounded retries with backoff on 429/5xx/timeouts, stop on 401. Exit codes: 0 ok, 1 partial failures, 2 all Qloo calls failed, 3 configuration/auth problem.  
+**CLI-006 (P0)** `--mock` uses a synthetic Qloo transport; all evidence and the report are flagged synthetic (TST-003, TST-012). `--dry-run` writes planned requests without any network call.  
+**CLI-007 (P0)** The default Qloo base URL is the hackathon host (`https://hackathon.api.qloo.com`), overridable by `QLOO_BASE_URL`.  
+**CLI-008 (P1)** `discover probe` makes two minimal calls to verify the key and base URL.
+
 ---
 
 # 12. Deployment Requirements
@@ -1096,6 +1126,7 @@ Full rationale in `docs/01-decisions/decision-records.md`.
 | 014 | Documentation governance: REQUIREMENTS.md is canonical | Accepted |
 | 015 | Frontend: React + TypeScript + Vite, shared component system | Accepted |
 | 016 | Hosting: static frontend host + container backend + managed Postgres | Accepted (vendors pending) |
+| 017 | Business-first sequencing; modes as modules; CLI harness first | Accepted |
 
 ## 16.1 Open items with defaults (proceed unless changed)
 
@@ -1144,7 +1175,8 @@ Discover does not: act as a general-purpose chatbot; store voice audio; make pur
 | Qloo adapter | **Defined as interface**; wire details pending `record` (TST-020) |
 | Test profiles (§11) | **Defined** |
 | Deployment (§12) | **Defined**; vendors per ADR-016 |
-| Implementation | **Not started** — ready to begin at M0 |
+| Business workflow CLI (§11.3) | **Implemented as prototype** in `backend/`; wire details pending first live run |
+| Implementation (API, UI, other modes) | **Not started** — ready to begin at M0; Business first (§1a) |
 
 ---
 
