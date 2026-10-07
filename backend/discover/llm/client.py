@@ -47,6 +47,8 @@ class LLMClient:
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "response_format": {"type": "json_object"},
         }
+        if self.s.llm_reasoning_effort:
+            payload["reasoning_effort"] = self.s.llm_reasoning_effort
         headers = {"Authorization": f"Bearer {self.s.llm_api_key}"}
         record: dict[str, Any] = {"name": name, "request": {k: v for k, v in payload.items()}, "attempts": []}
         parsed: Any = None
@@ -69,13 +71,22 @@ class LLMClient:
                 if r.status_code == 400 and "response_format" in payload:
                     payload.pop("response_format")  # provider may not support JSON mode
                     continue
+                if r.status_code == 400 and "reasoning_effort" in payload:
+                    payload.pop("reasoning_effort")
+                    continue
                 if r.status_code >= 400:
                     error = f"HTTP {r.status_code}"
                     if r.status_code < 500 and r.status_code != 429:
                         break
                     continue
                 try:
-                    content = entry["json"]["choices"][0]["message"]["content"]
+                    choice = entry["json"]["choices"][0]
+                    if choice.get("finish_reason") == "length":
+                        payload["max_tokens"] = min(int(payload["max_tokens"] * 1.5), 6000)
+                        error = "LLM output truncated (finish_reason=length); retrying with more tokens"
+                        entry["note"] = error
+                        continue
+                    content = choice["message"]["content"]
                     parsed = extract_json(content)
                     error = None
                     break

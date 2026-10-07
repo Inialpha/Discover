@@ -144,3 +144,39 @@ def test_evidence_fits_budget():
     items = [{"id": f"E{i}", "step": "affinity", "label": "l", "ok": True, "data": {"kind": "movie", "entities": ents}} for i in range(12)]
     _, text = fit_evidence(items, 3000)
     assert len(text) <= 3000
+
+
+def test_heatmap_named_by_nearest_place():
+    from discover.modes.business.pipeline import Evidence, _annotate_heatmaps
+    ev = Evidence()
+    ev.items = [
+        {"id": "E001", "step": "affinity", "ok": True, "segment": "S", "data": {"kind": "place", "entities": [
+            {"name": "Near Cafe", "location": {"lat": 6.45, "lon": 3.40}}, {"name": "Far Cafe", "location": {"lat": 7.5, "lon": 4.5}}]}},
+        {"id": "E002", "step": "heatmap", "ok": True, "segment": "S", "data": {"points": [
+            {"lat": 6.451, "lon": 3.401}, {"lat": 9.0, "lon": 8.0}]}},
+    ]
+    _annotate_heatmaps(ev)
+    pts = ev.items[1]["data"]["points"]
+    assert pts[0]["nearby_places"][0]["name"] == "Near Cafe" and pts[1]["nearby_places"] == []
+
+
+def test_confidence_capped_and_basis_set():
+    from discover.modes.business.synthesis import validate_report
+    items = [{"id": "E001"}]
+    r = validate_report({"findings": [{"claim": "c", "evidence_ids": ["E001"], "confidence": "high"}],
+                         "media_recommendations": [{"channel_or_title": "Instagram", "evidence_ids": []}]}, items)
+    assert r["findings"][0]["confidence"] == "medium" and r["media_recommendations"][0]["basis"] == "interpretation"
+
+
+def test_llm_truncation_retries(settings, tmp_path):
+    import json as _j
+    from dataclasses import replace
+    from discover.llm.client import LLMClient
+    calls = []
+    def h(req):
+        body = _j.loads(req.content); calls.append(body["max_tokens"])
+        fin = "length" if len(calls) == 1 else "stop"
+        return httpx.Response(200, json={"choices": [{"finish_reason": fin, "message": {"content": '{"a": 1}'}}]})
+    s = replace(settings, llm_api_key="k", llm_base_url="https://llm.invalid/v1", llm_model="m")
+    out = _run(LLMClient(s, RunRecorder(tmp_path), transport=httpx.MockTransport(h)).chat_json("t", "s", "u", max_tokens=1000))
+    assert out == {"a": 1} and calls == [1000, 1500]

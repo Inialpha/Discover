@@ -14,7 +14,7 @@ SYNTH_SYSTEM = """You are a market-insight analyst. You get an EVIDENCE list fro
  "headline": string,
  "audience_profile": string,
  "findings": [{"claim": string, "evidence_ids": [ids], "confidence": "high"|"medium"|"low"}],
- "media_recommendations": [{"channel_or_title": string, "why": string, "evidence_ids": [ids]}],
+ "media_recommendations": [{"channel_or_title": string, "basis": "qloo"|"interpretation", "why": string, "evidence_ids": [ids]}],
  "messaging_angles": [{"angle": string, "why": string, "evidence_ids": [ids]}],
  "location_notes": string|null,
  "caveats": [string],
@@ -25,4 +25,10 @@ negative (not shares of people); heatmap points are areas given as lat/lon/geoha
 similarity of two brands per shared tag. Hard rules: every finding/recommendation must cite evidence ids that exist; never invent numbers, names or
 percentages that are not in the evidence; affinity values are relative scores, not percentages of people;
 anything you infer beyond the evidence goes into messaging_angles or next_steps, not findings; mention
-if evidence is missing or failed. Keep it concise."""
+if evidence is missing or failed. Evidence-grounding rules: findings may only restate what the evidence shows (named titles/artists/brands/places/tags,
+scores, demographic index values, heatmap areas with their 'near' place). Do NOT add traits the evidence does not show
+(education, income, religion, profession, lifestyle). Heatmap areas are only identified by geohash/lat/lon and the 'near'
+place; never name a neighbourhood that is not in the evidence. Platform/channel suggestions (Instagram, TikTok, billboards...)
+are not in the evidence: label them basis="interpretation" and put the reasoning in 'why'; items naming a title, artist,
+podcast, brand or place from the evidence are basis="qloo". Be honest that results may not be local (some Qloo recommendations
+are global). Be concise: the whole JSON must fit in about 1500 tokens."""

@@ -58,7 +58,8 @@ class Settings:
     llm_model: str | None
     llm_timeout: float
     llm_max_input_chars: int = 9000
-    llm_max_output_tokens: int = 2000
+    llm_max_output_tokens: int = 3500
+    llm_reasoning_effort: str | None = None
 
     @property
     def llm_configured(self) -> bool:
@@ -76,5 +77,6 @@ class Settings:
             llm_model=os.environ.get("LLM_MODEL") or None,
             llm_timeout=_float("LLM_TIMEOUT_SECONDS", 90.0),
             llm_max_input_chars=_int("LLM_MAX_INPUT_CHARS", 9000),
-            llm_max_output_tokens=_int("LLM_MAX_OUTPUT_TOKENS", 2000),
+            llm_max_output_tokens=_int("LLM_MAX_OUTPUT_TOKENS", 3500),
+            llm_reasoning_effort=os.environ.get("LLM_REASONING_EFFORT") or None,
         )

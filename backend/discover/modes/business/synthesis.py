@@ -50,7 +50,8 @@ def compact_evidence(items: list[dict[str, Any]], per_list: int = 6, tags_n: int
         elif it["step"] == "heatmap":
             pts = d.get("points", [])[:min(per_list, 5)]
             row["areas"] = [{"geohash": p.get("geohash"), "lat": _r(p.get("lat"), 3), "lon": _r(p.get("lon"), 3),
-                             "affinity": _r(p.get("affinity")), "demo_affinity": _r(p.get("demographics_affinity"))} for p in pts]
+                             "affinity": _r(p.get("affinity")), "demo_affinity": _r(p.get("demographics_affinity")),
+                             "near": [f"{n['name']} ({n['km']}km)" for n in p.get("nearby_places", [])[:1]]} for p in pts]
         elif it["step"] == "compare":
             row["shared_tags_by_similarity"] = [{"name": t.get("name"), "score": _r(t.get("score"))} for t in d.get("tags", [])[:per_list + 2]]
         if it.get("segment"):
@@ -75,7 +76,13 @@ def _ids(items: list[dict[str, Any]]) -> set[str]:
 
 def validate_report(report: dict[str, Any], items: list[dict[str, Any]]) -> dict[str, Any]:
     valid = _ids(items)
-    dropped = 0
+    dropped = capped = 0
+    for f in report.get("findings") or []:
+        if f.get("confidence") not in ("medium", "low"):  # relative scores, no sample sizes: never claim 'high'
+            f["confidence"] = "medium"
+            capped += 1
+    if capped:
+        report.setdefault("caveats", []).append("Confidence is capped at 'medium': Qloo scores are relative rankings without sample sizes.")
     for key in ("findings", "media_recommendations", "messaging_angles"):
         kept = []
         for row in report.get(key) or []:
@@ -84,6 +91,8 @@ def validate_report(report: dict[str, Any], items: list[dict[str, Any]]) -> dict
                 dropped += 1
                 continue
             row["evidence_ids"] = ids
+            if key == "media_recommendations" and row.get("basis") not in ("qloo", "interpretation"):
+                row["basis"] = "qloo" if ids else "interpretation"
             if key != "findings" and not ids:
                 row["unsupported"] = True
             kept.append(row)
@@ -152,7 +161,7 @@ def to_markdown(brief: Brief, report: dict[str, Any], items: list[dict[str, Any]
     if report.get("findings"):
         L += ["## Findings", ""] + [f"- {f['claim']} _(confidence: {f.get('confidence', '?')})_ {cite(f)}" for f in report["findings"]] + [""]
     if report.get("media_recommendations"):
-        L += ["## Media recommendations", ""] + [f"- **{r.get('channel_or_title')}** — {r.get('why')} {cite(r)}" for r in report["media_recommendations"]] + [""]
+        L += ["## Media recommendations", ""] + [f"- **{r.get('channel_or_title')}** — {r.get('why')} {cite(r)}{' _(interpretation)_' if r.get('basis') == 'interpretation' else ''}" for r in report["media_recommendations"]] + [""]
     if report.get("messaging_angles"):
         L += ["## Messaging angles (interpretation)", ""] + [f"- **{r.get('angle')}** — {r.get('why')} {cite(r)}" for r in report["messaging_angles"]] + [""]
     if report.get("location_notes"):

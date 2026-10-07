@@ -42,3 +42,10 @@ def decode(geohash: str) -> tuple[float, float]:
                 rng[1] = mid
             even = not even
     return (lat_rng[0] + lat_rng[1]) / 2, (lon_rng[0] + lon_rng[1]) / 2
+
+
+def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    from math import asin, cos, radians, sin, sqrt
+    dlat, dlon = radians(lat2 - lat1), radians(lon2 - lon1)
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+    return 6371.0 * 2 * asin(sqrt(a))

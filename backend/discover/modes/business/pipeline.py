@@ -113,6 +113,28 @@ def _signals(seg: Segment, resolved: Resolved, location: str | None, own_only: b
     )
 
 
+def _annotate_heatmaps(ev: "Evidence", radius_km: float = 4.0) -> None:
+    """Heatmap points only carry lat/lon/geohash. Name each area by the nearest affinity places from the
+    same segment (computed here, not guessed by the LLM). Points with no place within radius stay unnamed."""
+    from ...qloo.geo import haversine_km
+    places: dict[str | None, list[dict[str, Any]]] = {}
+    for it in ev.items:
+        d = it.get("data") or {}
+        if it.get("ok") and it["step"] == "affinity" and d.get("kind") == "place":
+            places.setdefault(it.get("segment"), []).extend(
+                e for e in d.get("entities", []) if isinstance(e.get("location"), dict) and e["location"].get("lat") is not None)
+    for it in ev.items:
+        d = it.get("data") or {}
+        if not (it.get("ok") and it["step"] == "heatmap" and d.get("points")):
+            continue
+        cands = places.get(it.get("segment"), [])
+        for pt in d["points"]:
+            if pt.get("lat") is None or pt.get("lon") is None:
+                continue
+            near = sorted(((haversine_km(pt["lat"], pt["lon"], c["location"]["lat"], c["location"]["lon"]), c["name"]) for c in cands))
+            pt["nearby_places"] = [{"name": n, "km": round(k, 1)} for k, n in near[:2] if k <= radius_km]
+
+
 async def run_pipeline(client: QlooClient, brief: Brief, steps: set[str], take: int = 10) -> tuple[Evidence, Resolved]:
     ev, resolved = Evidence(), Resolved()
     if "resolve" in steps:
@@ -146,6 +168,8 @@ async def run_pipeline(client: QlooClient, brief: Brief, steps: set[str], take: 
             else:
                 data = {"points": nz.heatmap_from_body(res.body)[:30]} if res.ok else None
             ev.add(step, f"{seg.label}:{tag}", res, data, seg.label)
+
+    _annotate_heatmaps(ev)
 
     if "demographics" in steps and has_interest:
         sig = calls.Signals(entities=[e["entity_id"] for e in resolved.entities],
