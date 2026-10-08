@@ -39,7 +39,7 @@ brief and writes the evidence-cited report (claims citing no valid evidence are 
 discover coverage --location Lagos --location "New York" --location London --location Mumbai --location Tokyo \
     --gender women --age 25-35
 ```
-Writes `coverage.md/json`: per city, how much the location changes the results (0 = nothing, i.e. global taste),
+Writes `coverage.md/json`: per city, how local the results are (share of movies/TV/brands whose own metadata names the market's country),
 place/heatmap counts, and overlap between cities. Send the zip back; we choose demo markets from this.
 Multi-market questions: `discover run "what content should I create for women 25-35?" --location Tokyo --location "New York"`.
 

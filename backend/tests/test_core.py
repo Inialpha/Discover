@@ -199,9 +199,19 @@ def test_coverage_probe_mock(settings, tmp_path):
     code, run_dir, s = _run(execute_coverage(["Lagos", "New York"], "women", "25-35", ["movie", "artist", "place"], 5,
                                              tmp_path, settings, mock=True, zip_=False))
     res = json.loads((run_dir / "coverage.json").read_text())
-    assert code == 0 and res["synthetic"] and "grade" in res["locations"]["Lagos"] and (run_dir / "coverage.md").exists()
-    assert res["locations"]["New York"]["kinds"]["movie"]["location_influence"] is not None
+    assert code == 0 and res["synthetic"] and res["locations"]["Lagos"]["country_inferred"] == "mockland"
+    assert res["locations"]["New York"]["kinds"]["movie"]["local_share"] == 1.0 and (run_dir / "coverage.md").exists()
 
 
 def test_goal_content_heuristic():
     assert heuristic_brief("what social media content should I create for women 25-35 in Tokyo").goal == "content"
+
+
+def test_infer_country_and_local_share():
+    from discover.modes.business.coverage import infer_country, local_share
+    jp = [{"properties": {"address": "1-1 Maihama, Urayasu, Chiba 279-0031 Japan"}}, {"properties": {"address": "Minato City, Tokyo 106-6150 Japan"}}]
+    us = [{"properties": {"address": "20 W 34th St. New York, NY 10001"}}]
+    uk = [{"properties": {"address": "Bankside London SE1 9TG United Kingdom"}}]
+    assert infer_country(jp) == "japan" and infer_country(us) == "united states" and infer_country(uk) == "united kingdom"
+    movies = [{"properties": {"release_country": ["Japan"]}}, {"properties": {"release_country": ["United States"]}}, {"properties": {}}]
+    assert local_share("movie", movies, "japan") == 0.5 and local_share("artist", movies, "japan") is None

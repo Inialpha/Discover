@@ -47,7 +47,8 @@ def _entity(kind: str, i: int, seed: int, with_query: bool = True) -> dict:
         "subtype": f"urn:entity:{kind}",
         "popularity": round(0.5 + ((seed + i * 7) % 49) / 100, 3),
         "tags": [{"id": t[0], "name": t[1], "type": t[2], "weight": round(0.2 + ((seed + i + j) % 5) / 10, 2)} for j, t in enumerate(_TAGS[:3])],
-        "properties": {"description": f"[SYNTHETIC] {name}"},
+        "properties": {"description": f"[SYNTHETIC] {name}", "release_country": ["Mockland"], "key_markets": ["Mockland"],
+                       "address": "1 Mock Street, Mockland"},
         "external": {},
     }
     if with_query:

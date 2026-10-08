@@ -11,7 +11,7 @@ from typing import Any
 PROP_WHITELIST = (
     "description", "short_description", "audience_identity", "price_level", "year", "release_year", "release_date", "genre", "genres",
     "publication_year", "address", "geocode", "price_level", "cuisines", "languages", "country", "website",
-    "industry", "founded", "headquartered_in", "content_rating", "duration", "network", "streaming_platforms",
+    "industry", "founded", "headquartered_in", "release_country", "key_markets", "headquartered", "content_rating", "duration", "network", "streaming_platforms",
 )
 
 
