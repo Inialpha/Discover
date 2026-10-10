@@ -120,13 +120,28 @@ def brief_from_llm(question: str, data: dict[str, Any]) -> Brief:
 _DEMO_WORDS = {"women", "woman", "men", "man", "male", "female", "girls", "boys", "people", "young", "adults", "youth"}
 
 
+def _dedupe_interests(b: Brief) -> None:
+    seen, out = set(), []
+    for it in b.interests:
+        key = (it["name"].strip().lower(), it["kind"])
+        if key not in seen:
+            seen.add(key)
+            out.append(it)
+    b.interests = out
+
+
 def clean_keywords(b: Brief) -> Brief:
     """Drop keywords that merely restate demographics/location: they are passed as dedicated signals, and
     resolving them as tags produced junk matches in real runs."""
+    _dedupe_interests(b)
+    interest_names = {i["name"].strip().lower() for i in b.interests}
     locs = [x.lower() for x in b.locations]
     keep = []
     for k in b.keywords:
         kl = k.strip().lower()
+        if kl in interest_names:
+            b.notes.append(f"keyword {k!r} dropped (already an interest entity)")
+            continue
         if not kl or kl in _DEMO_WORDS or any(kl == l or kl in l for l in locs) or re.fullmatch(r"[\d\s\-–+]+", kl):
             b.notes.append(f"keyword {k!r} dropped (demographic/location is a dedicated signal)")
             continue

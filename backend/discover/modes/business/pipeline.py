@@ -43,11 +43,11 @@ class Resolved:
 
 
 def _pick(cands: list[dict[str, Any]], query: str) -> dict[str, Any] | None:
-    cands = [c for c in cands if c.get("entity_id") or c.get("id")]
-    if not cands:
-        return None
-    exact = [c for c in cands if (c.get("name") or "").lower() == query.lower()]
-    return (exact or cands)[0]
+    """Accept a search hit only if its name matches the query (normalised). Qloo search is fuzzy: taking the
+    first hit resolved 'Anime' to an unrelated TV show in a real run. No match -> unresolved."""
+    q = _norm(query)
+    ok = [c for c in cands if (c.get("entity_id") or c.get("id")) and _norm(c.get("name") or "") == q]
+    return ok[0] if ok else None
 
 
 _TAG_DENY = ("specialty_dish", "nearby_attraction", ":category:place", "genre:place", "amenit", "payments", "parking", "accessibility")
@@ -179,12 +179,12 @@ async def run_pipeline(client: QlooClient, brief: Brief, steps: set[str], take: 
     _annotate_heatmaps(ev)
 
     if "demographics" in steps and has_interest:
-        for loc in locs:
-            sig = calls.Signals(entities=[e["entity_id"] for e in resolved.entities],
-                                tags=[t["id"] for t in resolved.tags], location=loc)
-            tag = f"audience-demographics{' @ ' + loc if loc and len(locs) > 1 else ''}"
-            res = await client.call(calls.insights_demographics("demographics", tag, sig))
-            ev.add("demographics", tag, res, nz.demographics_from_body(res.body) if res.ok else None)
+        # In real runs the demographics of an interest audience were identical for every location, so ask once.
+        loc = locs[0]
+        sig = calls.Signals(entities=[e["entity_id"] for e in resolved.entities],
+                            tags=[t["id"] for t in resolved.tags], location=loc)
+        res = await client.call(calls.insights_demographics("demographics", "audience-demographics", sig))
+        ev.add("demographics", "interest-audience (location-independent)", res, nz.demographics_from_body(res.body) if res.ok else None)
 
     if "compare" in steps and brief.own_brand and brief.competitors:
         own = [e["entity_id"] for e in resolved.entities if e["query"] == brief.own_brand]

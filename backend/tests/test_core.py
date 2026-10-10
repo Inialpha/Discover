@@ -215,3 +215,15 @@ def test_infer_country_and_local_share():
     assert infer_country(jp) == "japan" and infer_country(us) == "united states" and infer_country(uk) == "united kingdom"
     movies = [{"properties": {"release_country": ["Japan"]}}, {"properties": {"release_country": ["United States"]}}, {"properties": {}}]
     assert local_share("movie", movies, "japan") == 0.5 and local_share("artist", movies, "japan") is None
+
+
+def test_entity_pick_requires_name_match_and_interests_dedupe():
+    from discover.modes.business.pipeline import _pick
+    from discover.modes.business.brief import Brief, clean_keywords
+    cands = [{"entity_id": "1", "name": "Rin: Daughters of Mnemosyne"}, {"entity_id": "2", "name": "Attack on Titan"}]
+    assert _pick(cands, "Anime") is None
+    assert _pick([{"entity_id": "9", "name": "King of Boys"}], "king of boys")["entity_id"] == "9"
+    b = Brief(question="q", interests=[{"name": "King of Boys", "kind": "movie"}, {"name": "king of boys", "kind": "movie"}],
+              keywords=["King of Boys", "streetwear"])
+    clean_keywords(b)
+    assert len(b.interests) == 1 and b.keywords == ["streetwear"]
