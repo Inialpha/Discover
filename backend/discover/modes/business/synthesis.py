@@ -39,7 +39,7 @@ def compact_evidence(items: list[dict[str, Any]], per_list: int = 6, tags_n: int
         d = it.get("data") or {}
         if it["step"] == "resolve":
             ch = d.get("chosen")
-            row["resolved"] = (ch or {}).get("name") if ch else None
+            row["resolved"] = (ch or {}).get("name") if ch else "NOT FOUND in Qloo - not used as a signal; say it was not found"
         elif it["step"] == "taste":
             row["tags"] = [{"name": t.get("name"), "affinity": _r(t.get("affinity"))} for t in d.get("tags", [])[:per_list + 4]]
         elif it["step"] == "affinity":

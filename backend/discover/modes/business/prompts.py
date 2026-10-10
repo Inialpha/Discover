@@ -23,7 +23,8 @@ SYNTH_SYSTEM = """You are a market-insight analyst. You get an EVIDENCE list fro
 }
 Qloo notes: affinity values are relative ranking scores (0-1); demographics values are relative index scores that can be
 negative (not shares of people); heatmap points are areas given as lat/lon/geohash without names; compare 'score' is
-similarity of two brands per shared tag. Hard rules: every finding/recommendation must cite evidence ids that exist; never invent numbers, names or
+similarity of two brands per shared tag. Taste items labelled taste:media/interests/brand are different tag families (media = book/film genres). An evidence item
+with resolved 'NOT FOUND' means Qloo has no such tag: never call it null or build claims on it. Hard rules: every finding/recommendation must cite evidence ids that exist; never invent numbers, names or
 percentages that are not in the evidence; affinity values are relative scores, not percentages of people;
 anything you infer beyond the evidence goes into messaging_angles or next_steps, not findings; mention
 if evidence is missing or failed. For goal advertising/content fill content_ideas (3-6 concrete social/video content ideas whose hooks come from evidence

@@ -14,6 +14,7 @@ from ...qloo import calls, normalize as nz
 from ...qloo.client import CallResult, QlooClient
 from .brief import Brief, Segment
 
+TASTE_TYPES = (("media", "urn:tag:genre:media"), ("interests", "urn:tag:interests:qloo"), ("brand", "urn:tag:genre:brand"))
 ALL_STEPS = ("resolve", "taste", "affinity", "demographics", "heatmap", "compare")
 
 
@@ -154,9 +155,10 @@ async def run_pipeline(client: QlooClient, brief: Brief, steps: set[str], take: 
             continue
         tasks: list[tuple[str, str, calls.CallSpec]] = []
         if "taste" in steps:
-            tasks.append(("taste", "taste", calls.insights_tags("taste", f"{seg_label}-taste", sig, "urn:tag:genre:media")))
-            # media-genre tags are book-genre heavy in real runs; also ask for tags of any type for comparison
-            tasks.append(("taste", "taste-all", calls.insights_tags("taste", f"{seg_label}-taste-all", sig, None)))
+            # Typed taste calls (an untyped call is dominated by place-dish and obscure music tags: real runs).
+            for short, ttype in TASTE_TYPES:
+                tasks.append(("taste", f"taste:{short}", calls.insights_tags(
+                    "taste", f"{seg_label}-taste-{short}", sig, ttype, take=12, strict=True)))
         if "affinity" in steps:
             for kind in brief.domains:
                 tasks.append(("affinity", kind, calls.insights_entities(

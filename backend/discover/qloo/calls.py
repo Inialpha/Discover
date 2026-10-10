@@ -116,14 +116,16 @@ def insights_entities(
     return CallSpec(step, label, "/v2/insights", variants, note=f"entity insights kind={kind}")
 
 
-def insights_tags(step: str, label: str, signals: Signals, tag_type: str | None = None, take: int = 15) -> CallSpec:
+def insights_tags(step: str, label: str, signals: Signals, tag_type: str | None = None, take: int = 15,
+                  strict: bool = False) -> CallSpec:
     base = {"filter.type": "urn:tag", "take": str(take), **signals.interest_params(), **signals.demographic_params()}
     meta = {"tag_type": tag_type}
     variants: list[Variant] = []
     for loc in _location_variants(base, signals.location, ("signal", "filter"), meta, allow_none=True):
         if tag_type:
             variants.append(Variant({**loc.params, "filter.tag.types": tag_type}, {**loc.meta, "tag_type_param": "filter.tag.types"}))
-        variants.append(loc)
+        if not (tag_type and strict):  # strict: never fall back to the untyped (noisy) call
+            variants.append(loc)
     # de-duplicate identical param sets while keeping order
     seen, uniq = set(), []
     for v in variants:

@@ -167,7 +167,7 @@ def coverage_markdown(res: dict[str, Any], synthetic: bool) -> str:
     if synthetic:
         L += ["> **SYNTHETIC (--mock): not real Qloo data.**", ""]
     L += [f"Demographic: {res['demographic']}", "", res["how_to_read"], "",
-          "| Location | Inferred country | Grade | Avg local share | Heatmap areas (max 30) |", "|---|---|---|---|---|"]
+          "| Location | Inferred country | Grade | Avg local share | Heatmap areas returned (take ignored) |", "|---|---|---|---|---|"]
     for loc, row in res["locations"].items():
         L.append(f"| {loc} | {row.get('country_inferred')} | {row.get('grade', 'n/a')} | {row.get('avg_local_share', 'n/a')} | {row['heatmap_areas']} |")
     L += ["", "## Per kind (top 3 results)", ""]

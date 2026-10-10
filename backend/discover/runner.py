@@ -115,6 +115,9 @@ async def execute(opts: RunOptions, settings: Settings, mock_reject=None) -> tup
     report, mode = await synthesize(llm, brief, ev.items)
     if opts.mock:
         report.setdefault("caveats", []).insert(0, "SYNTHETIC DATA: produced by --mock, not by Qloo.")
+    if resolved.unresolved:
+        report.setdefault("caveats", []).append(
+            "Not found in Qloo, so not used as a signal: " + ", ".join(resolved.unresolved) + ".")
     report["data_coverage"] = report_coverage(ev.items, brief.locations)
     rec.write_json("04_report.json", {"mode": mode, "report": report})
     rec.write_text("04_report.md", to_markdown(brief, report, ev.items, mode))

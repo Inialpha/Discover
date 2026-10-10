@@ -28,7 +28,7 @@ discover run "..." --segment "Young women:female:25-35" --segment "Young men:mal
 discover run "..." --dry-run        # write the planned requests, call nothing
 discover run "..." --steps resolve,taste --max-calls 20
 ```
-Experiment: `--location-mode signal|filter|both` changes how the location is sent (default tries a sensible order per call).
+`--location-mode`: leave on `auto`. Real runs showed `filter` does NOT localise movies/TV/music/brands (every city returned the same global list); `signal` does. `both` equals `signal`.
 The LLM only sees a compact view of the evidence (`LLM_MAX_INPUT_CHARS`, default 9000); full data stays in `03_evidence.json`.
 
 Without LLM settings the planner is heuristic and the report is a plain template. With them, an LLM plans the
