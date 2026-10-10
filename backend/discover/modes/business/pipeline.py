@@ -14,7 +14,8 @@ from ...qloo import calls, normalize as nz
 from ...qloo.client import CallResult, QlooClient
 from .brief import Brief, Segment
 
-TASTE_TYPES = (("media", "urn:tag:genre:media"), ("interests", "urn:tag:interests:qloo"), ("brand", "urn:tag:genre:brand"))
+# "urn:tag:interests:qloo" returned empty in real runs, so it is not asked for
+TASTE_TYPES = (("media", "urn:tag:genre:media"), ("brand", "urn:tag:genre:brand"))
 ALL_STEPS = ("resolve", "taste", "affinity", "demographics", "heatmap", "compare")
 
 
