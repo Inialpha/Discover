@@ -18,6 +18,9 @@ discover = "discover.cli:main"
 [tool.setuptools.packages.find]
 include = ["discover*"]
 
+[tool.setuptools.package-data]
+"discover.personas" = ["data/*.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"

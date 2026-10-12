@@ -220,3 +220,6 @@ __marimo__/
 # CLI workflow run output (may contain provider data)
 runs/
 backend/runs/
+
+# reference-data cache
+.discover_cache/

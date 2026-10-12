@@ -54,6 +54,8 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--no-zip", action="store_true")
     c.add_argument("--location-mode", choices=["auto", "signal", "filter", "both"], default="auto")
     sub.add_parser("probe", help="check key/base URL with two tiny calls")
+    from .personas.cli_cmds import add_parsers
+    add_parsers(sub)
     return p
 
 
@@ -75,6 +77,12 @@ async def _probe(settings: Settings) -> int:
 def main(argv: list[str] | None = None) -> int:
     load_dotenv()
     args = build_parser().parse_args(argv)
+    if args.cmd == "segments":
+        from .personas.cli_cmds import run_segments
+        return run_segments(args)
+    if args.cmd == "refdata":
+        from .personas.cli_cmds import run_refdata
+        return run_refdata(args)
     settings = Settings.from_env()
     if args.cmd == "probe":
         return asyncio.run(_probe(settings))

@@ -56,6 +56,20 @@ Multi-market questions: `discover run "what content should I create for women 25
 API keys are never written. **Send back the `.zip`** (and tell me what looks wrong); `99_run_summary.json`
 lists which parameter spellings worked.
 
+## Persona discovery (step 1: price, affordability, candidate segments)
+No Qloo key or LLM needed. Price is entered in local currency; the tier comes from price ÷ income, not from guesses.
+```bash
+discover refdata refresh                 # fetch World Bank + FX data into .discover_cache/ (run once, then weekly)
+discover refdata show --country NGA      # what is available and how old it is
+discover segments --name "Budget phone" --description "Affordable phone with long battery life for students" \
+  --category smartphone --price 40000 --currency NGN --location Lagos --feature "dual sim"
+discover segments --file intake.json     # same, from a JSON file (fields: see discover/personas/intake.py)
+```
+Output folder `runs/<ts>_segments_<slug>/` (+ zip): `00_input.json`, `01_result.json`, `02_summary.md`.
+Without `refdata refresh` only the values shipped in `discover/personas/data/reference_snapshot.json` are available
+(verified values only; income-band data is missing for most countries, and the report says so).
+Reference sources: World Bank Open Data (no key) and open.er-api.com (no key; attribution required).
+
 ## Correcting mistakes
 Unverified spellings (location param placement, `types` vs `filter.type`, tag query name, age buckets,
 compare params) live in `discover/qloo/calls.py` and `discover/qloo/demographics.py`. Response parsing is in

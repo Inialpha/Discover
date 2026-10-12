@@ -97,6 +97,17 @@ Discover answers a broader question than "what is similar to this?":
 **FOC-004 (P0)** Taxonomy values for all modes stay reserved (§4.1); unbuilt modes return `501 mode_not_available` rather than silently falling back to Business.  
 **FOC-005 (P1)** Business UI (§6.6) is built before other mode UIs, using the shared component library so later modes reuse it.
 
+**Persona discovery is the current build focus (decided 2026-10-11).** Inside Business, the next slice is *persona discovery*: a business supplies a structured product description (text, or voice transcribed to the same fields), a price in local currency and a location, and gets 1–10 evidence-backed buyer personas. Free-form "what do people in X like" questions are not a product mode. Business/product-gap discovery (location + industry → opportunities) follows later.
+
+**PER-001 (P0)** Intake is structured and validated (name, description, category, price, currency, location, purchase type, optional features, competitors and competitor prices, persona limit, optional age/gender filters). Nothing is inferred silently; an unknown location requires a country.  
+**PER-002 (P0)** Price is entered in local currency. Affordability is computed from price ÷ GNI per capita in local currency (World Bank NY.GNP.PCAP.CN), which needs no exchange rate for a local price. Other currencies are converted with a dated, sourced daily rate and the conversion is stated in the output.  
+**PER-003 (P0)** Affordability yields a tier (`budget`, `mass`, `upper`, `premium`) from documented thresholds per product profile, and an income-band reach (comfortable / stretch / out of reach) per 20% income band when survey data exists. No tier is the default: every category must have candidate segments at every tier (enforced by a test).  
+**PER-004 (P0)** Candidate segments come from an explicit rule table (category × tier), not from the LLM. LLM-suggested extra segments, if added later, are labelled unvetted.  
+**PER-005 (P0)** Segment scoring is a transparent weighted mean of affordability, feature fit and (when available) Qloo taste fit, with components and inputs returned. It is an ordering aid, never a probability or share of buyers; confidence is capped at `medium`.  
+**PER-006 (P0)** Reference statistics use one record shape (`country, indicator, year, value, source, fetched_at, as_of`) whether they come from the live API, the cache or the shipped snapshot, so test and production code paths are identical. Only values verified against the live APIs may be shipped in the snapshot.  
+**PER-007 (P0)** Reference sources are free and keyless: World Bank Indicators API and open.er-api.com (attribution shown when used). Failures are reported, never raised into a report; stale exchange rates are flagged.  
+**PER-008 (P1)** Reports state the limits: national (not city) income, sparse survey years, no platform or event data in Qloo, and which parts are calculated, rule-based, Qloo evidence, or LLM interpretation.  
+
 ---
 
 ## 2. Glossary
