@@ -24,6 +24,29 @@ from .segments import by_id
 
 DEFAULT_KINDS = ("brand", "artist", "tv_show", "place")
 
+# Real run: Qloo names "Tecno" -> "TECNO Mobile" and "Infinix" -> "Infinix Mobile", so an exact-name rule found nothing.
+# A hit is accepted if the query's words are the START of its name and any extra words are harmless corporate suffixes.
+_SUFFIX_OK = {"mobile", "mobiles", "nigeria", "official", "inc", "ltd", "limited", "group", "company", "co", "corp",
+              "corporation", "global", "international", "africa", "phones", "electronics", "technology", "technologies"}
+
+
+def _words(t: str) -> list[str]:
+    import re
+    return [w for w in re.split(r"[^a-z0-9]+", (t or "").lower()) if w]
+
+
+def pick_anchor(cands: list[dict[str, Any]], query: str) -> tuple[dict[str, Any] | None, str | None]:
+    """(candidate, how) with how in {'exact','prefix'}; (None, None) when nothing safe matches. Never the first fuzzy hit."""
+    exact = _pick(cands, query)
+    if exact:
+        return exact, "exact"
+    q = _words(query)
+    for c in cands:
+        n = _words(c.get("name") or "")
+        if (c.get("entity_id") or c.get("id")) and q and n[: len(q)] == q and set(n[len(q):]) <= _SUFFIX_OK:
+            return c, "prefix"
+    return None, None
+
 
 def index_to_fit(idx: float) -> float:
     """Map a signed Qloo audience index (about -1..+1) to 0..1: 0 index -> 0.5, strong skew -> toward 1, avoidance -> 0."""
@@ -51,10 +74,11 @@ async def resolve_and_skew(client: QlooClient, intake: ProductIntake) -> dict[st
         results = await asyncio.gather(*(client.call(s) for s in specs))
         for name, res in zip(intake.competitors, results):
             cands = nz.entities_from_search(res.body) if res.ok else []
-            top = _pick(cands, name)
-            ev.add("resolve", f"brand:{name}", res, {"query": name, "kind": "brand", "candidates": cands[:5], "chosen": top})
+            top, how = pick_anchor(cands, name)
+            ev.add("resolve", f"brand:{name}", res, {"query": name, "kind": "brand", "candidates": cands[:5], "chosen": top,
+                                                     "matched_by": how})
             if top:
-                anchors.append({"query": name, "entity_id": top["entity_id"], "name": top["name"]})
+                anchors.append({"query": name, "entity_id": top["entity_id"], "name": top["name"], "matched_by": how})
             else:
                 unresolved.append(name)
     age_index: dict[str, float] = {}
@@ -145,3 +169,35 @@ def entity_names(ev_items: list[dict[str, Any]], seg_label: str) -> dict[str, st
 def segment_ages(seg_id: str) -> tuple[str, ...]:
     s = by_id(seg_id)
     return s.ages if s else ()
+
+
+def place_affinity(ev_items: list[dict[str, Any]], seg_label: str) -> dict[str, float]:
+    out: dict[str, float] = {}
+    for it in ev_items:
+        if it.get("segment") == seg_label and it.get("ok") and it["step"] == "affinity" and (it.get("data") or {}).get("kind") == "place":
+            for e in it["data"].get("entities", []):
+                if e.get("name") and isinstance(e.get("affinity"), (int, float)):
+                    out[e["name"]] = float(e["affinity"])
+    return out
+
+
+def shared_evidence_notes(ev_items: list[dict[str, Any]], ranked: list[Any], location: str) -> list[str]:
+    """Honest limits computed from the data: segments with identical age bands get identical Qloo lists, and place lists
+    for different age groups often overlap heavily (real run: University of Lagos and the same hotels for every group)."""
+    notes: list[str] = []
+    groups: dict[tuple[str, ...], list[str]] = {}
+    for s in ranked:
+        groups.setdefault(tuple(s.ages), []).append(s.label)
+    for ages, labels in groups.items():
+        if len(labels) > 1:
+            notes.append(f"{' and '.join(labels)} use the same age bands ({', '.join(ages)}), so Qloo returned identical lists "
+                         "for them; they differ only by their rule-based description, not by Qloo data.")
+    sets = [set(place_names(ev_items, s.label)) for s in ranked]
+    sets = [x for x in sets if x]
+    if len(sets) >= 2:
+        pairs = [len(a & b) / len(a | b) for i, a in enumerate(sets) for b in sets[i + 1:]]
+        avg = sum(pairs) / len(pairs)
+        if avg >= 0.7:
+            notes.append(f"Qloo's place results for the different age groups in {location} overlap by {avg:.0%} on average "
+                         "(Jaccard), so 'where to reach them' says more about the city than about the age group.")
+    return notes

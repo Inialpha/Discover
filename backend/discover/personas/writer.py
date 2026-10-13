@@ -17,14 +17,14 @@ from typing import Any
 
 from ..llm.client import LLMClient, LLMError
 from .affordability import Affordability
-from .evidence import entity_names, place_names, segment_view
+from .evidence import entity_names, place_affinity, place_names, segment_view
 from .intake import ProductIntake
 from .scoring import SegmentScore
 
 PERSONA_SYSTEM = """You write ONE buyer persona for a business, using ONLY the JSON you are given. Reply with one JSON object:
 {"segment_id": str, "name": str, "headline": str, "who": str,
  "motivations": [{"text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
- "objections": [{"text": str, "basis": "calculated"|"interpretation", "evidence": [ids]}],
+ "objections": [{"text": str, "basis": "interpretation", "evidence": [ids]}],
  "messages": [{"angle": str, "text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
  "platforms": [{"platform": str, "why": str}],
  "where_to_reach": [{"place": str, "why": str, "evidence": [ids]}],
@@ -34,11 +34,18 @@ PERSONA_SYSTEM = """You write ONE buyer persona for a business, using ONLY the J
 Rules:
 - Evidence ids look like E012 and appear in the input. Cite them in "evidence" for every claim about tastes or places.
   If a claim has no evidence id, its basis must be "interpretation".
-- "name" is an illustrative first name plus a short descriptor, not a real person.
+- "name" is a short descriptor of the persona (for example "Budget-minded student"); no first name, no real person.
+- "who" paraphrases the segment's description and age bands only. Do not invent a specific age, gender, job, employer,
+  income, family situation or personal story.
 - Never state a number, percentage, population size or market share that is not in the input. Qloo scores and indexes
   are RELATIVE; say "skews toward", never "X% of".
-- Price and affordability statements must come from the "affordability" and "reach" fields (basis "calculated").
-- "tastes" and "where_to_reach" may only use names that appear in the input's qloo lists. Never name districts or
+- Price statements may only use the "affordability" and "reach" fields; the computed price barriers are added by the system,
+  so your objections are interpretation.
+- "messages" are the model's marketing ideas (always interpretation). Put the evidence ids of a taste that inspired a
+  message in "evidence", but never claim the product has a feature, partnership or similarity to a brand that the
+  product text does not state, and never call a brand "top-rated" or "trusted".
+- "tastes" and "where_to_reach" may only use names that appear in the input's qloo lists. For where_to_reach, "why" is
+  your own note: do not describe what a place is like (for example "student housing"), only why it might suit this message. Never name districts or
   neighbourhoods; areas may only be described as "near <place name>" from qloo.areas.named_by_nearby_place.
 - If an item looks foreign to the market (for example an artist from another country), you may list it but say it is cross-market.
 - "platforms" and "events" are interpretation: Qloo has no platform or event data. At most 3 platforms and 2 events.
@@ -94,6 +101,8 @@ def _clean_claims(rows: Any, valid: set[str], allowed_basis: tuple[str, ...], de
             continue
         ids = [i for i in (r.get("evidence") or []) if i in valid]
         basis = r.get("basis") if r.get("basis") in allowed_basis else default
+        if r.get("basis") not in allowed_basis and r.get("basis") in ("evidence", "calculated"):
+            fixed += 1  # the model claimed a stronger basis than this field may carry
         if basis == "evidence" and not ids:
             basis, fixed = "interpretation", fixed + 1
         r["evidence"], r["basis"] = ids, basis
@@ -110,8 +119,8 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
     p["headline"] = str(p.get("headline") or seg.description)[:200]
     p["who"] = str(p.get("who") or seg.description)[:400]
     for key, allowed, default in (("motivations", ("evidence", "interpretation"), "interpretation"),
-                                  ("messages", ("evidence", "interpretation"), "interpretation"),
-                                  ("objections", ("calculated", "interpretation"), "interpretation")):
+                                  ("messages", ("interpretation",), "interpretation"),
+                                  ("objections", ("interpretation",), "interpretation")):
         p[key], f = _clean_claims(p.get(key), valid, allowed, default)
         downgraded += f
         p[key] = p[key][:3]
@@ -124,13 +133,16 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
     p["events"] = [{"idea": str(x.get("idea")), "why": str(x.get("why", "")), "basis": "interpretation"}
                    for x in (p.get("events") or []) if isinstance(x, dict) and x.get("idea")][:2]
     places = {_norm(n): n for n in place_names(ev_items, seg.label)}
+    aff_by_place = place_affinity(ev_items, seg.label)
     ents = {_norm(n): (n, eid) for n, eid in entity_names(ev_items, seg.label).items()}
     keep_places = []
     for x in p.get("where_to_reach") or []:
         key = _norm(str(x.get("place", "") if isinstance(x, dict) else ""))
         if key in places:
             eid = next((e for n, e in entity_names(ev_items, seg.label).items() if _norm(n) == key), None)
-            keep_places.append({"place": places[key], "why": str(x.get("why", "")), "evidence": [eid] if eid else [], "basis": "evidence"})
+            keep_places.append({"place": places[key], "model_note": str(x.get("why", ""))[:160],
+                                "affinity": round(aff_by_place[places[key]], 2) if places[key] in aff_by_place else None,
+                                "evidence": [eid] if eid else [], "basis": "evidence"})
         else:
             dropped["where_to_reach"] += 1
     p["where_to_reach"] = keep_places[:4]
@@ -160,7 +172,7 @@ def template_persona(seg: SegmentScore, view: dict[str, Any], aff: Affordability
     pl = (view.get("lists") or {}).get("place")
     if pl:
         for it in pl["items"][:3]:
-            places.append({"place": it["name"], "why": "returned by Qloo for this age group in this location",
+            places.append({"place": it["name"], "model_note": "", "affinity": it.get("affinity"),
                            "evidence": [pl["evidence_id"]], "basis": "evidence"})
     return {"segment_id": seg.id, "name": seg.label, "headline": seg.description,
             "who": f"Ages {', '.join(seg.ages)} (rule-based segment).", "motivations": [], "messages": [],
@@ -183,7 +195,7 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
             payload = llm_input(intake, aff, seg, view, bundle["anchors"], bundle["age_index"], bundle["gender_index"])
             try:
                 raw = await llm.chat_json(f"persona_{seg.id}", PERSONA_SYSTEM, json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
-                                          max_tokens=1800)
+                                          max_tokens=3000)
                 if isinstance(raw, dict):
                     persona, source = validate_persona(raw, seg, items, aff), "llm"
                 else:
@@ -216,6 +228,9 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
         L += ["> **SYNTHETIC DATA**: produced with --mock, not by Qloo.", ""]
     L += [f"**Market:** {aff.country_name} · **Price:** {intake.price:,.2f} {intake.currency} · **Affordability tier:** `{aff.tier}` "
           f"(yearly cost = {aff.ratio:.2%} of average annual income) *(calculated)*", ""]
+    for a in bundle.get("anchors", []):
+        if a.get("matched_by") == "prefix":
+            L += [f"> Competitor '{a['query']}' was matched to Qloo's '{a['name']}'.", ""]
     if bundle.get("age_index"):
         idx = ", ".join(f"{k} {v:+.2f}" for k, v in bundle["age_index"].items())
         L += [f"**Competitor audience age skew** ({', '.join(a['name'] for a in bundle['anchors'])}; Qloo relative index, "
@@ -235,14 +250,21 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
             for r in rows:
                 txt = " — ".join(str(r[f]) for f in fields if r.get(f))
                 tag = _LABEL.get(r.get("basis", "interpretation"), "LLM interpretation")
-                cite = f" `{','.join(r['evidence'])}`" if r.get("evidence") else ""
+                cite = (f" {'inspired by ' if r.get('basis') == 'interpretation' else ''}`{','.join(r['evidence'])}`"
+                        if r.get("evidence") else "")
                 L.append(f"- {txt} *[{tag}]*{cite}")
             L.append("")
         section("Motivations", p["motivations"], ("text",))
         section("Price and other objections", p["objections"], ("text",))
-        section("Messages", p["messages"], ("angle", "text"))
+        section("Message ideas (model's marketing ideas; cited tastes only inspired them)", p["messages"], ("angle", "text"))
         section("Tastes (what Qloo returned for this age group here)", p["tastes"], ("name", "kind"))
-        section("Where to reach them (places Qloo returned)", p["where_to_reach"], ("place", "why"))
+        if p["where_to_reach"]:
+            L.append("**Where to reach them** (places Qloo returned for this age group in this location)")
+            for w in p["where_to_reach"]:
+                aff_txt = f", affinity {w['affinity']}" if w.get("affinity") is not None else ""
+                note = f" · model's note (unverified): {w['model_note']}" if w.get("model_note") else ""
+                L.append(f"- {w['place']} *[Qloo{aff_txt}]* `{','.join(w['evidence'])}`{note}")
+            L.append("")
         section("Platforms (no platform data in Qloo)", p["platforms"], ("platform", "why"))
         section("Event ideas (no event data in Qloo)", p["events"], ("idea", "why"))
         if p["caveats"]:

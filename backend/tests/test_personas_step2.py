@@ -157,8 +157,11 @@ def test_validate_persona_drops_invented_places_and_tastes(bundle_and_seg):
     assert p["messages"][0]["basis"] == "interpretation"
     assert len(p["platforms"]) == 3 and {x["basis"] for x in p["platforms"]} == {"interpretation"}
     assert len(p["events"]) == 2 and {x["basis"] for x in p["events"]} == {"interpretation"}
-    assert p["validation"]["downgraded_to_interpretation"] == 2
-    assert p["objections"][0]["basis"] == "calculated"
+    assert p["validation"]["downgraded_to_interpretation"] == 3  # motivation, message and objection overclaimed
+    assert p["objections"][0]["basis"] == "calculated"          # the system-computed barrier leads
+    assert [o["basis"] for o in p["objections"] if o["text"] == "pricey"] == ["interpretation"]  # the model's never 'calculated'
+    nk = next(w for w in p["where_to_reach"] if w["place"] == "Nkoyo Lagos")
+    assert nk["model_note"] == "popular" and nk["affinity"] is not None and nk["evidence"]
 
 
 def test_validate_persona_tolerates_garbage(bundle_and_seg):
@@ -352,3 +355,74 @@ def test_cli_personas_mock(tmp_path, capsys):
 def test_cli_personas_invalid_intake(tmp_path, capsys):
     assert main(["personas", "--name", "x", "--mock", "--cache", str(tmp_path / "c.json"), "--out", str(tmp_path)]) == 3
     assert "intake problems" in capsys.readouterr().out
+
+
+# ---- anchor matching, shared-evidence notes (from the first real run) -----------------------------------------
+@pytest.mark.parametrize("query,names,expected,how", [
+    ("Tecno", ["TECNO Mobile", "BandLab"], "TECNO Mobile", "prefix"),
+    ("Infinix", ["Infinix Mobile"], "Infinix Mobile", "prefix"),
+    ("Nike", ["Nike", "Nike Factory Store"], "Nike", "exact"),
+    ("Anime", ["Anime Studio X", "Something"], None, None),          # fuzzy first hit must never be accepted
+    ("Tecno", ["BandLab", "SpaceX", "MIT"], None, None),
+    ("Tecno", ["Technology Park"], None, None),                     # prefix of a word is not a word prefix
+    ("Dano", ["Dano Nigeria"], "Dano Nigeria", "prefix"),
+    ("Apple", ["Apple Records Group Of Companies Ltd Weird"], None, None),
+])
+def test_pick_anchor(query, names, expected, how):
+    cands = [{"entity_id": f"id{i}", "name": n} for i, n in enumerate(names)]
+    top, h = E.pick_anchor(cands, query)
+    assert (top["name"] if top else None) == expected and h == how
+
+
+def test_pick_anchor_needs_an_id():
+    assert E.pick_anchor([{"name": "TECNO Mobile"}], "Tecno") == (None, None)
+
+
+def _ev(segment, kind, names, eid, aff=0.7):
+    return {"id": eid, "step": "affinity", "label": f"{segment}:{kind}", "segment": segment, "ok": True,
+            "data": {"kind": kind, "entities": [{"name": n, "affinity": aff} for n in names]}}
+
+
+def test_shared_evidence_notes_flag_identical_ages_and_overlapping_places():
+    from discover.personas.scoring import SegmentScore
+    a = SegmentScore("a", "Students", "d", ("24_and_younger",), None, 0.5, "low", {}, {}, [], [])
+    b = SegmentScore("b", "First timers", "d", ("24_and_younger",), None, 0.5, "low", {}, {}, [], [])
+    c = SegmentScore("c", "Households", "d", ("35_to_44",), None, 0.5, "low", {}, {}, [], [])
+    items = [_ev("Students", "place", ["UoL", "Hotel", "Beach"], "E1"), _ev("First timers", "place", ["UoL", "Hotel", "Beach"], "E2"),
+             _ev("Households", "place", ["UoL", "Hotel", "Beach", "Mall"], "E3")]
+    notes = E.shared_evidence_notes(items, [a, b, c], "Lagos")
+    assert any("Students and First timers" in n and "identical lists" in n for n in notes)
+    assert any("overlap by" in n and "Lagos" in n for n in notes)
+
+
+def test_shared_evidence_notes_quiet_when_lists_differ():
+    from discover.personas.scoring import SegmentScore
+    a = SegmentScore("a", "A", "d", ("24_and_younger",), None, 0.5, "low", {}, {}, [], [])
+    b = SegmentScore("b", "B", "d", ("35_to_44",), None, 0.5, "low", {}, {}, [], [])
+    items = [_ev("A", "place", ["P1", "P2"], "E1"), _ev("B", "place", ["P3", "P4"], "E2")]
+    assert E.shared_evidence_notes(items, [a, b], "Lagos") == []
+
+
+def test_place_affinity_lookup():
+    items = [_ev("S", "place", ["A", "B"], "E1", aff=0.61)]
+    assert E.place_affinity(items, "S") == {"A": 0.61, "B": 0.61} and E.place_affinity(items, "Other") == {}
+
+
+def test_markdown_shows_prefix_match_and_model_note_separately(bundle_and_seg, tmp_path):
+    i, aff, res, bundle = bundle_and_seg
+    bundle["anchors"] = [{"query": "Tecno", "entity_id": "x", "name": "TECNO Mobile", "matched_by": "prefix"}]
+    t, _ = fake_llm_transport()
+    llm = LLMClient(LLM_SETTINGS, RunRecorder(tmp_path / "r6"), transport=t)
+    ps = run_async(W.write_personas(llm, i, aff, res.ranked, bundle))
+    ps[0]["where_to_reach"] = [{"place": "Nkoyo Lagos", "model_note": "popular spot", "affinity": 0.7, "evidence": ["E006"], "basis": "evidence"}]
+    md = W.markdown(i, aff, ps, bundle, [], ["World Bank"], False)
+    assert "matched to Qloo's 'TECNO Mobile'" in md
+    assert "affinity 0.7" in md and "model's note (unverified): popular spot" in md
+    assert "inspired by" in md or all(not p["messages"] or not p["messages"][0]["evidence"] for p in ps)
+
+
+def test_runner_writes_evidence_notes(make_intake, store, tmp_path):
+    o = opts(make_intake, tmp_path)
+    code, run, summary = run_async(execute_personas(o, QLOO_SETTINGS, store))
+    res = json.loads((run / "04_personas.json").read_text())
+    assert "evidence_notes" in res and any("overlap by" in n or "identical lists" in n for n in res["evidence_notes"])

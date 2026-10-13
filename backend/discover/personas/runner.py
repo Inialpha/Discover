@@ -114,14 +114,16 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
 
     bundle = {"evidence": ev_items, "anchors": anchor["anchors"], "unresolved": anchor["unresolved"],
               "age_index": anchor["age_index"], "gender_index": anchor["gender_index"]}
+    shared = E.shared_evidence_notes(ev_items, scoring.ranked, intake.location)
     personas = await writer.write_personas(llm, intake, aff, scoring.ranked, bundle, delay=opts.llm_delay)
     attribution = ["World Bank Open Data (CC BY 4.0)"] + ([FX_ATTRIBUTION] if aff.conversion else [])
     rec.write_json("04_personas.json", {"synthetic": opts.mock, "affordability": aff.to_dict(), "personas": personas,
                                         "anchor_audience": {k: bundle[k] for k in ("anchors", "unresolved", "age_index", "gender_index")},
+                                        "evidence_notes": shared,
                                         "scoring": {"ranked_by": scoring.ranked_by, "notes": scoring.notes,
                                                     "omitted_by_limit": scoring.omitted_by_limit, "excluded": scoring.excluded},
                                         "attribution": attribution})
-    rec.write_text("04_personas.md", writer.markdown(intake, aff, personas, bundle, scoring.notes + aff.caveats,
+    rec.write_text("04_personas.md", writer.markdown(intake, aff, personas, bundle, shared + scoring.notes + aff.caveats,
                                                      attribution, opts.mock))
 
     ok_calls = sum(1 for r in results if r.ok)
