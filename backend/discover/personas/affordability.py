@@ -7,7 +7,8 @@ The thresholds are documented assumptions (rules of thumb), kept in one table so
 ratio      = annual product cost / GNI per capita (both in local currency; no FX needed for a local price)
 tier       = ratio against the profile's boundaries  (< b1 budget, < b2 mass, < b3 upper, else premium)
 quintile q = annual cost / (income share of that 20% x 5 x GNI per capita)   (survey-based, sparse, country level)
-reach      = comfortable if quintile ratio <= b2, stretch if <= b3, else out_of_reach
+reach      = comfortable / stretch / out_of_reach from the profile's own (stricter) reach limits (e.g. personal
+             devices: <= 5% of the band's yearly income comfortable, <= 20% stretch)
 """
 
 from __future__ import annotations
@@ -27,17 +28,18 @@ TIERS = ("budget", "mass", "upper", "premium")
 @dataclass(frozen=True)
 class Profile:
     name: str
-    boundaries: tuple[float, float, float]  # b1, b2, b3 as a share of annual income
+    boundaries: tuple[float, float, float]  # b1, b2, b3 as a share of annual income (tier of the average person)
+    reach: tuple[float, float]              # (comfortable_max, stretch_max) as a share of one income band's yearly income
     blurb: str
 
 
 PROFILES: dict[str, Profile] = {p.name: p for p in (
-    Profile("everyday", (0.002, 0.01, 0.03), "small, frequent purchases (food, personal care, wellness)"),
-    Profile("personal_durable", (0.03, 0.15, 0.40), "personal devices, clothing, courses"),
-    Profile("home_durable", (0.05, 0.20, 0.50), "household appliances and larger electronics"),
-    Profile("subscription", (0.005, 0.02, 0.06), "recurring digital services, judged on the yearly total"),
-    Profile("experience", (0.01, 0.05, 0.15), "travel, hospitality, entertainment"),
-    Profile("vehicle_property", (0.5, 1.5, 4.0), "vehicles and other very large purchases"),
+    Profile("everyday", (0.002, 0.01, 0.03), (0.005, 0.02), "small, frequent purchases (food, personal care, wellness)"),
+    Profile("personal_durable", (0.03, 0.15, 0.40), (0.05, 0.20), "personal devices, clothing, courses"),
+    Profile("home_durable", (0.05, 0.20, 0.50), (0.08, 0.30), "household appliances and larger electronics"),
+    Profile("subscription", (0.005, 0.02, 0.06), (0.01, 0.04), "recurring digital services, judged on the yearly total"),
+    Profile("experience", (0.01, 0.05, 0.15), (0.02, 0.08), "travel, hospitality, entertainment"),
+    Profile("vehicle_property", (0.5, 1.5, 4.0), (0.8, 2.5), "vehicles and other very large purchases"),
 )}
 
 
@@ -101,11 +103,12 @@ def tier_for(ratio: float, boundaries: tuple[float, float, float]) -> str:
     return "premium"
 
 
-def reach_for(ratio: float, boundaries: tuple[float, float, float]) -> str:
-    _, b2, b3 = boundaries
-    if ratio <= b2:
+def reach_for(ratio: float, reach: tuple[float, float]) -> str:
+    """Stricter than the tier boundaries on purpose: a band feels a purchase far more than the national average does."""
+    comfortable_max, stretch_max = reach
+    if ratio <= comfortable_max:
         return "comfortable"
-    if ratio <= b3:
+    if ratio <= stretch_max:
         return "stretch"
     return "out_of_reach"
 
@@ -174,7 +177,7 @@ def assess(intake: ProductIntake, store: ReferenceStore, fx_max_age_days: float 
         inputs.append(rec.cite())
         income = rec.value / 100.0 * 5.0 * gni.value
         qr = annual_local / income if income > 0 else None
-        reach = "comfortable" if annual_local == 0 else (reach_for(qr, profile.boundaries) if qr is not None else "unknown")
+        reach = "comfortable" if annual_local == 0 else (reach_for(qr, profile.reach) if qr is not None else "unknown")
         quintiles.append(QuintileReach(q, rec.value, rec.year, income, qr, reach))
     quintile_data = "complete" if found == 5 else "partial" if found else "none"
     if quintile_data == "none":

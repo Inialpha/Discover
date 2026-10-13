@@ -20,12 +20,12 @@ class IntakeError(ValueError):
         self.errors = errors
 
 
-def analyse(intake: ProductIntake, store: ReferenceStore, taste: dict[str, float] | None = None) -> dict[str, Any]:
+def analyse(intake: ProductIntake, store: ReferenceStore, qloo_fit: dict[str, float] | None = None) -> dict[str, Any]:
     errs = intake.validate()
     if errs:
         raise IntakeError(errs)
     aff = assess(intake, store)
-    scoring = score_segments(intake, aff, taste)
+    scoring = score_segments(intake, aff, qloo_fit)
     return {
         "intake": intake.to_dict(),
         "affordability": aff.to_dict(),

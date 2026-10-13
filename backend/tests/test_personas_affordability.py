@@ -10,15 +10,17 @@ def test_tier_for_personal_durable_boundaries(ratio, tier):
     assert tier_for(ratio, PROFILES["personal_durable"].boundaries) == tier
 
 
-@pytest.mark.parametrize("ratio,reach", [(0.1, "comfortable"), (0.15, "comfortable"), (0.2, "stretch"), (0.4, "stretch"), (0.41, "out_of_reach")])
+@pytest.mark.parametrize("ratio,reach", [(0.04, "comfortable"), (0.05, "comfortable"), (0.1, "stretch"), (0.2, "stretch"), (0.21, "out_of_reach")])
 def test_reach_for(ratio, reach):
-    assert reach_for(ratio, PROFILES["personal_durable"].boundaries) == reach
+    assert reach_for(ratio, PROFILES["personal_durable"].reach) == reach
 
 
 def test_boundaries_are_increasing_for_every_profile():
     for p in PROFILES.values():
         b1, b2, b3 = p.boundaries
         assert 0 < b1 < b2 < b3
+        c, st = p.reach
+        assert 0 < c < st
 
 
 @pytest.mark.parametrize("price,tier", [(40_000, "budget"), (150_000, "mass"), (600_000, "upper"), (1_500_000, "premium")])
@@ -34,13 +36,13 @@ def test_quintile_income_and_reach_math(make_intake, store):
     q = {x.quintile: x for x in a.quintiles}
     assert q[1].annual_income_lcu == pytest.approx(0.075 * 5 * 1_800_000)
     assert q[5].annual_income_lcu == pytest.approx(0.455 * 5 * 1_800_000)
-    assert [q[i].reach for i in range(1, 6)] == ["out_of_reach", "out_of_reach", "out_of_reach", "stretch", "comfortable"]
-    assert a.reach_of(5) == "comfortable" and a.reach_of(9) == "unknown"
+    assert [q[i].reach for i in range(1, 6)] == ["out_of_reach", "out_of_reach", "out_of_reach", "out_of_reach", "stretch"]
+    assert a.reach_of(5) == "stretch" and a.reach_of(9) == "unknown"
 
 
-def test_cheap_product_is_comfortable_for_every_band(make_intake, store):
+def test_cheap_product_is_a_stretch_only_for_the_lowest_band(make_intake, store):
     a = assess(make_intake(price=40_000), store)
-    assert {x.reach for x in a.quintiles} == {"comfortable"}
+    assert [x.reach for x in a.quintiles] == ["stretch", "comfortable", "comfortable", "comfortable", "comfortable"]
 
 
 def test_price_in_other_currency_is_converted_and_labelled(make_intake, store):

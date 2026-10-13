@@ -20,7 +20,34 @@ from .refdata.store import DEFAULT_CACHE, ReferenceStore, age_days
 
 def add_parsers(sub: Any) -> None:
     s = sub.add_parser("segments", help="persona step 1: price/affordability + ranked candidate buyer segments (no Qloo, no LLM)")
-    s.add_argument("--file", help="intake JSON file (other flags are ignored when given)")
+    _intake_args(s)
+    s.add_argument("--refresh", action="store_true", help="fetch live World Bank/FX data into the cache first")
+    s.add_argument("--cache", default=str(DEFAULT_CACHE)); s.add_argument("--out", default="runs")
+    s.add_argument("--no-zip", action="store_true")
+
+    p = sub.add_parser("personas", help="full persona discovery: segments + Qloo evidence + persona cards")
+    _intake_args(p)
+    p.add_argument("--refresh", action="store_true"); p.add_argument("--cache", default=str(DEFAULT_CACHE))
+    p.add_argument("--out", default="runs"); p.add_argument("--no-zip", action="store_true")
+    p.add_argument("--kinds", default="brand,artist,tv_show,place", help="Qloo entity kinds per persona")
+    p.add_argument("--take", type=int, default=8)
+    p.add_argument("--no-llm", action="store_true"); p.add_argument("--mock", action="store_true", help="synthetic offline Qloo")
+    p.add_argument("--dry-run", action="store_true", help="write planned Qloo requests, make no calls")
+    p.add_argument("--max-calls", type=int, default=150); p.add_argument("--concurrency", type=int, default=2)
+    p.add_argument("--delay", type=float, default=0.0, help="seconds between Qloo calls")
+    p.add_argument("--llm-delay", type=float, default=0.0, help="seconds to wait between persona LLM calls (token-per-minute limits)")
+
+    r = sub.add_parser("refdata", help="manage reference statistics (World Bank + exchange rates)")
+    rs = r.add_subparsers(dest="refcmd", required=True)
+    rr = rs.add_parser("refresh", help="fetch live data into the cache")
+    rr.add_argument("--country", help="comma list of ISO3 codes (default: every supported market)")
+    rr.add_argument("--cache", default=str(DEFAULT_CACHE))
+    sh = rs.add_parser("show", help="show what is available (cache + shipped snapshot)")
+    sh.add_argument("--country"); sh.add_argument("--cache", default=str(DEFAULT_CACHE))
+
+
+def _intake_args(s: argparse.ArgumentParser) -> None:
+    s.add_argument("--file", help="intake JSON file (other intake flags are ignored when given)")
     s.add_argument("--name"); s.add_argument("--description"); s.add_argument("--category", choices=sorted(CATEGORIES))
     s.add_argument("--price", type=float); s.add_argument("--currency", help="ISO code of the price you enter, e.g. NGN")
     s.add_argument("--location"); s.add_argument("--country", help="needed if the location is not a known city")
@@ -30,17 +57,6 @@ def add_parsers(sub: Any) -> None:
     s.add_argument("--competitor", action="append", default=[]); s.add_argument("--competitor-price", action="append", type=float, default=[])
     s.add_argument("--max-personas", type=int, default=6); s.add_argument("--gender", choices=["male", "female"])
     s.add_argument("--age", help="comma list of age buckets, e.g. 24_and_younger,25_to_29")
-    s.add_argument("--refresh", action="store_true", help="fetch live World Bank/FX data into the cache first")
-    s.add_argument("--cache", default=str(DEFAULT_CACHE)); s.add_argument("--out", default="runs")
-    s.add_argument("--no-zip", action="store_true")
-
-    r = sub.add_parser("refdata", help="manage reference statistics (World Bank + exchange rates)")
-    rs = r.add_subparsers(dest="refcmd", required=True)
-    rr = rs.add_parser("refresh", help="fetch live data into the cache")
-    rr.add_argument("--country", help="comma list of ISO3 codes (default: every supported market)")
-    rr.add_argument("--cache", default=str(DEFAULT_CACHE))
-    sh = rs.add_parser("show", help="show what is available (cache + shipped snapshot)")
-    sh.add_argument("--country"); sh.add_argument("--cache", default=str(DEFAULT_CACHE))
 
 
 def _intake_from_args(a: argparse.Namespace) -> ProductIntake:
@@ -74,7 +90,8 @@ def markdown(res: dict[str, Any]) -> str:
         L.append(f"| {q['quintile']} | {sh} | {inc} | {rt} | {q['reach']} |")
     L += ["", f"## Candidate segments (ranked by {s['ranked_by']}; ordering aid, not a share of buyers) *(rule-based)*", ""]
     for n, sc in enumerate(s["ranked"], 1):
-        L.append(f"{n}. **{sc['label']}** — score {sc['score']:.2f}, confidence {sc['confidence']}; ages {', '.join(sc['ages'])}")
+        flag = (" (tied: no evidence separates it from others)" if sc.get("tied") else "") + (" (niche at this price)" if sc.get("niche") else "")
+        L.append(f"{n}. **{sc['label']}** — score {sc['score']:.2f}, confidence {sc['confidence']}; ages {', '.join(sc['ages'])}{flag}")
         for r_ in sc["rationale"]:
             L.append(f"   - {r_}")
     if s["omitted_by_limit"]:
@@ -152,3 +169,36 @@ def run_refdata(a: argparse.Namespace) -> int:
     rates = store.fx_rates()
     print("FX records:", ", ".join(f"{k}={v.value:g}" for k, v in sorted(rates.items())) or "none")
     return 0
+
+
+def run_personas(a: argparse.Namespace) -> int:
+    import asyncio
+    from ..config import Settings
+    from .runner import PersonaOptions, execute_personas
+    try:
+        intake = _intake_from_args(a)
+    except (OSError, ValueError, TypeError) as e:
+        print(f"could not read intake: {e}")
+        return 3
+    errs = intake.validate()
+    if errs:
+        print("intake problems:")
+        for e in errs:
+            print(" -", e)
+        return 3
+    opts = PersonaOptions(intake=intake, out=Path(a.out), kinds=[k.strip() for k in a.kinds.split(",") if k.strip()],
+                          take=a.take, no_llm=a.no_llm, mock=a.mock, dry_run=a.dry_run, max_calls=a.max_calls,
+                          concurrency=a.concurrency, delay=a.delay, llm_delay=a.llm_delay, zip=not a.no_zip, refresh=a.refresh)
+    code, run_dir, summary = asyncio.run(execute_personas(opts, Settings.from_env(), ReferenceStore(cache_path=Path(a.cache))))
+    print(f"run folder : {run_dir}\nstatus     : {summary.get('status')}  (exit {code})")
+    for e in summary.get("errors", []):
+        print("error      :", e)
+    if "qloo_calls" in summary:
+        print(f"qloo calls : {summary['qloo_ok']}/{summary['qloo_calls']} ok · personas: {summary['persona_sources']}")
+    for w in summary.get("warnings", []):
+        print("warning    :", w)
+    for f in summary.get("failures", [])[:8]:
+        print(f"failed     : {f['label']} -> {f['error']}")
+    if summary.get("zip"):
+        print(f"send me    : {summary['zip']}")
+    return code

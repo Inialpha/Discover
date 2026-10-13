@@ -51,6 +51,8 @@ def _entity(kind: str, i: int, seed: int, with_query: bool = True) -> dict:
                        "address": "1 Mock Street, Mockland"},
         "external": {},
     }
+    if kind == "place":
+        e["location"] = {"lat": round(6.45 + (i % 4) * 0.02, 4), "lon": round(3.4 + (i % 4) * 0.02, 4), "geohash": "s0yd5k"}
     if with_query:
         e["query"] = {"affinity": round(0.55 + ((seed + i * 13) % 40) / 100, 3), "measurements": {"audience_growth": 0.1}}
     return e

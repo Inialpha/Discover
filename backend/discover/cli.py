@@ -80,6 +80,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "segments":
         from .personas.cli_cmds import run_segments
         return run_segments(args)
+    if args.cmd == "personas":
+        from .personas.cli_cmds import run_personas
+        return run_personas(args)
     if args.cmd == "refdata":
         from .personas.cli_cmds import run_refdata
         return run_refdata(args)

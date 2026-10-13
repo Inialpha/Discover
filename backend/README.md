@@ -70,6 +70,18 @@ Without `refdata refresh` only the values shipped in `discover/personas/data/ref
 (verified values only; income-band data is missing for most countries, and the report says so).
 Reference sources: World Bank Open Data (no key) and open.er-api.com (no key; attribution required).
 
+### Full persona discovery (step 2: Qloo evidence + persona cards)
+```bash
+discover personas --name "Budget phone" --description "Affordable phone with long battery life for students" \
+  --category smartphone --price 40000 --currency NGN --location Lagos --competitor Tecno --competitor Infinix \
+  --max-personas 4 --llm-delay 20          # --mock for synthetic offline data, --no-llm for template personas
+```
+Needs `QLOO_API_KEY` (and the LLM settings for written personas). Competitors are optional but they power the Qloo audience
+fit: without them personas are ranked on affordability and features only. `--llm-delay` waits between persona LLM calls
+(use it with token-per-minute limits like Groq's 8k). Run folder: `00_input.json`, `01_segments_before_qloo.json`,
+`02_segments_after_qloo.json`, `03_evidence.json`, `04_personas.json`, `04_personas.md`, `calls.jsonl`, `qloo/`, `llm/`,
+`99_run_summary.json` (+ zip). Every claim in `04_personas.md` is tagged Qloo / calculated / LLM interpretation.
+
 ## Correcting mistakes
 Unverified spellings (location param placement, `types` vs `filter.type`, tag query name, age buckets,
 compare params) live in `discover/qloo/calls.py` and `discover/qloo/demographics.py`. Response parsing is in

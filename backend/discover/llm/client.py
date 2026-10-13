@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 from typing import Any
@@ -38,6 +39,8 @@ class LLMClient:
             raise LLMError("LLM not configured (LLM_API_KEY, LLM_BASE_URL, LLM_MODEL)")
         self.s, self.rec, self._transport = settings, recorder, transport
         self.calls = 0
+        self.max_wait = 30.0
+        self._sleep = asyncio.sleep
 
     async def chat_json(self, name: str, system: str, user: str, temperature: float = 0.2, max_tokens: int = 2000) -> Any:
         payload: dict[str, Any] = {
@@ -78,6 +81,14 @@ class LLMClient:
                     error = f"HTTP {r.status_code}"
                     if r.status_code < 500 and r.status_code != 429:
                         break
+                    if r.status_code == 429 and attempt < 2:
+                        # token-per-minute limits: wait as the provider asks (capped), then retry
+                        try:
+                            wait = float(r.headers.get("retry-after", ""))
+                        except ValueError:
+                            wait = 10.0 * (attempt + 1)
+                        entry["waited_s"] = min(wait, self.max_wait)
+                        await self._sleep(min(wait, self.max_wait))
                     continue
                 try:
                     choice = entry["json"]["choices"][0]
