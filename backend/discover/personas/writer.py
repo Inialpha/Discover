@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from typing import Any
 
 from ..llm.client import LLMClient, LLMError
@@ -27,7 +28,7 @@ PERSONA_SYSTEM = """You write ONE buyer persona for a business, using ONLY the J
  "objections": [{"text": str, "basis": "interpretation", "evidence": [ids]}],
  "messages": [{"angle": str, "text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
  "platforms": [{"platform": str, "why": str}],
- "where_to_reach": [{"place": str, "why": str, "evidence": [ids]}],
+ "where_to_reach": [{"place": str, "evidence": [ids]}],
  "tastes": [{"name": str, "kind": str, "evidence": [ids]}],
  "events": [{"idea": str, "why": str}],
  "caveats": [str]}
@@ -44,9 +45,11 @@ Rules:
 - "messages" are the model's marketing ideas (always interpretation). Put the evidence ids of a taste that inspired a
   message in "evidence", but never claim the product has a feature, partnership or similarity to a brand that the
   product text does not state, and never call a brand "top-rated" or "trusted".
-- "tastes" and "where_to_reach" may only use names that appear in the input's qloo lists. For where_to_reach, "why" is
-  your own note: do not describe what a place is like (for example "student housing"), only why it might suit this message. Never name districts or
-  neighbourhoods; areas may only be described as "near <place name>" from qloo.areas.named_by_nearby_place.
+- "tastes" and "where_to_reach" may only use names that appear in the input's qloo lists. Do not describe what a place
+  is like. Never name districts or neighbourhoods; areas may only be described as "near <place name>" from
+  qloo.areas.named_by_nearby_place.
+- Never invent product specs or numbers (hours of battery, megapixels, storage, speeds). Use only what the product text
+  states. Never use comparatives or social proof ("outlasts", "best", "top-rated", "chosen by", "trusted by", "fans of").
 - If an item looks foreign to the market (for example an artist from another country), you may list it but say it is cross-market.
 - "platforms" and "events" are interpretation: Qloo has no platform or event data. At most 3 platforms and 2 events.
 - At most 3 messages (each under 25 words), 3 motivations, 3 objections. Messages must rest on a product fact in the input
@@ -56,6 +59,73 @@ Rules:
 
 def _norm(t: str) -> str:
     return "".join(ch for ch in (t or "").lower() if ch.isalnum())
+
+
+# Real run: the model invented "40 hrs on a single charge", "outlasts the competition" and "chosen by fans of ...".
+UNSUPPORTED_PHRASES = ("outlast", "best-selling", "best selling", "top-rated", "top rated", "#1", "number one", "guaranteed",
+                       "unbeatable", "chosen by", "trusted by", "loved by", "fans of", "most popular", "market leader")
+FEATURE_WORDS = ("battery", "camera", "storage", "processor", "performance", "gaming", "display", "screen", "waterproof",
+                 "charging", "memory", "5g", "signal", "network", "fast", "speed", "durable", "warranty", "hours", "hrs")
+_NUM = re.compile(r"\d[\d,]*\.?\d*")
+
+
+def _num_norm(n: str) -> str:
+    return n.replace(",", "").rstrip(".")
+
+
+def product_text(intake: ProductIntake) -> str:
+    return " ".join([intake.name, intake.description, *intake.features]).lower()
+
+
+def allowed_numbers(intake: ProductIntake) -> set[str]:
+    nums = {_num_norm(n) for n in _NUM.findall(product_text(intake))}
+    nums |= {"18", "24", "25", "29", "30", "34", "35", "44", "45", "54", "55"}  # the age bands themselves
+    nums |= {f"{intake.price:g}", str(int(intake.price)) if float(intake.price).is_integer() else str(intake.price)}
+    return {n for n in nums if n}
+
+
+def _has_word(text: str, w: str) -> bool:
+    return re.search(r"(?<![a-z0-9])" + re.escape(w) + r"(?![a-z0-9])", text) is not None
+
+
+def screen_claim(text: str, intake: ProductIntake) -> tuple[bool, list[str]]:
+    """(drop, verify_words): drop when the text has numbers the product text doesn't contain or unsupported social
+    proof/comparatives; verify_words are feature words the product text does not state (flagged, not dropped)."""
+    low = text.lower()
+    if any(ph in low for ph in UNSUPPORTED_PHRASES):
+        return True, []
+    allowed = allowed_numbers(intake)
+    numeric_text = re.sub(r"(?<![a-z0-9])[2345]g(?![a-z0-9])", " ", low)  # network generations are feature words, not specs
+    if any(_num_norm(n) not in allowed for n in _NUM.findall(numeric_text) if _num_norm(n)):
+        return True, []
+    ptext = product_text(intake)
+    return False, [w for w in FEATURE_WORDS if _has_word(low, w) and not _has_word(ptext, w)]
+
+
+def names_by_id(ev_items: list[dict[str, Any]]) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for it in ev_items:
+        if not it.get("ok"):
+            continue
+        d = it.get("data") or {}
+        if it["step"] == "affinity":
+            out[it["id"]] = [e["name"] for e in d.get("entities", []) if e.get("name")]
+        elif it["step"] == "resolve" and d.get("chosen"):
+            out[it["id"]] = [d["chosen"].get("name")]
+    return out
+
+
+def skew_summary(age_index: dict[str, float], gender_index: dict[str, float]) -> str:
+    if not age_index:
+        return ""
+    ranked = sorted(age_index.items(), key=lambda kv: -kv[1])
+    top = ", ".join(f"{k} ({v:+.2f})" for k, v in ranked[:2])
+    low = ", ".join(f"{k} ({v:+.2f})" for k, v in ranked[-1:])
+    g = ""
+    if gender_index:
+        k, v = max(gender_index.items(), key=lambda kv: abs(kv[1]))
+        g = f" Leans {k} ({v:+.2f})." if abs(v) >= 0.2 else " No strong gender lean."
+    return f"Strongest skew: {top}. Weakest: {low}.{g}"
 
 
 def price_barriers(seg: SegmentScore, aff: Affordability) -> list[dict[str, Any]]:
@@ -94,26 +164,43 @@ def llm_input(intake: ProductIntake, aff: Affordability, seg: SegmentScore, view
     }
 
 
-def _clean_claims(rows: Any, valid: set[str], allowed_basis: tuple[str, ...], default: str) -> tuple[list[dict[str, Any]], int]:
+def _clean_claims(rows: Any, valid: set[str], allowed_basis: tuple[str, ...], default: str,
+                  names: dict[str, list[str]] | None = None, intake: ProductIntake | None = None,
+                  dropped: dict[str, int] | None = None, key: str = "") -> tuple[list[dict[str, Any]], int]:
     kept, fixed = [], 0
     for r in rows if isinstance(rows, list) else []:
         if not isinstance(r, dict) or not (r.get("text") or r.get("angle")):
             continue
+        text = f"{r.get('angle', '')} {r.get('text', '')}"
+        verify: list[str] = []
+        if intake is not None:
+            drop, verify = screen_claim(text, intake)
+            if drop:
+                if dropped is not None:
+                    dropped[key] = dropped.get(key, 0) + 1
+                continue
         ids = [i for i in (r.get("evidence") or []) if i in valid]
+        if names is not None and ids:
+            # a citation must be traceable: the text has to mention something the cited evidence actually returned
+            ids = [i for i in ids if any(_norm(n) and _norm(n) in _norm(text) for n in names.get(i, []))]
         basis = r.get("basis") if r.get("basis") in allowed_basis else default
         if r.get("basis") not in allowed_basis and r.get("basis") in ("evidence", "calculated"):
             fixed += 1  # the model claimed a stronger basis than this field may carry
         if basis == "evidence" and not ids:
             basis, fixed = "interpretation", fixed + 1
         r["evidence"], r["basis"] = ids, basis
+        if verify and key == "messages":
+            r["verify_product_supports"] = verify
         kept.append(r)
     return kept, fixed
 
 
-def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[str, Any]], aff: Affordability) -> dict[str, Any]:
+def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[str, Any]], aff: Affordability,
+                     intake: ProductIntake | None = None) -> dict[str, Any]:
     valid = {i["id"] for i in ev_items if i.get("ok")}
     dropped = {"tastes": 0, "where_to_reach": 0}
     downgraded = 0
+    nbi = names_by_id(ev_items)
     p["segment_id"] = seg.id
     p["name"] = str(p.get("name") or seg.label)[:80]
     p["headline"] = str(p.get("headline") or seg.description)[:200]
@@ -121,7 +208,7 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
     for key, allowed, default in (("motivations", ("evidence", "interpretation"), "interpretation"),
                                   ("messages", ("interpretation",), "interpretation"),
                                   ("objections", ("interpretation",), "interpretation")):
-        p[key], f = _clean_claims(p.get(key), valid, allowed, default)
+        p[key], f = _clean_claims(p.get(key), valid, allowed, default, nbi, intake, dropped, key)
         downgraded += f
         p[key] = p[key][:3]
     # computed price barriers always lead the objections
@@ -140,7 +227,7 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
         key = _norm(str(x.get("place", "") if isinstance(x, dict) else ""))
         if key in places:
             eid = next((e for n, e in entity_names(ev_items, seg.label).items() if _norm(n) == key), None)
-            keep_places.append({"place": places[key], "model_note": str(x.get("why", ""))[:160],
+            keep_places.append({"place": places[key],
                                 "affinity": round(aff_by_place[places[key]], 2) if places[key] in aff_by_place else None,
                                 "evidence": [eid] if eid else [], "basis": "evidence"})
         else:
@@ -172,7 +259,7 @@ def template_persona(seg: SegmentScore, view: dict[str, Any], aff: Affordability
     pl = (view.get("lists") or {}).get("place")
     if pl:
         for it in pl["items"][:3]:
-            places.append({"place": it["name"], "model_note": "", "affinity": it.get("affinity"),
+            places.append({"place": it["name"], "affinity": it.get("affinity"),
                            "evidence": [pl["evidence_id"]], "basis": "evidence"})
     return {"segment_id": seg.id, "name": seg.label, "headline": seg.description,
             "who": f"Ages {', '.join(seg.ages)} (rule-based segment).", "motivations": [], "messages": [],
@@ -197,7 +284,7 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
                 raw = await llm.chat_json(f"persona_{seg.id}", PERSONA_SYSTEM, json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
                                           max_tokens=3000)
                 if isinstance(raw, dict):
-                    persona, source = validate_persona(raw, seg, items, aff), "llm"
+                    persona, source = validate_persona(raw, seg, items, aff, intake), "llm"
                 else:
                     error = "LLM returned a non-object"
             except LLMError as e:
@@ -232,16 +319,19 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
         if a.get("matched_by") == "prefix":
             L += [f"> Competitor '{a['query']}' was matched to Qloo's '{a['name']}'.", ""]
     if bundle.get("age_index"):
+        sk = skew_summary(bundle["age_index"], bundle.get("gender_index") or {})
         idx = ", ".join(f"{k} {v:+.2f}" for k, v in bundle["age_index"].items())
         L += [f"**Competitor audience age skew** ({', '.join(a['name'] for a in bundle['anchors'])}; Qloo relative index, "
-              f"not shares): {idx}", ""]
+              f"not shares): {idx}", f"> {sk}", ""]
     elif intake.competitors:
         L += ["**Competitor audience skew:** unavailable (no competitor resolved in Qloo).", ""]
     for p in personas:
         flags = (" · *tied*" if p.get("tied") else "") + (" · *niche at this price*" if p.get("niche") else "")
         L += [f"## {p['rank']}. {p['name']} — {p['headline']}", "",
               f"Segment `{p['segment_id']}` · ages {', '.join(p['ages'])} · score {p['score']:.2f} (ordering aid) · "
-              f"confidence {p['confidence']} · written by {p['source']}{flags}", "", p["who"], ""]
+              f"confidence {p['confidence']} · written by {p['source']}{flags}", "",
+              "Score parts: " + ", ".join(f"{k.replace('_', ' ')} {v:.2f}" for k, v in p["score_components"].items()) + ".", "",
+              p["who"], ""]
 
         def section(title: str, rows: list[dict[str, Any]], fields: tuple[str, ...]) -> None:
             if not rows:
@@ -250,7 +340,8 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
             for r in rows:
                 txt = " — ".join(str(r[f]) for f in fields if r.get(f))
                 tag = _LABEL.get(r.get("basis", "interpretation"), "LLM interpretation")
-                cite = (f" {'inspired by ' if r.get('basis') == 'interpretation' else ''}`{','.join(r['evidence'])}`"
+                warn = f" ⚠ check the product really supports: {', '.join(r['verify_product_supports'])}" if r.get("verify_product_supports") else ""
+                cite = warn + (f" {'inspired by ' if r.get('basis') == 'interpretation' else ''}`{','.join(r['evidence'])}`"
                         if r.get("evidence") else "")
                 L.append(f"- {txt} *[{tag}]*{cite}")
             L.append("")
@@ -262,8 +353,7 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
             L.append("**Where to reach them** (places Qloo returned for this age group in this location)")
             for w in p["where_to_reach"]:
                 aff_txt = f", affinity {w['affinity']}" if w.get("affinity") is not None else ""
-                note = f" · model's note (unverified): {w['model_note']}" if w.get("model_note") else ""
-                L.append(f"- {w['place']} *[Qloo{aff_txt}]* `{','.join(w['evidence'])}`{note}")
+                L.append(f"- {w['place']} *[Qloo{aff_txt}]* `{','.join(w['evidence'])}`")
             L.append("")
         section("Platforms (no platform data in Qloo)", p["platforms"], ("platform", "why"))
         section("Event ideas (no event data in Qloo)", p["events"], ("idea", "why"))

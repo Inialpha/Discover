@@ -139,11 +139,12 @@ def test_price_barriers_from_numbers(make_intake, store):
 def test_validate_persona_drops_invented_places_and_tastes(bundle_and_seg):
     i, aff, res, bundle = bundle_and_seg
     seg = res.ranked[0]
+    brand_id = next(e["id"] for e in bundle["evidence"] if e.get("segment") == seg.label and e["label"].endswith(":brand"))
     raw = {"segment_id": "WRONG", "name": "Ada", "headline": "h", "who": "w",
            "tastes": [{"name": "Zara", "kind": "brand", "evidence": ["E999"]}, {"name": "Totally Invented Brand", "kind": "brand"}],
            "where_to_reach": [{"place": "Nkoyo Lagos", "why": "popular"}, {"place": "Victoria Island", "why": "rich area"}],
            "motivations": [{"text": "likes brands", "basis": "evidence", "evidence": ["E999"]},
-                           {"text": "wants value", "basis": "evidence", "evidence": [bundle["evidence"][-1]["id"]]}],
+                           {"text": "follows Zara and similar brands", "basis": "evidence", "evidence": [brand_id]}],
            "messages": [{"angle": "a", "text": "t", "basis": "evidence", "evidence": []}],
            "platforms": [{"platform": "TikTok", "why": "young", "basis": "evidence"}] * 5,
            "events": [{"idea": "campus tour", "why": "reach students"}] * 4,
@@ -161,7 +162,7 @@ def test_validate_persona_drops_invented_places_and_tastes(bundle_and_seg):
     assert p["objections"][0]["basis"] == "calculated"          # the system-computed barrier leads
     assert [o["basis"] for o in p["objections"] if o["text"] == "pricey"] == ["interpretation"]  # the model's never 'calculated'
     nk = next(w for w in p["where_to_reach"] if w["place"] == "Nkoyo Lagos")
-    assert nk["model_note"] == "popular" and nk["affinity"] is not None and nk["evidence"]
+    assert "model_note" not in nk and nk["affinity"] is not None and nk["evidence"]
 
 
 def test_validate_persona_tolerates_garbage(bundle_and_seg):
@@ -408,16 +409,16 @@ def test_place_affinity_lookup():
     assert E.place_affinity(items, "S") == {"A": 0.61, "B": 0.61} and E.place_affinity(items, "Other") == {}
 
 
-def test_markdown_shows_prefix_match_and_model_note_separately(bundle_and_seg, tmp_path):
+def test_markdown_shows_prefix_match_and_place_affinity(bundle_and_seg, tmp_path):
     i, aff, res, bundle = bundle_and_seg
     bundle["anchors"] = [{"query": "Tecno", "entity_id": "x", "name": "TECNO Mobile", "matched_by": "prefix"}]
     t, _ = fake_llm_transport()
     llm = LLMClient(LLM_SETTINGS, RunRecorder(tmp_path / "r6"), transport=t)
     ps = run_async(W.write_personas(llm, i, aff, res.ranked, bundle))
-    ps[0]["where_to_reach"] = [{"place": "Nkoyo Lagos", "model_note": "popular spot", "affinity": 0.7, "evidence": ["E006"], "basis": "evidence"}]
+    ps[0]["where_to_reach"] = [{"place": "Nkoyo Lagos", "affinity": 0.7, "evidence": ["E006"], "basis": "evidence"}]
     md = W.markdown(i, aff, ps, bundle, [], ["World Bank"], False)
     assert "matched to Qloo's 'TECNO Mobile'" in md
-    assert "affinity 0.7" in md and "model's note (unverified): popular spot" in md
+    assert "affinity 0.7" in md and "model's note" not in md and "Score parts:" in md and "Strongest skew" in md
     assert "inspired by" in md or all(not p["messages"] or not p["messages"][0]["evidence"] for p in ps)
 
 
@@ -426,3 +427,79 @@ def test_runner_writes_evidence_notes(make_intake, store, tmp_path):
     code, run, summary = run_async(execute_personas(o, QLOO_SETTINGS, store))
     res = json.loads((run / "04_personas.json").read_text())
     assert "evidence_notes" in res and any("overlap by" in n or "identical lists" in n for n in res["evidence_notes"])
+
+
+# ---- claim screening (invented specs, social proof, untraceable citations) -------------------------------------
+@pytest.mark.parametrize("text,drop,verify", [
+    ("40 hrs on a single charge", True, []),
+    ("Only 40,000 NGN for a phone that lasts all day", False, []),
+    ("Our battery outlasts the competition", True, []),
+    ("Chosen by fans of ALAT By Wema", True, []),
+    ("Trusted by thousands", True, []),
+    ("Smooth gaming on a budget", False, ["gaming"]),
+    ("Long battery for lectures", False, []),
+    ("Takes 12MP photos", True, []),
+    ("A 5g camera phone", False, ["camera", "5g"]),
+])
+def test_screen_claim(make_intake, text, drop, verify):
+    i = make_intake(price=40_000, description="Affordable phone with long battery life for students")
+    d, v = W.screen_claim(text, i)
+    assert d is drop and v == verify
+
+
+def test_numbers_in_product_text_are_allowed(make_intake):
+    i = make_intake(price=40_000, description="A phone with 64GB storage", features=["dual sim", "2 year warranty"])
+    assert W.screen_claim("64GB of room", i)[0] is False
+    assert W.screen_claim("2 year cover", i)[0] is False
+    assert W.screen_claim("128GB of room", i)[0] is True
+
+
+def test_validate_drops_invented_specs_and_flags_unsupported_features(bundle_and_seg):
+    i, aff, res, bundle = bundle_and_seg
+    i.price = 600_000
+    seg = res.ranked[0]
+    raw = {"messages": [{"angle": "a", "text": "40 hours of battery", "evidence": []},
+                        {"angle": "b", "text": "Best gaming experience", "evidence": []},
+                        {"angle": "c", "text": "Great camera for the price", "evidence": []},
+                        {"angle": "d", "text": "Long battery life in your pocket", "evidence": []}],
+           "motivations": [{"text": "Wants to be seen with top-rated brands", "evidence": []}]}
+    p = W.validate_persona(raw, seg, bundle["evidence"], aff, i)
+    texts = [m["text"] for m in p["messages"]]
+    assert "40 hours of battery" not in texts and "Long battery life in your pocket" in texts
+    cam = next(m for m in p["messages"] if "camera" in m["text"])
+    assert cam["verify_product_supports"] == ["camera"]
+    assert p["validation"]["dropped"]["messages"] == 1 and p["validation"]["dropped"]["motivations"] == 1
+
+
+def test_citations_must_be_traceable_to_the_text(bundle_and_seg):
+    i, aff, res, bundle = bundle_and_seg
+    seg = res.ranked[0]
+    brand_id = next(e["id"] for e in bundle["evidence"] if e.get("segment") == seg.label and e["label"].endswith(":brand"))
+    raw = {"motivations": [{"text": "Cares about low price", "basis": "evidence", "evidence": [brand_id]},
+                           {"text": "Follows Zara", "basis": "evidence", "evidence": [brand_id]}],
+           "messages": [{"angle": "x", "text": "A phone that fits your budget", "evidence": [brand_id]},
+                        {"angle": "y", "text": "For people who like Zara", "evidence": [brand_id]}]}
+    p = W.validate_persona(raw, seg, bundle["evidence"], aff, i)
+    m = {x["text"]: x for x in p["motivations"]}
+    assert m["Cares about low price"]["basis"] == "interpretation" and m["Cares about low price"]["evidence"] == []
+    assert m["Follows Zara"]["basis"] == "evidence" and m["Follows Zara"]["evidence"] == [brand_id]
+    g = {x["text"]: x for x in p["messages"]}
+    assert g["A phone that fits your budget"]["evidence"] == [] and g["For people who like Zara"]["evidence"] == [brand_id]
+
+
+def test_skew_summary():
+    s = W.skew_summary({"24_and_younger": -0.04, "25_to_29": 0.59, "30_to_34": 0.75, "35_to_44": -0.86}, {"male": 0.68, "female": -0.68})
+    assert "30_to_34 (+0.75)" in s and "25_to_29 (+0.59)" in s and "35_to_44 (-0.86)" in s and "male (+0.68)" in s
+    assert W.skew_summary({}, {}) == ""
+    assert "No strong gender lean" in W.skew_summary({"a": 0.1}, {"male": 0.05})
+
+
+def test_fake_llm_cannot_smuggle_invented_numbers_through_write_personas(bundle_and_seg, tmp_path):
+    i, aff, res, bundle = bundle_and_seg
+
+    def handler(req):
+        persona = {"messages": [{"angle": "x", "text": "40 hrs on one charge", "evidence": []}], "tastes": [], "platforms": []}
+        return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {"content": json.dumps(persona)}}]})
+    llm = LLMClient(LLM_SETTINGS, RunRecorder(tmp_path / "r7"), transport=httpx.MockTransport(handler))
+    ps = run_async(W.write_personas(llm, i, aff, res.ranked, bundle))
+    assert all(p["messages"] == [] and p["validation"]["dropped"]["messages"] == 1 for p in ps)
