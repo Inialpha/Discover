@@ -48,14 +48,43 @@ def is_brand_tag(tag: dict[str, Any]) -> bool:
     return str(tag.get("id") or "").startswith("urn:tag:genre:brand")
 
 
+GENRE_PREFIX = "urn:tag:genre:brand:"
+
+
+def genre_paths(tags: list[dict[str, Any]]) -> list[tuple[str, ...]]:
+    """Category paths from a brand's own tags. Real ids are hierarchical:
+    urn:tag:genre:brand:health_and_beauty -> ('health_and_beauty',); ...:wine_and_spirits:beer -> ('wine_and_spirits','beer').
+    Style, lifestyle and wikipedia tags are ignored: live run, a bank and a soap 'shared' a style tag ('Clean')."""
+    out = []
+    for t in tags or []:
+        tid = str(t.get("id") or "")
+        if tid.startswith(GENRE_PREFIX) and tid[len(GENRE_PREFIX):]:
+            out.append(tuple(tid[len(GENRE_PREFIX):].split(":")))
+    return out
+
+
+def genre_closeness(a: list[dict[str, Any]], b: list[dict[str, Any]]) -> int:
+    """Depth of the deepest category path two brands share (0 = different top-level categories)."""
+    best = 0
+    for pa in genre_paths(a):
+        for pb in genre_paths(b):
+            n = 0
+            for x, y in zip(pa, pb):
+                if x != y:
+                    break
+                n += 1
+            best = max(best, n)
+    return best
+
+
 def coherent_brands(ents: list[dict[str, Any]], min_cluster: int = 3) -> list[dict[str, Any]]:
-    """Keep brands that share a Qloo tag with at least min_cluster-1 other returned brands; [] when no such group exists.
+    """Keep brands whose top-level category is shared by at least min_cluster returned brands; [] when none is.
     Stops a random set of location favourites being passed off as competitors."""
     from collections import Counter
-    names = {e.get("entity_id"): {(t.get("name") or t.get("id")) for t in e.get("tags") or []} for e in ents}
-    count = Counter(n for v in names.values() for n in v)
-    common = {n for n, c in count.items() if c >= min_cluster}
-    keep = [e for e in ents if names.get(e.get("entity_id"), set()) & common]
+    tops = {e.get("entity_id"): {p[0] for p in genre_paths(e.get("tags") or [])} for e in ents}
+    count = Counter(t for v in tops.values() for t in v)
+    common = {t for t, c in count.items() if c >= min_cluster}
+    keep = [e for e in ents if tops.get(e.get("entity_id"), set()) & common]
     return keep if len(keep) >= min_cluster else []
 
 
@@ -66,11 +95,6 @@ def tag_matches(tag_name: str, term: str) -> bool:
     tw = {stem(w) for w in re.split(r"[^a-z0-9]+", (tag_name or "").lower()) if w}
     qw = [stem(w) for w in re.split(r"[^a-z0-9]+", term.lower()) if w]
     return bool(qw) and all(w in tw for w in qw)
-
-
-def shared_tags(a: list[dict[str, Any]], b: list[dict[str, Any]]) -> list[str]:
-    ids = {t.get("id") for t in a if t.get("id")}
-    return [t.get("name") or t["id"] for t in b if t.get("id") in ids]
 
 
 def clean_llm_names(parsed: Any, limit: int = 8) -> list[str]:
@@ -172,14 +196,16 @@ async def discover_competitors(client: QlooClient, intake: ProductIntake, ev: Ev
         res = await client.call(calls.insights_entities("competitors", "related-brands", "brand", sig, take=10, explain=False,
                                                         allow_no_location=True))
         ents = nz.entities_from_insights(res.body) if res.ok else []
-        anchor_tags = [t for a in anchors for t in a.get("tags", [])]
         keep = []
         for e in ents:
-            sh = shared_tags(anchor_tags, e.get("tags") or [])
-            if e.get("entity_id") and e.get("name") and sh:
+            if not (e.get("entity_id") and e.get("name")):
+                continue
+            depth = max((genre_closeness(a.get("tags", []), e.get("tags") or []) for a in anchors), default=0)
+            if depth >= 1:
                 keep.append({"query": e["name"], "entity_id": e["entity_id"], "name": e["name"], "matched_by": "related",
-                             "source": "related", "tags": e.get("tags") or [], "shared_tags": sh[:3]})
-        ev.add("competitors", "related brands (share a tag)", res, {"entities": ents[:10], "kept": [k["name"] for k in keep]})
+                             "source": "related", "tags": e.get("tags") or [], "category_depth": depth})
+        keep.sort(key=lambda k: -k["category_depth"])
+        ev.add("competitors", "related brands (same Qloo category)", res, {"entities": ents[:10], "kept": [k["name"] for k in keep]})
         add(keep)
     if not anchors:
         notes.append("No competitor could be found in Qloo; audience skew is unavailable and ranking uses rules only.")

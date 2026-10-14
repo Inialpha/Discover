@@ -144,11 +144,6 @@ def test_no_competitor_anywhere_degrades_to_rules_with_a_note(tmp_path):
     assert r["anchors"] == [] and r["age_index"] == {} and any("No competitor" in n for n in r["notes"])
 
 
-def test_related_brands_must_share_a_tag():
-    assert C.shared_tags([{"id": "t1", "name": "Oral care"}], [{"id": "t1", "name": "Oral care"}, {"id": "t2", "name": "x"}]) == ["Oral care"]
-    assert C.shared_tags([{"id": "t1"}], [{"id": "t9", "name": "y"}]) == []
-
-
 @pytest.mark.parametrize("key", sorted(CASES))
 def test_runner_end_to_end_per_category(key, store, tmp_path):
     i = ProductIntake(**CASES[key], max_personas=3)
@@ -184,20 +179,35 @@ def test_place_category_tags_are_not_brand_tags():
 
 
 def _brand(eid, *tags):
-    return {"entity_id": eid, "name": eid, "tags": [{"id": t, "name": t} for t in tags]}
+    """tags are real-shaped ids, e.g. 'genre:brand:health_and_beauty' or 'aesthetic_property:qloo:clean'."""
+    return {"entity_id": eid, "name": eid, "tags": [{"id": f"urn:tag:{t}", "name": t, "type": "urn:tag:" + ":".join(t.split(":")[:2])}
+                                                     for t in tags]}
 
 
 def test_coherent_brands_keeps_a_real_cluster():
-    ents = [_brand("Milani", "Health & Beauty", "Vibrant"), _brand("Sigma", "Health & Beauty", "Minimalist"),
-            _brand("BH", "Health & Beauty", "Vibrant"), _brand("Bank", "Banks of Nigeria")]
+    ents = [_brand("Milani", "genre:brand:health_and_beauty"), _brand("Sigma", "genre:brand:health_and_beauty:skincare"),
+            _brand("BH", "genre:brand:health_and_beauty"), _brand("Bank", "genre:brand:financial_services")]
     assert [e["entity_id"] for e in C.coherent_brands(ents)] == ["Milani", "Sigma", "BH"]
 
 
 def test_coherent_brands_rejects_a_grab_bag():
     # live run: a bank, a fashion designer, a make-up artist, a shop: location favourites, not competitors
-    ents = [_brand("GTBank", "Financial Services", "Banks of Nigeria"), _brand("Kunbi", "Fashion", "Formalwear"),
-            _brand("Banke", "Health & Beauty", "Polished"), _brand("Habari", "Retail", "Shop")]
+    ents = [_brand("GTBank", "genre:brand:financial_services"), _brand("Kunbi", "genre:brand:fashion"),
+            _brand("Banke", "genre:brand:health_and_beauty"), _brand("Habari", "genre:brand:retail")]
     assert C.coherent_brands(ents) == []
+
+
+def test_style_tags_do_not_make_a_bank_a_soap_peer():
+    pears = [_brand("Pears", "genre:brand:health_and_beauty", "aesthetic_property:qloo:clean")]
+    bank = [_brand("Wema", "genre:brand:financial_services", "aesthetic_property:qloo:clean")]
+    assert C.genre_closeness(pears[0]["tags"], bank[0]["tags"]) == 0  # live run: Wema Bank was kept for sharing 'Clean'
+
+
+def test_genre_closeness_counts_shared_depth():
+    a = _brand("a", "genre:brand:wine_and_spirits:beer")["tags"]
+    assert C.genre_closeness(a, _brand("b", "genre:brand:wine_and_spirits")["tags"]) == 1
+    assert C.genre_closeness(a, _brand("c", "genre:brand:wine_and_spirits:beer:other")["tags"]) == 2
+    assert C.genre_closeness(a, _brand("d", "genre:brand:retail")["tags"]) == 0
 
 
 def test_two_given_competitors_skip_discovery_calls(tmp_path):

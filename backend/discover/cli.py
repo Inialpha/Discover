@@ -56,6 +56,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("probe", help="check key/base URL with two tiny calls")
     from .personas.cli_cmds import add_parsers
     add_parsers(sub)
+    from .taxonomy import add_parsers as add_taxonomy_parsers
+    add_taxonomy_parsers(sub)
     return p
 
 
@@ -86,6 +88,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "refdata":
         from .personas.cli_cmds import run_refdata
         return run_refdata(args)
+    if args.cmd in ("taxonomy", "category-probe"):
+        from .taxonomy import run as run_taxonomy
+        return run_taxonomy(args)
     settings = Settings.from_env()
     if args.cmd == "probe":
         return asyncio.run(_probe(settings))

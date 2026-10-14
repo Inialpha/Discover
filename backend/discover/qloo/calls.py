@@ -33,6 +33,7 @@ class Signals:
     entities: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     audiences: list[str] = field(default_factory=list)
+    filter_tags: list[str] = field(default_factory=list)  # HARD filter (filter.tags); interest tags are only a soft signal
     age: list[str] = field(default_factory=list)
     gender: str | None = None
     location: str | None = None  # a place name (Qloo resolves it)
@@ -54,6 +55,9 @@ class Signals:
         if self.tags:
             p["signal.interests.tags"] = ",".join(self.tags)
         return p
+
+    def filter_params(self) -> dict[str, str]:
+        return {"filter.tags": ",".join(self.filter_tags)} if self.filter_tags else {}
 
     def is_empty(self) -> bool:
         return not (self.entities or self.tags or self.audiences or self.age or self.gender)
@@ -108,7 +112,8 @@ def insights_entities(
     explain: bool = True,
     allow_no_location: bool = False,
 ) -> CallSpec:
-    base = {"filter.type": entity_urn(kind), "take": str(take), **signals.interest_params(), **signals.demographic_params()}
+    base = {"filter.type": entity_urn(kind), "take": str(take), **signals.interest_params(), **signals.demographic_params(),
+            **signals.filter_params()}
     if explain and (signals.entities or signals.tags):
         base["feature.explainability"] = "true"
     order = ("signal", "filter") if kind != "place" else ("filter", "signal")
@@ -164,3 +169,22 @@ def compare(step: str, label: str, a: list[str], b: list[str], kind: str | None 
         [Variant(va, {"spelling": "a./b. prefix"}), Variant(vb, {"spelling": "suffix"})],
         note="compare two entity groups",
     )
+
+
+def tag_types(label: str, kind: str, take: int = 50, step: str = "taxonomy") -> CallSpec:
+    """Which tag namespaces exist for an entity kind (genre, style, lifestyle, ...). Docs: GET /v2/tags/types."""
+    return CallSpec(step, label, "/v2/tags/types",
+                    [Variant({"filter.parents.types": entity_urn(kind), "take": str(take)}, {"kind": kind})],
+                    note=f"tag namespaces for {kind}")
+
+
+def tags_of_type(label: str, tag_type: str, query: str | None = None, take: int = 50, page: int | None = None,
+                 step: str = "taxonomy") -> CallSpec:
+    """Tags inside one namespace, optionally filtered by a keyword; page walks through large namespaces."""
+    p = {"filter.tag.types": tag_type, "take": str(take)}
+    if query:
+        p["filter.query"] = query
+    if page:
+        p["page"] = str(page)
+    return CallSpec(step, label, "/v2/tags", [Variant(p, {"tag_type": tag_type, "query": query, "page": page})],
+                    note=f"tags of type {tag_type} query={query!r} page={page}")

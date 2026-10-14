@@ -323,7 +323,7 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
             L += [f"> Competitor '{a['query']}' was matched to Qloo's '{a['name']}'.", ""]
     if bundle.get("anchors"):
         how = {"given": "you listed it", "qloo_tag": "Qloo brands for the product's tag", "llm_confirmed": "suggested by the LLM, confirmed in Qloo",
-               "related": "related to the listed brands in Qloo and sharing tags with them"}
+               "related": "related to the listed brands in Qloo and in the same Qloo brand category"}
         L += ["**Competitors used** (how each was found):", ""]
         L += [f"- {a['name']} — {how.get(a.get('source', 'given'), a.get('source'))}" for a in bundle["anchors"]] + [""]
         if any(a.get("source", "given") != "given" for a in bundle["anchors"]):

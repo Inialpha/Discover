@@ -150,6 +150,12 @@ def tags_from_body(body: Any) -> list[dict[str, Any]]:
     return out
 
 
+def tag_types_from_body(body: Any) -> list[dict[str, Any]]:
+    res = _results(body)
+    items = (res.get("tag_types") or res.get("types") or res.get("tags")) if isinstance(res, dict) else res
+    return [{"id": t.get("id") or t.get("type"), "name": t.get("name")} for t in items or [] if isinstance(t, dict)]
+
+
 def demographics_from_body(body: Any) -> dict[str, Any]:
     """Returns {"raw_keys": [...], "groups": {age|gender|...: {bucket: value}}} tolerant of a few shapes."""
     res = _results(body)

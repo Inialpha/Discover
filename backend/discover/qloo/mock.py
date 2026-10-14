@@ -51,6 +51,10 @@ def _entity(kind: str, i: int, seed: int, with_query: bool = True) -> dict:
                        "address": "1 Mock Street, Mockland"},
         "external": {},
     }
+    if kind == "brand":
+        e["tags"] = [{"id": "urn:tag:genre:brand:mock_category", "name": "Mock Category", "type": "urn:tag:genre:brand", "weight": 0.9},
+                     {"id": "urn:tag:genre:brand:mock_category:sub", "name": "Mock Sub", "type": "urn:tag:genre:brand", "weight": 0.8},
+                     {"id": "urn:tag:aesthetic_property:qloo:clean", "name": "Clean", "type": "urn:tag:aesthetic_property:qloo", "weight": 0.5}]
     if kind == "place":
         e["location"] = {"lat": round(6.45 + (i % 4) * 0.02, 4), "lon": round(3.4 + (i % 4) * 0.02, 4), "geohash": "s0yd5k"}
     if with_query:
@@ -77,6 +81,16 @@ def make_transport(reject: Callable[[httpx.Request], bool] | None = None) -> htt
                 "tags": [],
             } for i in range(int(q.get("take", 3)))]
             return httpx.Response(200, json={"success": True, "results": results})
+        if path == "/v2/tags/types":
+            return httpx.Response(200, json={"success": True, "results": {"tag_types": [
+                {"id": "urn:tag:genre:brand", "name": "Genre"}, {"id": "urn:tag:style:qloo", "name": "Style"}]}})
+        if path == "/v2/tags" and q.get("filter.tag.types") and not q.get("filter.query"):
+            tt = q["filter.tag.types"]
+            if int(q.get("page", 1)) > 1:
+                return httpx.Response(200, json={"success": True, "results": {"tags": []}})
+            names = ["Health & Beauty", "Financial Services", "Retail"] if tt.endswith("genre:brand") else ["Clean", "Bold"]
+            return httpx.Response(200, json={"success": True, "results": {"tags": [
+                {"id": f"{tt}:{n.lower().replace(' & ', '_and_').replace(' ', '_')}", "name": n, "type": tt} for n in names]}})
         if path == "/v2/tags":
             term = q.get("filter.query") or q.get("query") or "tag"
             tags = [{"id": f"urn:tag:genre:brand:mock:{term.lower().replace(' ', '_')}", "name": term.title(), "type": "urn:tag:genre:brand"}]
