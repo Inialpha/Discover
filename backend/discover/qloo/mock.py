@@ -79,7 +79,7 @@ def make_transport(reject: Callable[[httpx.Request], bool] | None = None) -> htt
             return httpx.Response(200, json={"success": True, "results": results})
         if path == "/v2/tags":
             term = q.get("filter.query") or q.get("query") or "tag"
-            tags = [{"id": f"urn:tag:keyword:mock:{term.lower().replace(' ', '_')}", "name": term.title(), "type": "urn:tag:keyword:mock"}]
+            tags = [{"id": f"urn:tag:genre:brand:mock:{term.lower().replace(' ', '_')}", "name": term.title(), "type": "urn:tag:genre:brand"}]
             return httpx.Response(200, json={"success": True, "results": {"tags": tags}})
         if path == "/v2/insights":
             ft = q.get("filter.type", "")

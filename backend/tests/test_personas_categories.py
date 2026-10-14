@@ -61,7 +61,7 @@ def test_resume_product_surfaces_job_seekers(store):
 
 def test_search_terms_use_product_type_then_category_defaults():
     assert C.search_terms(ProductIntake(**CASES["toothpaste"]))[0] == "toothpaste"
-    assert "skincare" in C.search_terms(ProductIntake(**CASES["cream"]))
+    assert C.search_terms(ProductIntake(**CASES["cream"])) == ["skin cream"]  # own words only: defaults mislead
     d = dict(CASES["phone"]); d["product_type"] = ""
     assert C.search_terms(ProductIntake(**d)) == ["smartphone", "mobile phone"]
 
@@ -169,3 +169,57 @@ def test_feature_words_flag_category_claims(store):
     assert "whitening" in screen_claim("Whitening that lasts", i)[1]
     j = ProductIntake(**CASES["cream"])
     assert "fragrance" in screen_claim("A light fragrance you will love", j)[1]
+
+
+# ---- regression tests from the live runs of 2026-10-14 ---------------------------------------------------------
+REAL_PHONE_TAGS = [{"id": "urn:tag:category:place:mobile_phone", "name": "Mobile phone"},
+                   {"id": "urn:tag:category:place:mobile_phone_repair_shop", "name": "Mobile phone repair shop"}]
+REAL_SKIN_TAGS = [{"id": "urn:tag:genre:brand:health_and_beauty:skincare", "name": "Skincare"},
+                  {"id": "urn:tag:category:place:skin_care", "name": "Skin care"}]
+
+
+def test_place_category_tags_are_not_brand_tags():
+    assert not any(C.is_brand_tag(t) for t in REAL_PHONE_TAGS)  # live run: these returned banks as phone competitors
+    assert [t["name"] for t in REAL_SKIN_TAGS if C.is_brand_tag(t)] == ["Skincare"]
+
+
+def _brand(eid, *tags):
+    return {"entity_id": eid, "name": eid, "tags": [{"id": t, "name": t} for t in tags]}
+
+
+def test_coherent_brands_keeps_a_real_cluster():
+    ents = [_brand("Milani", "Health & Beauty", "Vibrant"), _brand("Sigma", "Health & Beauty", "Minimalist"),
+            _brand("BH", "Health & Beauty", "Vibrant"), _brand("Bank", "Banks of Nigeria")]
+    assert [e["entity_id"] for e in C.coherent_brands(ents)] == ["Milani", "Sigma", "BH"]
+
+
+def test_coherent_brands_rejects_a_grab_bag():
+    # live run: a bank, a fashion designer, a make-up artist, a shop: location favourites, not competitors
+    ents = [_brand("GTBank", "Financial Services", "Banks of Nigeria"), _brand("Kunbi", "Fashion", "Formalwear"),
+            _brand("Banke", "Health & Beauty", "Polished"), _brand("Habari", "Retail", "Shop")]
+    assert C.coherent_brands(ents) == []
+
+
+def test_two_given_competitors_skip_discovery_calls(tmp_path):
+    i = ProductIntake(**CASES["cream"], competitors=["Nivea", "Vaseline"])
+    async def go():
+        async with _client(tmp_path) as c:
+            r = await E.resolve_and_skew(c, i, discover=True)
+            return r, [x.spec.path for x in c.results]
+    r, paths = run_async(go())
+    assert [a["source"] for a in r["anchors"]] == ["given", "given"] and "/v2/tags" not in paths
+
+
+def test_tag_route_rejected_when_only_place_tags_exist(tmp_path):
+    def handler(req):
+        if req.url.path == "/v2/tags":
+            return httpx.Response(200, json={"success": True, "results": {"tags": REAL_PHONE_TAGS}})
+        if req.url.path == "/search":
+            return httpx.Response(200, json={"success": True, "results": []})
+        return httpx.Response(400, json={"success": False})
+    i = ProductIntake(**CASES["phone"])
+    async def go():
+        async with _client(tmp_path, httpx.MockTransport(handler)) as c:
+            return await E.resolve_and_skew(c, i, discover=True)
+    r = run_async(go())
+    assert r["anchors"] == [] and any("No brand tag" in n or "no brand tag" in n.lower() for n in r["notes"])

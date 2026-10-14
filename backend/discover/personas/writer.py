@@ -326,6 +326,9 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
                "related": "related to the listed brands in Qloo and sharing tags with them"}
         L += ["**Competitors used** (how each was found):", ""]
         L += [f"- {a['name']} — {how.get(a.get('source', 'given'), a.get('source'))}" for a in bundle["anchors"]] + [""]
+        if any(a.get("source", "given") != "given" for a in bundle["anchors"]):
+            L += ["> Some competitors were found by the tool, not listed by you. Check they are real peers; if not, list your own "
+                  "competitors and the audience skew below will be based on them.", ""]
     if bundle.get("age_index"):
         sk = skew_summary(bundle["age_index"], bundle.get("gender_index") or {})
         idx = ", ".join(f"{k} {v:+.2f}" for k, v in bundle["age_index"].items())

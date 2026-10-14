@@ -36,12 +36,27 @@ _NAME_BAD = re.compile(r"[^\w .&'+-]")
 
 
 def search_terms(intake: ProductIntake) -> list[str]:
-    """Plain words for what the product is: the business's own product_type first, else defaults for its category."""
-    terms = [intake.product_type.strip().lower()] if (intake.product_type or "").strip() else []
-    for t in DEFAULT_TERMS.get(intake.category, []):
-        if t not in terms:
-            terms.append(t)
-    return terms[:3] if intake.product_type.strip() else terms[:2]
+    """Words for the Qloo tag search: the business's own product_type; category defaults only when none was given.
+    (Live run: defaults such as "skincare" pulled make-up brands for a toothpaste.)"""
+    pt = (intake.product_type or "").strip().lower()
+    return [pt] if pt else DEFAULT_TERMS.get(intake.category, [])[:2]
+
+
+def is_brand_tag(tag: dict[str, Any]) -> bool:
+    """Live run: most tags matching a product word are PLACE categories (urn:tag:category:place:mobile_phone) and
+    pull unrelated brands (banks). Only brand-genre tags describe brands."""
+    return str(tag.get("id") or "").startswith("urn:tag:genre:brand")
+
+
+def coherent_brands(ents: list[dict[str, Any]], min_cluster: int = 3) -> list[dict[str, Any]]:
+    """Keep brands that share a Qloo tag with at least min_cluster-1 other returned brands; [] when no such group exists.
+    Stops a random set of location favourites being passed off as competitors."""
+    from collections import Counter
+    names = {e.get("entity_id"): {(t.get("name") or t.get("id")) for t in e.get("tags") or []} for e in ents}
+    count = Counter(n for v in names.values() for n in v)
+    common = {n for n, c in count.items() if c >= min_cluster}
+    keep = [e for e in ents if names.get(e.get("entity_id"), set()) & common]
+    return keep if len(keep) >= min_cluster else []
 
 
 def tag_matches(tag_name: str, term: str) -> bool:
@@ -107,12 +122,14 @@ async def discover_competitors(client: QlooClient, intake: ProductIntake, ev: Ev
     if not discover:
         return {"anchors": anchors, "unresolved": unresolved, "notes": notes}
 
+    # the business's own list wins: with two or more resolved competitors, do not add guesses
+    need_more = len(anchors) < 2
     # 1) Qloo tag route
-    if len(anchors) < want:
+    if need_more:
         for term in search_terms(intake):
             res = await client.call(calls.search_tags(f"tag-{term}", term, take=8))
             tags = nz.tags_from_body(res.body) if res.ok else []
-            hit = next((t for t in tags if t.get("id") and tag_matches(t.get("name") or "", term)), None)
+            hit = next((t for t in tags if is_brand_tag(t) and tag_matches(t.get("name") or "", term)), None)
             ev.add("resolve", f"tag:{term}", res, {"query": term, "kind": "tag", "candidates": tags[:8], "chosen": hit})
             if not hit:
                 continue
@@ -121,15 +138,18 @@ async def discover_competitors(client: QlooClient, intake: ProductIntake, ev: Ev
                                                              explain=False, allow_no_location=True))
             ents = nz.entities_from_insights(res2.body) if res2.ok else []
             ev.add("competitors", f"brands for tag {hit.get('name')}", res2, {"tag": hit, "entities": ents[:10]})
+            good = coherent_brands([e for e in ents if e.get("entity_id") and e.get("name")])
+            if not good:
+                notes.append(f"Qloo's brands for the tag '{hit.get('name')}' did not form a coherent group, so they were not used.")
             add([{"query": term, "entity_id": e["entity_id"], "name": e["name"], "matched_by": "tag", "source": "qloo_tag",
-                  "tags": e.get("tags") or []} for e in ents if e.get("entity_id") and e.get("name")])
+                  "tags": e.get("tags") or []} for e in good])
             if len(anchors) >= want:
                 break
         if not any(a["source"] == "qloo_tag" for a in anchors):
-            notes.append("Qloo returned no brands for a tag matching the product type.")
+            notes.append("Qloo has no brand tag matching the product type; competitors came from other sources.")
 
     # 2) LLM suggestions, verified by Qloo
-    if len(anchors) < want and llm is not None:
+    if need_more and len(anchors) < want and llm is not None:
         try:
             parsed = await llm.chat_json("competitor_suggestions", LLM_SYSTEM,
                                          f"Product type: {intake.product_type or intake.category}\nCategory: {intake.category}\n"
