@@ -1,0 +1,11 @@
+{
+  "name": "GlowSkin",
+  "product_type": "skin cream",
+  "category": "beauty_personal_care",
+  "price": 8000,
+  "currency": "NGN",
+  "location": "Lagos",
+  "purchase_type": "repeat",
+  "purchases_per_year": 4,
+  "description": "A moisturising face cream for dry skin with shea butter."
+}

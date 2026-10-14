@@ -45,6 +45,7 @@ class PersonaOptions:
     llm_delay: float = 0.0
     zip: bool = True
     refresh: bool = False
+    discover: bool = True  # find competitors through Qloo when fewer than 5 are given
 
 
 async def execute_personas(opts: PersonaOptions, settings: Settings, store: ReferenceStore,
@@ -94,7 +95,7 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
     transport = qloo_transport or (make_transport(mock_reject) if opts.mock else None)
     async with QlooClient(settings, rec, transport=transport, dry_run=opts.dry_run, max_calls=opts.max_calls,
                           concurrency=opts.concurrency, delay=opts.delay, synthetic=opts.mock) as client:
-        anchor = await E.resolve_and_skew(client, intake)
+        anchor = await E.resolve_and_skew(client, intake, llm=llm, discover=opts.discover)
         # re-rank with the Qloo audience fit, then fetch persona evidence only for the final top segments
         scoring = score_segments(intake, aff, E.qloo_fit_from_age_index(anchor["age_index"], list(SEGMENTS))
                                  if anchor["age_index"] else None)
@@ -114,7 +115,7 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
 
     bundle = {"evidence": ev_items, "anchors": anchor["anchors"], "unresolved": anchor["unresolved"],
               "age_index": anchor["age_index"], "gender_index": anchor["gender_index"]}
-    shared = E.shared_evidence_notes(ev_items, scoring.ranked, intake.location)
+    shared = anchor.get("notes", []) + E.shared_evidence_notes(ev_items, scoring.ranked, intake.location)
     personas = await writer.write_personas(llm, intake, aff, scoring.ranked, bundle, delay=opts.llm_delay)
     attribution = ["World Bank Open Data (CC BY 4.0)"] + ([FX_ATTRIBUTION] if aff.conversion else [])
     rec.write_json("04_personas.json", {"synthetic": opts.mock, "affordability": aff.to_dict(), "personas": personas,

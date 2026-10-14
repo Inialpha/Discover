@@ -24,6 +24,7 @@ CATEGORIES: dict[str, str] = {
     "health_wellness": "everyday",
     "digital_subscription": "subscription",
     "fintech_app": "subscription",
+    "software_saas": "subscription",
     "home_appliance": "home_durable",
     "vehicle": "vehicle_property",
     "travel_hospitality": "experience",
@@ -47,6 +48,7 @@ class ProductIntake:
     country: str | None = None  # optional override; needed when the location is not a known city
     features: list[str] = field(default_factory=list)
     competitors: list[str] = field(default_factory=list)
+    product_type: str = ""  # plain words for what it is, e.g. "toothpaste", "skin cream", "resume builder"; used to find competitors
     competitor_prices: list[float] = field(default_factory=list)  # same currency as `price`
     max_personas: int = 6
     gender_focus: str | None = None  # optional filter, applied after scoring

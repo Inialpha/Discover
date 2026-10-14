@@ -89,3 +89,10 @@ compare params) live in `discover/qloo/calls.py` and `discover/qloo/demographics
 
 ## Tests
 `pytest` (offline; uses a mock transport and `entity_examples/`).
+
+### Competitor discovery and example products
+
+`discover personas --file examples/personas/<toothpaste|cream|phone|fintech|resume>.json` runs the same pipeline for any category.
+Set `product_type` ("toothpaste", "skin cream", "resume builder") so competitors can be found in Qloo. Competitors you list come
+first; if fewer than five, the tool adds Qloo brands for a tag matching the product type, then LLM-suggested names that Qloo
+confirms, then Qloo-related brands that share a tag. The report says how each competitor was found. `--no-discover` uses only your list.

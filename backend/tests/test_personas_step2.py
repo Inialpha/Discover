@@ -335,7 +335,7 @@ def test_runner_dry_run_makes_no_calls_and_writes_plan(make_intake, store, tmp_p
 
 
 def test_runner_no_competitors_still_produces_personas(make_intake, store, tmp_path):
-    o = opts(make_intake, tmp_path)
+    o = opts(make_intake, tmp_path, discover=False)
     o.intake = make_intake(price=40_000, max_personas=2)
     code, run, summary = run_async(execute_personas(o, QLOO_SETTINGS, store))
     res = json.loads((run / "04_personas.json").read_text())

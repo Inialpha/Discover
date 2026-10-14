@@ -65,7 +65,10 @@ def _norm(t: str) -> str:
 UNSUPPORTED_PHRASES = ("outlast", "best-selling", "best selling", "top-rated", "top rated", "#1", "number one", "guaranteed",
                        "unbeatable", "chosen by", "trusted by", "loved by", "fans of", "most popular", "market leader")
 FEATURE_WORDS = ("battery", "camera", "storage", "processor", "performance", "gaming", "display", "screen", "waterproof",
-                 "charging", "memory", "5g", "signal", "network", "fast", "speed", "durable", "warranty", "hours", "hrs")
+                 "charging", "memory", "5g", "signal", "network", "fast", "speed", "durable", "warranty", "hours", "hrs",
+                 "fluoride", "whitening", "sensitive", "natural", "organic", "vegan", "spf", "hypoallergenic", "dermatologist",
+                 "clinically", "fragrance", "moisturising", "moisturizing", "encrypted", "encryption", "secure", "ats",
+                 "templates", "integration", "instant", "free", "unlimited", "ai", "automatic")
 _NUM = re.compile(r"\d[\d,]*\.?\d*")
 
 
@@ -318,6 +321,11 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
     for a in bundle.get("anchors", []):
         if a.get("matched_by") == "prefix":
             L += [f"> Competitor '{a['query']}' was matched to Qloo's '{a['name']}'.", ""]
+    if bundle.get("anchors"):
+        how = {"given": "you listed it", "qloo_tag": "Qloo brands for the product's tag", "llm_confirmed": "suggested by the LLM, confirmed in Qloo",
+               "related": "related to the listed brands in Qloo and sharing tags with them"}
+        L += ["**Competitors used** (how each was found):", ""]
+        L += [f"- {a['name']} — {how.get(a.get('source', 'given'), a.get('source'))}" for a in bundle["anchors"]] + [""]
     if bundle.get("age_index"):
         sk = skew_summary(bundle["age_index"], bundle.get("gender_index") or {})
         idx = ", ".join(f"{k} {v:+.2f}" for k, v in bundle["age_index"].items())

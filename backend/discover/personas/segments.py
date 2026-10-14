@@ -15,9 +15,9 @@ from dataclasses import dataclass, field
 AGES = ("24_and_younger", "25_to_29", "30_to_34", "35_to_44", "45_to_54", "55_and_older")
 ALL_TIERS = ("budget", "mass", "upper", "premium")
 DEVICES = ("smartphone", "computing")
-DIGITAL = ("digital_subscription", "fintech_app")
+DIGITAL = ("digital_subscription", "fintech_app", "software_saas")
 ALL_CATEGORIES = ("smartphone", "computing", "apparel_footwear", "education_service", "other", "beauty_personal_care",
-                  "food_beverage", "health_wellness", "digital_subscription", "fintech_app", "home_appliance", "vehicle",
+                  "food_beverage", "health_wellness", "digital_subscription", "fintech_app", "software_saas", "home_appliance", "vehicle",
                   "travel_hospitality", "entertainment_media")
 
 
@@ -97,6 +97,10 @@ SEGMENTS: tuple[Segment, ...] = (
             ("25_to_29", "30_to_34", "35_to_44", "45_to_54"), (3, 4, 5), ("travel_hospitality", "entertainment_media",
                                                                            "apparel_footwear", "smartphone"),
             ("mass", "upper", "premium"), ("travel", "holiday", "event", "experience", "weekend", "tour")),
+    Segment("job_seekers", "Job seekers and career changers", "People actively applying for work or switching careers.",
+            ("24_and_younger", "25_to_29", "30_to_34", "35_to_44"), (1, 2, 3, 4),
+            (*DIGITAL, "education_service", "other"), ("budget", "mass", "upper"),
+            ("resume", "cv", "job", "career", "interview", "hiring", "application", "cover letter", "recruiter")),
     Segment("everyday_buyers", "Everyday mass-market buyers", "Broad adult base buying routine items at affordable prices.",
             ("25_to_29", "30_to_34", "35_to_44", "45_to_54"), (1, 2, 3, 4), ("food_beverage", "beauty_personal_care",
                                                                              "health_wellness", "apparel_footwear", "other"),

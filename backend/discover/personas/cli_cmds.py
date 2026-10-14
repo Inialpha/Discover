@@ -35,6 +35,7 @@ def add_parsers(sub: Any) -> None:
     p.add_argument("--dry-run", action="store_true", help="write planned Qloo requests, make no calls")
     p.add_argument("--max-calls", type=int, default=150); p.add_argument("--concurrency", type=int, default=2)
     p.add_argument("--delay", type=float, default=0.0, help="seconds between Qloo calls")
+    p.add_argument("--no-discover", action="store_true", help="use only the competitors you list; do not look for more in Qloo")
     p.add_argument("--llm-delay", type=float, default=0.0, help="seconds to wait between persona LLM calls (token-per-minute limits)")
 
     r = sub.add_parser("refdata", help="manage reference statistics (World Bank + exchange rates)")
@@ -54,6 +55,7 @@ def _intake_args(s: argparse.ArgumentParser) -> None:
     s.add_argument("--purchase-type", choices=PURCHASE_TYPES, default="one_off")
     s.add_argument("--purchases-per-year", type=float)
     s.add_argument("--feature", action="append", default=[], help="repeatable product feature")
+    s.add_argument("--product-type", help='plain words, e.g. "toothpaste"; used to find competitors in Qloo')
     s.add_argument("--competitor", action="append", default=[]); s.add_argument("--competitor-price", action="append", type=float, default=[])
     s.add_argument("--max-personas", type=int, default=6); s.add_argument("--gender", choices=["male", "female"])
     s.add_argument("--age", help="comma list of age buckets, e.g. 24_and_younger,25_to_29")
@@ -65,7 +67,7 @@ def _intake_from_args(a: argparse.Namespace) -> ProductIntake:
     return ProductIntake(
         name=a.name or "", description=a.description or "", category=a.category or "", price=a.price if a.price is not None else -1,
         currency=(a.currency or "").upper(), location=a.location or "", purchase_type=a.purchase_type,
-        purchases_per_year=a.purchases_per_year, country=a.country, features=a.feature, competitors=a.competitor,
+        purchases_per_year=a.purchases_per_year, country=a.country, product_type=a.product_type or "", features=a.feature, competitors=a.competitor,
         competitor_prices=a.competitor_price, max_personas=a.max_personas, gender_focus=a.gender,
         age_focus=[x.strip() for x in a.age.split(",")] if a.age else [])
 
@@ -188,7 +190,7 @@ def run_personas(a: argparse.Namespace) -> int:
         return 3
     opts = PersonaOptions(intake=intake, out=Path(a.out), kinds=[k.strip() for k in a.kinds.split(",") if k.strip()],
                           take=a.take, no_llm=a.no_llm, mock=a.mock, dry_run=a.dry_run, max_calls=a.max_calls,
-                          concurrency=a.concurrency, delay=a.delay, llm_delay=a.llm_delay, zip=not a.no_zip, refresh=a.refresh)
+                          concurrency=a.concurrency, delay=a.delay, llm_delay=a.llm_delay, zip=not a.no_zip, refresh=a.refresh, discover=not a.no_discover)
     code, run_dir, summary = asyncio.run(execute_personas(opts, Settings.from_env(), ReferenceStore(cache_path=Path(a.cache))))
     print(f"run folder : {run_dir}\nstatus     : {summary.get('status')}  (exit {code})")
     for e in summary.get("errors", []):

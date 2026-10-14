@@ -64,23 +64,14 @@ def qloo_fit_from_age_index(age_index: dict[str, float], segments: list[Any]) ->
     return out
 
 
-async def resolve_and_skew(client: QlooClient, intake: ProductIntake) -> dict[str, Any]:
-    """Steps 1-2: resolve competitor anchors, then ask once for their audience's age/gender skew."""
+async def resolve_and_skew(client: QlooClient, intake: ProductIntake, llm: Any = None, discover: bool = False,
+                           want: int = 5) -> dict[str, Any]:
+    """Steps 1-2: find competitor anchors (given, and with discover=True also found through Qloo), then ask once for
+    their audience's age/gender skew. See competitors.py for the sources and their labels."""
+    from .competitors import discover_competitors
     ev = Evidence()
-    unresolved: list[str] = []
-    anchors: list[dict[str, str]] = []
-    if intake.competitors:
-        specs = [calls.search_entities(f"brand-{n}", n, "brand", take=5) for n in intake.competitors]
-        results = await asyncio.gather(*(client.call(s) for s in specs))
-        for name, res in zip(intake.competitors, results):
-            cands = nz.entities_from_search(res.body) if res.ok else []
-            top, how = pick_anchor(cands, name)
-            ev.add("resolve", f"brand:{name}", res, {"query": name, "kind": "brand", "candidates": cands[:5], "chosen": top,
-                                                     "matched_by": how})
-            if top:
-                anchors.append({"query": name, "entity_id": top["entity_id"], "name": top["name"], "matched_by": how})
-            else:
-                unresolved.append(name)
+    found = await discover_competitors(client, intake, ev, pick_anchor, llm=llm, want=want, discover=discover)
+    anchors, unresolved = found["anchors"], found["unresolved"]
     age_index: dict[str, float] = {}
     gender_index: dict[str, float] = {}
     if anchors:
@@ -91,7 +82,8 @@ async def resolve_and_skew(client: QlooClient, intake: ProductIntake) -> dict[st
         if data:
             age_index = dict((data.get("groups") or {}).get("age", {}))
             gender_index = dict((data.get("groups") or {}).get("gender", {}))
-    return {"ev": ev, "anchors": anchors, "unresolved": unresolved, "age_index": age_index, "gender_index": gender_index}
+    return {"ev": ev, "anchors": anchors, "unresolved": unresolved, "age_index": age_index, "gender_index": gender_index,
+            "notes": found["notes"]}
 
 
 async def gather_segments(client: QlooClient, intake: ProductIntake, segments: list[SegmentScore], ev: Evidence,
