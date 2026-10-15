@@ -127,7 +127,7 @@ def entities_from_search(body: Any) -> list[dict[str, Any]]:
             "types": types,
             "popularity": _num(e.get("popularity")),
             "disambiguation": e.get("disambiguation"),
-            "tags": _tags(e.get("tags"), 5),
+            "tags": _tags(e.get("tags"), 12),
         })
     return out
 

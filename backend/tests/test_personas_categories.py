@@ -232,4 +232,62 @@ def test_tag_route_rejected_when_only_place_tags_exist(tmp_path):
         async with _client(tmp_path, httpx.MockTransport(handler)) as c:
             return await E.resolve_and_skew(c, i, discover=True)
     r = run_async(go())
-    assert r["anchors"] == [] and any("No brand tag" in n or "no brand tag" in n.lower() for n in r["notes"])
+    assert r["anchors"] == [] and any("no brand category" in n.lower() for n in r["notes"])
+
+
+# ---- category route from live probe (2026-10-14): hard filter works, anchors' own tags name the category -------
+def _anchor(name, *tag_ids):
+    return {"entity_id": name, "name": name, "tags": [{"id": f"urn:tag:{t}", "name": t, "type": "urn:tag:genre:brand"} for t in tag_ids]}
+
+
+def test_category_candidates_prefers_deepest_shared_category():
+    a = [_anchor("Nivea", "genre:brand:health_and_beauty", "genre:brand:health_and_beauty:skincare"),
+         _anchor("Vaseline", "genre:brand:health_and_beauty:skincare")]
+    ids = [c["id"] for c in C.category_candidates(a)]
+    assert ids[0] == "urn:tag:genre:brand:health_and_beauty:skincare" and "urn:tag:genre:brand:health_and_beauty" in ids
+
+
+def test_category_candidates_ignores_style_tags_and_minority_categories():
+    a = [_anchor("Tecno", "genre:brand:electronics:phones_and_tablets", "aesthetic_property:qloo:clean"),
+         _anchor("Infinix", "genre:brand:electronics:phones_and_tablets"), _anchor("Odd", "genre:brand:retail")]
+    ids = [c["id"] for c in C.category_candidates(a)]
+    assert "urn:tag:genre:brand:retail" not in ids and ids[0].endswith("electronics:phones_and_tablets")
+
+
+def _category_handler(local_empty=False):
+    def handler(req):
+        p, q = req.url.path, dict(req.url.params)
+        if p == "/search":
+            n = q["query"]
+            tags = [{"id": "urn:tag:genre:brand:health_and_beauty:skincare", "name": "Skincare", "type": "urn:tag:genre:brand"}]
+            return httpx.Response(200, json={"results": [{"entity_id": n, "name": n, "types": ["urn:entity:brand"], "tags": tags}]})
+        if p == "/v2/insights" and q.get("filter.type") == "urn:entity:brand" and q.get("filter.tags"):
+            if local_empty and ("signal.location.query" in q or "filter.location.query" in q):
+                return httpx.Response(200, json={"results": {"entities": []}})
+            tag = {"id": q["filter.tags"], "name": "Skincare", "type": "urn:tag:genre:brand"}
+            return httpx.Response(200, json={"results": {"entities": [
+                {"entity_id": f"P{i}", "name": f"Peer{i}", "tags": [tag]} for i in range(4)]}})
+        if p == "/v2/insights" and q.get("filter.type") == "urn:demographics":
+            return httpx.Response(200, json={"results": {"demographics": [{"query": {"age": {"25_to_29": 0.3}, "gender": {"male": 0.1}}}]}})
+        return httpx.Response(404, json={})
+    return handler
+
+
+def test_category_peers_fill_in_from_the_anchors_own_category(tmp_path):
+    i = ProductIntake(**CASES["cream"], competitors=["Nivea", "Vaseline"])
+    async def go():
+        async with _client(tmp_path, httpx.MockTransport(_category_handler())) as c:
+            return await E.resolve_and_skew(c, i, discover=True)
+    r = run_async(go())
+    names = [(a["name"], a["source"]) for a in r["anchors"]]
+    assert names[:2] == [("Nivea", "given"), ("Vaseline", "given")] and all(s == "qloo_category" for _, s in names[2:]) and len(names) == 5
+    assert r["category"] == {"id": "urn:tag:genre:brand:health_and_beauty:skincare", "scope": "local"}
+
+
+def test_category_peers_fall_back_to_global_with_a_note(tmp_path):
+    i = ProductIntake(**CASES["cream"], competitors=["Nivea", "Vaseline"])
+    async def go():
+        async with _client(tmp_path, httpx.MockTransport(_category_handler(local_empty=True))) as c:
+            return await E.resolve_and_skew(c, i, discover=True)
+    r = run_async(go())
+    assert r["category"]["scope"] == "global" and any("outside the location" in n for n in r["notes"])

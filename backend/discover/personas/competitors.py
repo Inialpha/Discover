@@ -97,6 +97,20 @@ def tag_matches(tag_name: str, term: str) -> bool:
     return bool(qw) and all(w in tw for w in qw)
 
 
+def category_candidates(anchors: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Category tag ids that most anchors share, deepest first. Live run: Qloo's own tags on a brand name its categories
+    (Tecno: Electronics > Phones & Tablets; Nivea: Health & Beauty), so one confirmed brand points to its category."""
+    from collections import Counter
+    n = len(anchors)
+    count: Counter = Counter()
+    for a in anchors:
+        prefixes = {p[:i] for p in genre_paths(a.get("tags") or []) for i in range(1, len(p) + 1)}
+        count.update(prefixes)
+    need = max(1, (n + 1) // 2)
+    cands = [{"id": GENRE_PREFIX + ":".join(p), "depth": len(p), "anchors": c} for p, c in count.items() if c >= need]
+    return sorted(cands, key=lambda c: (-c["depth"], -c["anchors"], c["id"]))
+
+
 def clean_llm_names(parsed: Any, limit: int = 8) -> list[str]:
     raw = parsed.get("brands") if isinstance(parsed, dict) else parsed if isinstance(parsed, list) else []
     out: list[str] = []
@@ -144,33 +158,36 @@ async def discover_competitors(client: QlooClient, intake: ProductIntake, ev: Ev
         add(found)
         unresolved += missing
     if not discover:
-        return {"anchors": anchors, "unresolved": unresolved, "notes": notes}
+        return {"anchors": anchors, "unresolved": unresolved, "notes": notes, "category": None}
 
     # the business's own list wins: with two or more resolved competitors, do not add guesses
     need_more = len(anchors) < 2
-    # 1) Qloo tag route
+    # 1) Qloo category route: find a brand category (genre:brand tag) matching the product type, then a HARD tag filter.
+    #    Live run: filter.tags returned 8/8 skincare brands for Lagos; the soft signal returned 0/10.
     if need_more:
         for term in search_terms(intake):
-            res = await client.call(calls.search_tags(f"tag-{term}", term, take=8))
+            res = await client.call(calls.tags_of_type(f"tag-{term}", "urn:tag:genre:brand", query=term, take=10, step="resolve"))
             tags = nz.tags_from_body(res.body) if res.ok else []
             hit = next((t for t in tags if is_brand_tag(t) and tag_matches(t.get("name") or "", term)), None)
             ev.add("resolve", f"tag:{term}", res, {"query": term, "kind": "tag", "candidates": tags[:8], "chosen": hit})
             if not hit:
                 continue
-            sig = calls.Signals(tags=[hit["id"]], location=intake.location)
+            sig = calls.Signals(filter_tags=[hit["id"]], location=intake.location)
             res2 = await client.call(calls.insights_entities("competitors", f"brands-for-tag-{term}", "brand", sig, take=10,
-                                                             explain=False, allow_no_location=True))
-            ents = nz.entities_from_insights(res2.body) if res2.ok else []
-            ev.add("competitors", f"brands for tag {hit.get('name')}", res2, {"tag": hit, "entities": ents[:10]})
-            good = coherent_brands([e for e in ents if e.get("entity_id") and e.get("name")])
-            if not good:
-                notes.append(f"Qloo's brands for the tag '{hit.get('name')}' did not form a coherent group, so they were not used.")
+                                                             explain=False, allow_no_location=False))
+            ents = [e for e in (nz.entities_from_insights(res2.body) if res2.ok else []) if e.get("entity_id") and e.get("name")]
+            carry = [e for e in ents if any(str(t.get("id", "")).startswith(hit["id"]) for t in e.get("tags") or [])]
+            ev.add("competitors", f"brands for tag {hit.get('name')}", res2,
+                   {"tag": hit, "entities": ents[:10], "carry_category": [e["name"] for e in carry]})
+            if len(carry) < 3:
+                notes.append(f"Qloo returned too few brands in the category '{hit.get('name')}' for {intake.location}.")
+                continue
             add([{"query": term, "entity_id": e["entity_id"], "name": e["name"], "matched_by": "tag", "source": "qloo_tag",
-                  "tags": e.get("tags") or []} for e in good])
+                  "tags": e.get("tags") or []} for e in carry])
             if len(anchors) >= want:
                 break
         if not any(a["source"] == "qloo_tag" for a in anchors):
-            notes.append("Qloo has no brand tag matching the product type; competitors came from other sources.")
+            notes.append("Qloo has no brand category matching the product type; competitors came from other sources.")
 
     # 2) LLM suggestions, verified by Qloo
     if need_more and len(anchors) < want and llm is not None:
@@ -190,8 +207,37 @@ async def discover_competitors(client: QlooClient, intake: ProductIntake, ev: Ev
             if missing:
                 notes.append(f"LLM suggested brands Qloo could not confirm, so they were not used: {', '.join(missing)}.")
 
-    # 3) related brands that share a tag with what we already have
+    # 3) Qloo brands in the same category as what we have (hard tag filter; verified live: 8/8 skincare brands for Lagos)
+    category_used: dict[str, Any] | None = None
     if 0 < len(anchors) < want:
+        for cand in category_candidates(anchors)[:3]:
+            have_ids = {a["entity_id"] for a in anchors}
+            tried = []
+            for loc, label in ((intake.location, "local"), (None, "global")):
+                sig = calls.Signals(filter_tags=[cand["id"]], location=loc)
+                res = await client.call(calls.insights_entities("competitors", f"category-peers-{label}", "brand", sig, take=10,
+                                                                explain=False, allow_no_location=False))
+                ents = [e for e in (nz.entities_from_insights(res.body) if res.ok else [])
+                        if e.get("entity_id") and e.get("name") and e["entity_id"] not in have_ids]
+                carry = [e for e in ents if any(str(t.get("id", "")).startswith(cand["id"]) for t in e.get("tags") or [])]
+                ev.add("competitors", f"category peers {cand['id'].split(':', 3)[-1]} ({label})", res,
+                       {"category": cand["id"], "scope": label, "entities": ents[:10], "carry_category": [e["name"] for e in carry]})
+                tried.append((label, len(carry)))
+                if len(carry) >= 3:
+                    add([{"query": cand["id"], "entity_id": e["entity_id"], "name": e["name"], "matched_by": "category",
+                          "source": "qloo_category", "tags": e.get("tags") or [], "category": cand["id"], "scope": label} for e in carry])
+                    category_used = {"id": cand["id"], "scope": label}
+                    if label == "global":
+                        notes.append(f"Qloo has no brands for category '{cand['id'].split(':', 3)[-1]}' in {intake.location}; "
+                                     "brands from outside the location were used.")
+                    break
+            if category_used:
+                break
+        if not category_used:
+            notes.append("Qloo returned too few brands in the competitors' category to add peers.")
+
+    # 4) related brands in the same category, only if the category route added nothing
+    if 0 < len(anchors) < want and not category_used:
         sig = calls.Signals(entities=[a["entity_id"] for a in anchors], location=intake.location)
         res = await client.call(calls.insights_entities("competitors", "related-brands", "brand", sig, take=10, explain=False,
                                                         allow_no_location=True))
@@ -209,4 +255,4 @@ async def discover_competitors(client: QlooClient, intake: ProductIntake, ev: Ev
         add(keep)
     if not anchors:
         notes.append("No competitor could be found in Qloo; audience skew is unavailable and ranking uses rules only.")
-    return {"anchors": anchors, "unresolved": unresolved, "notes": notes}
+    return {"anchors": anchors, "unresolved": unresolved, "notes": notes, "category": category_used}

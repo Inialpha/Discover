@@ -81,3 +81,9 @@ def test_cli_taxonomy_and_probe_mock(tmp_path, capsys):
 def test_cli_probe_needs_something_to_probe(tmp_path):
     with pytest.raises(SystemExit):
         main(["category-probe", "--mock", "--out", str(tmp_path), "--no-zip"])
+
+
+def test_priority_types_reaches_brand_genre_even_when_it_is_far_down_the_alphabet():
+    types = [{"id": f"urn:tag:aaa{i}:qloo"} for i in range(30)] + [{"id": "urn:tag:genre:brand"}, {"id": "urn:tag:industry:qloo"}]
+    got = [t["id"] for t in T.priority_types("brand", types, limit=5)]
+    assert got[:2] == ["urn:tag:genre:brand", "urn:tag:industry:qloo"] and len(got) == 5

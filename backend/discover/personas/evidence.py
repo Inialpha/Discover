@@ -83,7 +83,7 @@ async def resolve_and_skew(client: QlooClient, intake: ProductIntake, llm: Any =
             age_index = dict((data.get("groups") or {}).get("age", {}))
             gender_index = dict((data.get("groups") or {}).get("gender", {}))
     return {"ev": ev, "anchors": anchors, "unresolved": unresolved, "age_index": age_index, "gender_index": gender_index,
-            "notes": found["notes"]}
+            "notes": found["notes"], "category": found.get("category")}
 
 
 async def gather_segments(client: QlooClient, intake: ProductIntake, segments: list[SegmentScore], ev: Evidence,

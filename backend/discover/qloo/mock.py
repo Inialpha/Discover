@@ -109,7 +109,11 @@ def make_transport(reject: Callable[[httpx.Request], bool] | None = None) -> htt
                 return httpx.Response(200, json={"success": True, "results": {"heatmap": pts}})
             kind = ft.split(":")[-1] or "brand"
             n = int(q.get("take", 5))
-            return httpx.Response(200, json={"success": True, "results": {"entities": [_entity(kind, i, seed) for i in range(n)]}})
+            ents = [_entity(kind, i, seed) for i in range(n)]
+            if q.get("filter.tags") and kind == "brand":  # a hard filter: every brand carries the requested category
+                for e in ents:
+                    e["tags"].insert(0, {"id": q["filter.tags"], "name": q["filter.tags"].split(":")[-1], "type": "urn:tag:genre:brand"})
+            return httpx.Response(200, json={"success": True, "results": {"entities": ents}})
         if path == "/v2/analysis/compare":
             return httpx.Response(200, json={"success": True, "results": {"tags": [{"name": "Drama", "a": 0.7, "b": 0.4}], "note": "[SYNTHETIC]"}})
         return httpx.Response(404, json={"success": False, "errors": [f"mock: unknown path {path}"]})

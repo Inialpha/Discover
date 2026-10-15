@@ -25,14 +25,29 @@ from .recorder import RunRecorder
 GENRE_TYPES = ("urn:tag:genre:brand",)
 
 
-async def crawl(client: QlooClient, kinds: list[str], max_pages: int = 6, take: int = 50, seeds: list[str] | None = None) -> dict[str, Any]:
+PRIORITY_BRAND = ("urn:tag:genre:brand", "urn:tag:industry:qloo", "urn:tag:product_service:qloo", "urn:tag:customer_segment:qloo",
+                  "urn:tag:competitor_brand:qloo", "urn:tag:category:qloo", "urn:tag:price_range:qloo", "urn:tag:similar_brand:qloo")
+
+
+def priority_types(kind: str, types: list[dict[str, Any]], limit: int = 10) -> list[dict[str, Any]]:
+    """Which namespaces to enumerate. Live run: a cap of the first 14 (alphabetical) never reached genre:brand. Category-like
+    namespaces first (genre/category/industry/product/segment/competitor/price), the rest only if room is left."""
+    ids = {t["id"] for t in types}
+    first = [t for t in types if t["id"] in PRIORITY_BRAND] if kind == "brand" else []
+    key = ("genre", "category", "industry", "product", "segment", "competitor", "price", "cuisine")
+    first += [t for t in types if t not in first and any(k in t["id"] for k in key)]
+    return (first + [t for t in types if t not in first])[:limit] if ids else []
+
+
+async def crawl(client: QlooClient, kinds: list[str], max_pages: int = 10, take: int = 50, seeds: list[str] | None = None,
+                namespace_limit: int = 10) -> dict[str, Any]:
     """{kind: {"types": [...], "namespaces": {type_id: {"tags": [...], "pages": n, "paging_works": bool, "complete": bool}}}}"""
     out: dict[str, Any] = {}
     for kind in kinds:
         res = await client.call(calls.tag_types(f"tag-types-{kind}", kind))
         types = nz.tag_types_from_body(res.body) if res.ok else []
         entry: dict[str, Any] = {"ok": res.ok, "error": res.error, "types": types, "namespaces": {}}
-        for t in types[:14]:
+        for t in priority_types(kind, types, namespace_limit):
             tid = t["id"]
             seen: dict[str, dict] = {}
             pages, paging_works, complete = 0, None, False
@@ -129,7 +144,19 @@ async def probe_category(client: QlooClient, search: list[str], categories: list
         rel = await client.call(calls.insights_entities("probe", f"related-{name}", "brand",
                                                         calls.Signals(entities=[base["entity_id"]], location=location), take=take,
                                                         explain=False, allow_no_location=True))
+        gids = [t["id"] for t in base.get("tags", []) if str(t.get("id", "")).startswith("urn:tag:genre:brand:")]
+        gids.sort(key=lambda i: -i.count(":"))
+        out.setdefault("anchor_categories", {})[name] = {}
+        for gid in gids[:3]:
+            row = {}
+            for scope, loc in (("local", location), ("global", None)):
+                rr = await client.call(calls.insights_entities("probe", f"anchorcat-{name}-{gid.split(':')[-1]}-{scope}", "brand",
+                                                               calls.Signals(filter_tags=[gid], location=loc), take=take,
+                                                               explain=False, allow_no_location=False))
+                row[scope] = {"ok": rr.ok, "brands": _brand_rows(nz.entities_from_insights(rr.body) if rr.ok else [], gid)}
+            out["anchor_categories"][name][gid] = row
         out["related"][name] = {"anchor": base["name"], "anchor_genre": [t["name"] for t in base.get("tags", [])],
+                                "anchor_genre_ids": gids,
                                 "brands": _brand_rows(nz.entities_from_insights(rel.body) if rel.ok else [], None)}
     return out
 
@@ -164,6 +191,12 @@ def probe_markdown(res: dict[str, Any]) -> str:
             hit = sum(1 for b in m["brands"] if b["carries_category"])
             L += [f"**{mode}**: ok={m['ok']} status={m['status']} · {hit}/{n} brands carry the category", ""]
             L += [f"- {b['name']} {'✔' if b['carries_category'] else '✘'} — {', '.join(b['genre_tags'][:3])}" for b in m["brands"]] + [""]
+    for name, cats in res.get("anchor_categories", {}).items():
+        L += [f"## Categories named by {name}'s own tags, tested as hard filters", ""]
+        for gid, row in cats.items():
+            for scope, m in row.items():
+                hit = sum(1 for b in m["brands"] if b["carries_category"])
+                L += [f"**{gid}** ({scope}): {hit}/{len(m['brands'])} carry it — " + ", ".join(b["name"] for b in m["brands"][:8]), ""]
     for name, r in res["related"].items():
         L += [f"## Related brands for {name}", ""]
         if "error" in r:
@@ -176,7 +209,7 @@ def probe_markdown(res: dict[str, Any]) -> str:
 
 def add_parsers(sub: Any) -> None:
     t = sub.add_parser("taxonomy", help="crawl Qloo's tag namespaces and categories (what categories exist per entity kind)")
-    t.add_argument("--kinds", default="brand"); t.add_argument("--pages", type=int, default=6)
+    t.add_argument("--kinds", default="brand"); t.add_argument("--pages", type=int, default=10)
     t.add_argument("--seed", default="toothpaste,skincare,smartphone,beverage,bank,software,fashion,restaurant,fitness,travel",
                    help="keywords searched inside the brand genre namespace to catch categories paging misses")
     t.add_argument("--out", default="runs"); t.add_argument("--max-calls", type=int, default=120)

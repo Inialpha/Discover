@@ -323,9 +323,12 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
             L += [f"> Competitor '{a['query']}' was matched to Qloo's '{a['name']}'.", ""]
     if bundle.get("anchors"):
         how = {"given": "you listed it", "qloo_tag": "Qloo brands for the product's tag", "llm_confirmed": "suggested by the LLM, confirmed in Qloo",
-               "related": "related to the listed brands in Qloo and in the same Qloo brand category"}
+               "qloo_category": "a Qloo brand in the same category as your competitors", "related": "related to the listed brands in Qloo and in the same Qloo brand category"}
         L += ["**Competitors used** (how each was found):", ""]
         L += [f"- {a['name']} — {how.get(a.get('source', 'given'), a.get('source'))}" for a in bundle["anchors"]] + [""]
+        if bundle.get("category"):
+            c = bundle["category"]
+            L += [f"Category used to find peers: `{c['id'].replace('urn:tag:genre:brand:', '')}` ({'in ' + intake.location if c['scope'] == 'local' else 'worldwide: nothing local'}).", ""]
         if any(a.get("source", "given") != "given" for a in bundle["anchors"]):
             L += ["> Some competitors were found by the tool, not listed by you. Check they are real peers; if not, list your own "
                   "competitors and the audience skew below will be based on them.", ""]
