@@ -290,7 +290,7 @@ def test_runner_with_llm_and_fake_provider(make_intake, store, tmp_path):
     t, seen = fake_llm_transport()
     code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path), LLM_SETTINGS, store, llm_transport=t))
     assert summary["persona_sources"] == ["llm"] * 3 and summary["llm_calls"] == 4 and code == 0  # 3 personas + 1 identity check of the competitors
-    assert len(seen) == 3
+    assert len(seen) == 4
     res = json.loads((run / "04_personas.json").read_text())
     assert all(p["platforms"][0]["basis"] == "interpretation" for p in res["personas"])
     assert len(list((run / "llm").glob("*_persona_*.json"))) == 3
