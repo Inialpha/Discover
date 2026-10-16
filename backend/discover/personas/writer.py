@@ -323,13 +323,13 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
             L += [f"> Competitor '{a['query']}' was matched to Qloo's '{a['name']}'.", ""]
     if bundle.get("anchors"):
         how = {"given": "you listed it", "qloo_tag": "Qloo brands for the product's tag", "llm_confirmed": "suggested by the LLM, confirmed in Qloo",
-               "qloo_competitive_set": "named in Qloo's own competitive set for a brand above", "qloo_category": "a Qloo brand in the same category as your competitors", "related": "related to the listed brands in Qloo and in the same Qloo brand category"}
+               "qloo_competitor_tags": "listed as a competitor or similar brand on a Qloo brand record above", "qloo_category": "a Qloo brand in the same category as your competitors", "related": "related to the listed brands in Qloo and in the same Qloo brand category"}
         L += ["**Competitors used** (how each was found):", ""]
         L += [f"- {a['name']} — {how.get(a.get('source', 'given'), a.get('source'))}" for a in bundle["anchors"]] + [""]
         if bundle.get("category"):
             c = bundle["category"]
             where = "in " + intake.location if c["scope"] == "local" else "worldwide: nothing local"
-            used = "added as competitors" if c.get("added") else "shown for context only, too broad to use as competitors"
+            used = "peers ranked by similarity to your competitors"
             L += [f"Category of the competitors: `{c['id'].replace('urn:tag:genre:brand:', '')}` ({where}; {used}). "
                   f"Other brands there: {', '.join(c.get('peers', [])[:6])}.", ""]
         if any(a.get("source", "given") != "given" for a in bundle["anchors"]):

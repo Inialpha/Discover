@@ -295,7 +295,7 @@ def test_category_peers_fall_back_to_global_with_a_note(tmp_path):
     assert r["category"]["scope"] == "global" and any("outside the location" in n for n in r["notes"])
 
 
-def _broad_handler():
+def _broad_handler(record_tags=True):
     def handler(req):
         p, q = req.url.path, dict(req.url.params)
         if p == "/search":
@@ -303,34 +303,50 @@ def _broad_handler():
             return httpx.Response(200, json={"results": [{"entity_id": n, "name": n, "types": ["urn:entity:brand"], "tags": [
                 {"id": "urn:tag:genre:brand:health_and_beauty", "name": "Health & Beauty", "type": "urn:tag:genre:brand"}]}]})
         if p == "/entities":
-            return httpx.Response(200, json={"results": [{"name": "x", "competitive_set": ["Sensodyne", "Crest"], "tags": []}]})
+            tags = [{"id": "urn:tag:competitor_brand:qloo:sensodyne", "name": "Sensodyne", "type": "urn:tag:competitor_brand:qloo"},
+                    {"id": "urn:tag:similar_brand:qloo:crest", "name": "Crest", "type": "urn:tag:similar_brand:qloo"},
+                    {"id": "urn:tag:industry:qloo:oral_care", "name": "Oral care", "type": "urn:tag:industry:qloo"}] if record_tags else []
+            return httpx.Response(200, json={"results": [{"name": "x", "tags": tags}]})
         if p == "/v2/insights" and q.get("filter.tags"):
             tag = {"id": q["filter.tags"], "name": "H&B", "type": "urn:tag:genre:brand"}
-            return httpx.Response(200, json={"results": {"entities": [{"entity_id": f"H{i}", "name": f"Salon{i}", "tags": [tag]} for i in range(4)]}})
+            if "signal.interests.entities" not in q:  # category alone is broad: salons
+                return httpx.Response(200, json={"results": {"entities": [{"entity_id": f"H{i}", "name": f"Salon{i}", "tags": [tag]} for i in range(4)]}})
+            return httpx.Response(200, json={"results": {"entities": [{"entity_id": f"P{i}", "name": f"Peer{i}", "tags": [tag]} for i in range(4)]}})
         if p == "/v2/insights" and q.get("filter.type") == "urn:demographics":
             return httpx.Response(200, json={"results": {"demographics": [{"query": {"age": {"25_to_29": 0.3}, "gender": {"male": 0.1}}}]}})
         return httpx.Response(404, json={})
     return handler
 
 
-def test_broad_category_is_context_only_and_never_becomes_a_competitor(tmp_path):
+def test_category_alone_never_adds_competitors(tmp_path):
     i = ProductIntake(**CASES["toothpaste"], competitors=["Colgate", "Pepsodent"])
     async def go():
-        async with _client(tmp_path, httpx.MockTransport(_broad_handler())) as c:
+        async with _client(tmp_path, httpx.MockTransport(_broad_handler(record_tags=False))) as c:
             return await E.resolve_and_skew(c, i, discover=True)
     r = run_async(go())
-    assert not any(a["source"] == "qloo_category" for a in r["anchors"])  # live run: hair salons and make-up artists
-    assert r["category"]["added"] is False and r["category"]["depth"] == 1 and any("broad" in n for n in r["notes"])
+    names = [a["name"] for a in r["anchors"]]
+    assert not any(n.startswith("Salon") for n in names)  # live run: hair salons and make-up artists
+    assert {a["source"] for a in r["anchors"] if a["name"].startswith("Peer")} <= {"qloo_category"}
 
 
-def test_competitive_set_names_are_confirmed_before_use(tmp_path):
+def test_competitor_tags_on_brand_records_are_confirmed_before_use(tmp_path):
     i = ProductIntake(**CASES["toothpaste"], competitors=["Colgate"])
     async def go():
         async with _client(tmp_path, httpx.MockTransport(_broad_handler())) as c:
-            return await E.resolve_and_skew(c, i, discover=False or True, want=5)
+            return await E.resolve_and_skew(c, i, discover=True, want=5)
     r = run_async(go())
     got = {a["name"]: a["source"] for a in r["anchors"]}
-    assert got["Sensodyne"] == "qloo_competitive_set" and got["Crest"] == "qloo_competitive_set"
+    assert got["Sensodyne"] == "qloo_competitor_tags" and got["Crest"] == "qloo_competitor_tags"
+    assert r["profiles"]["Colgate"]["industries"] == ["Oral care"]
+
+
+def test_profile_from_extras_reads_competitor_and_segment_tags():
+    from discover.personas import competitors as C
+    pr = C.profile_from_extras({"tags": [
+        {"id": "urn:tag:competitor_brand:qloo:infinix", "name": None},
+        {"id": "urn:tag:customer_segment:qloo:budget_conscious", "name": "Budget conscious"},
+        {"id": "urn:tag:competitor_brand:qloo", "name": "x"}]})
+    assert pr["competitors"] == ["infinix"] and pr["segments"] == ["Budget conscious"]
 
 
 def test_entity_extras_finds_competitive_set_wherever_it_sits():
