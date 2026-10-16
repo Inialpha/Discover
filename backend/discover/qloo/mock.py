@@ -81,6 +81,10 @@ def make_transport(reject: Callable[[httpx.Request], bool] | None = None) -> htt
                 "tags": [],
             } for i in range(int(q.get("take", 3)))]
             return httpx.Response(200, json={"success": True, "results": results})
+        if path == "/entities":
+            e = _entity("brand", 0, seed, with_query=False)
+            e["competitive_set"] = ["Mock Rival A", "Mock Rival B"]
+            return httpx.Response(200, json={"success": True, "results": [e]})
         if path == "/v2/tags/types":
             return httpx.Response(200, json={"success": True, "results": {"tag_types": [
                 {"id": "urn:tag:genre:brand", "name": "Genre"}, {"id": "urn:tag:style:qloo", "name": "Style"}]}})

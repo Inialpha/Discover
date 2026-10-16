@@ -212,3 +212,27 @@ def compare_from_body(body: Any) -> dict[str, Any]:
                              "subtype": t.get("subtype"), "score": _num(q.get("score")),
                              "popularity": _num(t.get("popularity"))})
     return out
+
+
+def entity_extras(body: Any) -> dict[str, Any]:
+    """From GET /entities: competitive_set / complementary_brands (names, per the schema docs) and all tags, wherever they sit."""
+    out: dict[str, Any] = {"competitive_set": [], "complementary_brands": [], "tags": []}
+
+    def walk(o: Any, depth: int = 0) -> None:
+        if depth > 5:
+            return
+        if isinstance(o, dict):
+            for k in ("competitive_set", "complementary_brands"):
+                v = o.get(k)
+                if isinstance(v, list):
+                    out[k] += [str(x) for x in v if isinstance(x, (str, int)) and str(x).strip() and str(x) not in out[k]]
+            if isinstance(o.get("tags"), list) and not out["tags"]:
+                out["tags"] = _tags(o["tags"], 80)
+            for v in o.values():
+                walk(v, depth + 1)
+        elif isinstance(o, list):
+            for v in o[:20]:
+                walk(v, depth + 1)
+
+    walk(body)
+    return out

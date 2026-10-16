@@ -117,7 +117,7 @@ async def probe_category(client: QlooClient, search: list[str], categories: list
     out: dict[str, Any] = {"searches": {}, "categories": {}, "related": {}}
     cats = list(categories)
     for q in search:
-        r = await client.call(calls.tags_of_type(f"search-{q}", "urn:tag:genre:brand", query=q, take=10))
+        r = await client.call(calls.tags_of_type(f"search-{q}", "urn:tag:genre:brand", query=q, take=10, semantic=True))
         tags = nz.tags_from_body(r.body) if r.ok else []
         out["searches"][q] = {"ok": r.ok, "candidates": tags}
         cats += [t["id"] for t in tags[:3] if t.get("id") and t["id"] not in cats]
@@ -144,14 +144,22 @@ async def probe_category(client: QlooClient, search: list[str], categories: list
         rel = await client.call(calls.insights_entities("probe", f"related-{name}", "brand",
                                                         calls.Signals(entities=[base["entity_id"]], location=location), take=take,
                                                         explain=False, allow_no_location=True))
+        det = await client.call(calls.entity_by_id(f"detail-{name}", base["entity_id"]))
+        extras = nz.entity_extras(det.body) if det.ok else {}
+        out.setdefault("entity_detail", {})[name] = {
+            "ok": det.ok, "status": det.status, "competitive_set": extras.get("competitive_set"),
+            "complementary_brands": extras.get("complementary_brands"),
+            "genre_tag_ids": [t["id"] for t in extras.get("tags", []) if str(t.get("id", "")).startswith("urn:tag:genre:brand:")],
+            "tag_namespaces": sorted({str(t.get("type")) for t in extras.get("tags", [])})}
         gids = [t["id"] for t in base.get("tags", []) if str(t.get("id", "")).startswith("urn:tag:genre:brand:")]
         gids.sort(key=lambda i: -i.count(":"))
         out.setdefault("anchor_categories", {})[name] = {}
         for gid in gids[:3]:
             row = {}
-            for scope, loc in (("local", location), ("global", None)):
+            for scope, loc, ents_sig in (("local", location, []), ("local_with_anchor_signal", location, [base["entity_id"]]),
+                                         ("global", None, []), ("global_with_anchor_signal", None, [base["entity_id"]])):
                 rr = await client.call(calls.insights_entities("probe", f"anchorcat-{name}-{gid.split(':')[-1]}-{scope}", "brand",
-                                                               calls.Signals(filter_tags=[gid], location=loc), take=take,
+                                                               calls.Signals(filter_tags=[gid], entities=ents_sig, location=loc), take=take,
                                                                explain=False, allow_no_location=False))
                 row[scope] = {"ok": rr.ok, "brands": _brand_rows(nz.entities_from_insights(rr.body) if rr.ok else [], gid)}
             out["anchor_categories"][name][gid] = row
@@ -191,6 +199,10 @@ def probe_markdown(res: dict[str, Any]) -> str:
             hit = sum(1 for b in m["brands"] if b["carries_category"])
             L += [f"**{mode}**: ok={m['ok']} status={m['status']} · {hit}/{n} brands carry the category", ""]
             L += [f"- {b['name']} {'✔' if b['carries_category'] else '✘'} — {', '.join(b['genre_tags'][:3])}" for b in m["brands"]] + [""]
+    for name, d in res.get("entity_detail", {}).items():
+        L += [f"## Entity record for {name} (GET /entities)", "", f"ok={d['ok']} status={d['status']}",
+              f"- competitive_set: {d['competitive_set']}", f"- complementary_brands: {d['complementary_brands']}",
+              f"- genre tags: {d['genre_tag_ids']}", f"- tag namespaces present: {d['tag_namespaces']}", ""]
     for name, cats in res.get("anchor_categories", {}).items():
         L += [f"## Categories named by {name}'s own tags, tested as hard filters", ""]
         for gid, row in cats.items():

@@ -68,6 +68,7 @@ def test_probe_category_reports_whether_brands_carry_the_category(tmp_path):
     r = run_async(go())
     m = r["categories"]["urn:tag:genre:brand:mock_category"]["hard_filter_with_location"]
     assert m["ok"] and all(b["carries_category"] for b in m["brands"]) and r["related"]["Nivea"]["anchor"]
+    assert "entity_detail" in r and "Entity record for Nivea" in T.probe_markdown(r)
     assert "Category probe" in T.probe_markdown(r)
 
 

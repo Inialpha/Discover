@@ -178,13 +178,20 @@ def tag_types(label: str, kind: str, take: int = 50, step: str = "taxonomy") -> 
                     note=f"tag namespaces for {kind}")
 
 
+def entity_by_id(label: str, entity_id: str, step: str = "detail") -> CallSpec:
+    """Full entity record. Docs: GET /entities?entity_ids=ID; brand records carry competitive_set (names) and all tags."""
+    return CallSpec(step, label, "/entities", [Variant({"entity_ids": entity_id}, {})], note="entity by id")
+
+
 def tags_of_type(label: str, tag_type: str, query: str | None = None, take: int = 50, page: int | None = None,
-                 step: str = "taxonomy") -> CallSpec:
+                 step: str = "taxonomy", semantic: bool = False) -> CallSpec:
     """Tags inside one namespace, optionally filtered by a keyword; page walks through large namespaces."""
     p = {"filter.tag.types": tag_type, "take": str(take)}
     if query:
         p["filter.query"] = query
     if page:
         p["page"] = str(page)
-    return CallSpec(step, label, "/v2/tags", [Variant(p, {"tag_type": tag_type, "query": query, "page": page})],
-                    note=f"tags of type {tag_type} query={query!r} page={page}")
+    variants = [Variant(p, {"tag_type": tag_type, "query": query, "page": page})]
+    if semantic and query:  # documented: feature.semantic_search matches by meaning ("toothpaste" -> oral care); plain call is the fallback
+        variants.insert(0, Variant({**p, "feature.semantic_search": "true"}, {"tag_type": tag_type, "query": query, "semantic": True}))
+    return CallSpec(step, label, "/v2/tags", variants, note=f"tags of type {tag_type} query={query!r} page={page}")

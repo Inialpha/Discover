@@ -8,6 +8,7 @@ import httpx
 import pytest
 
 from discover.personas import competitors as C
+from discover.qloo import calls
 from discover.personas import evidence as E
 from discover.personas.affordability import assess
 from discover.personas.intake import ProductIntake
@@ -281,7 +282,8 @@ def test_category_peers_fill_in_from_the_anchors_own_category(tmp_path):
     r = run_async(go())
     names = [(a["name"], a["source"]) for a in r["anchors"]]
     assert names[:2] == [("Nivea", "given"), ("Vaseline", "given")] and all(s == "qloo_category" for _, s in names[2:]) and len(names) == 5
-    assert r["category"] == {"id": "urn:tag:genre:brand:health_and_beauty:skincare", "scope": "local"}
+    assert r["category"]["id"] == "urn:tag:genre:brand:health_and_beauty:skincare" and r["category"]["scope"] == "local"
+    assert r["category"]["added"] is True
 
 
 def test_category_peers_fall_back_to_global_with_a_note(tmp_path):
@@ -291,3 +293,55 @@ def test_category_peers_fall_back_to_global_with_a_note(tmp_path):
             return await E.resolve_and_skew(c, i, discover=True)
     r = run_async(go())
     assert r["category"]["scope"] == "global" and any("outside the location" in n for n in r["notes"])
+
+
+def _broad_handler():
+    def handler(req):
+        p, q = req.url.path, dict(req.url.params)
+        if p == "/search":
+            n = q["query"]
+            return httpx.Response(200, json={"results": [{"entity_id": n, "name": n, "types": ["urn:entity:brand"], "tags": [
+                {"id": "urn:tag:genre:brand:health_and_beauty", "name": "Health & Beauty", "type": "urn:tag:genre:brand"}]}]})
+        if p == "/entities":
+            return httpx.Response(200, json={"results": [{"name": "x", "competitive_set": ["Sensodyne", "Crest"], "tags": []}]})
+        if p == "/v2/insights" and q.get("filter.tags"):
+            tag = {"id": q["filter.tags"], "name": "H&B", "type": "urn:tag:genre:brand"}
+            return httpx.Response(200, json={"results": {"entities": [{"entity_id": f"H{i}", "name": f"Salon{i}", "tags": [tag]} for i in range(4)]}})
+        if p == "/v2/insights" and q.get("filter.type") == "urn:demographics":
+            return httpx.Response(200, json={"results": {"demographics": [{"query": {"age": {"25_to_29": 0.3}, "gender": {"male": 0.1}}}]}})
+        return httpx.Response(404, json={})
+    return handler
+
+
+def test_broad_category_is_context_only_and_never_becomes_a_competitor(tmp_path):
+    i = ProductIntake(**CASES["toothpaste"], competitors=["Colgate", "Pepsodent"])
+    async def go():
+        async with _client(tmp_path, httpx.MockTransport(_broad_handler())) as c:
+            return await E.resolve_and_skew(c, i, discover=True)
+    r = run_async(go())
+    assert not any(a["source"] == "qloo_category" for a in r["anchors"])  # live run: hair salons and make-up artists
+    assert r["category"]["added"] is False and r["category"]["depth"] == 1 and any("broad" in n for n in r["notes"])
+
+
+def test_competitive_set_names_are_confirmed_before_use(tmp_path):
+    i = ProductIntake(**CASES["toothpaste"], competitors=["Colgate"])
+    async def go():
+        async with _client(tmp_path, httpx.MockTransport(_broad_handler())) as c:
+            return await E.resolve_and_skew(c, i, discover=False or True, want=5)
+    r = run_async(go())
+    got = {a["name"]: a["source"] for a in r["anchors"]}
+    assert got["Sensodyne"] == "qloo_competitive_set" and got["Crest"] == "qloo_competitive_set"
+
+
+def test_entity_extras_finds_competitive_set_wherever_it_sits():
+    from discover.qloo import normalize as nz
+    body = {"results": {"entities": [{"properties": {"competitive_set": ["A", "B"], "complementary_brands": ["C"]},
+                                      "tags": [{"id": "urn:tag:genre:brand:x", "name": "X", "type": "urn:tag:genre:brand"}]}]}}
+    e = nz.entity_extras(body)
+    assert e["competitive_set"] == ["A", "B"] and e["complementary_brands"] == ["C"] and e["tags"][0]["id"].endswith("brand:x")
+    assert nz.entity_extras(None)["competitive_set"] == []
+
+
+def test_semantic_search_variant_comes_first_with_plain_fallback():
+    s = calls.tags_of_type("t", "urn:tag:genre:brand", query="toothpaste", semantic=True)
+    assert s.variants[0].params["feature.semantic_search"] == "true" and "feature.semantic_search" not in s.variants[1].params
