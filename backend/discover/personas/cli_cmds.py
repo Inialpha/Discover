@@ -36,6 +36,8 @@ def add_parsers(sub: Any) -> None:
     p.add_argument("--max-calls", type=int, default=150); p.add_argument("--concurrency", type=int, default=2)
     p.add_argument("--delay", type=float, default=0.0, help="seconds between Qloo calls")
     p.add_argument("--no-discover", action="store_true", help="use only the competitors you list; do not look for more in Qloo")
+    p.add_argument("--agent", action="store_true", help="let the LLM explore Qloo itself (tools, notebook, cited findings) to find competitors and audience")
+    p.add_argument("--agent-steps", type=int, default=14, help="step budget of the exploring agent")
     p.add_argument("--llm-delay", type=float, default=0.0, help="seconds to wait between persona LLM calls (token-per-minute limits)")
 
     r = sub.add_parser("refdata", help="manage reference statistics (World Bank + exchange rates)")
@@ -190,7 +192,7 @@ def run_personas(a: argparse.Namespace) -> int:
         return 3
     opts = PersonaOptions(intake=intake, out=Path(a.out), kinds=[k.strip() for k in a.kinds.split(",") if k.strip()],
                           take=a.take, no_llm=a.no_llm, mock=a.mock, dry_run=a.dry_run, max_calls=a.max_calls,
-                          concurrency=a.concurrency, delay=a.delay, llm_delay=a.llm_delay, zip=not a.no_zip, refresh=a.refresh, discover=not a.no_discover)
+                          concurrency=a.concurrency, delay=a.delay, llm_delay=a.llm_delay, zip=not a.no_zip, refresh=a.refresh, discover=not a.no_discover, agent=a.agent, agent_steps=a.agent_steps)
     code, run_dir, summary = asyncio.run(execute_personas(opts, Settings.from_env(), ReferenceStore(cache_path=Path(a.cache))))
     print(f"run folder : {run_dir}\nstatus     : {summary.get('status')}  (exit {code})")
     for e in summary.get("errors", []):

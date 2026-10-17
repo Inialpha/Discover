@@ -46,6 +46,15 @@ class PersonaOptions:
     zip: bool = True
     refresh: bool = False
     discover: bool = True  # find competitors through Qloo when fewer than 5 are given
+    agent: bool = False  # the LLM explores Qloo with tools instead of the fixed competitor steps
+    agent_steps: int = 14
+
+
+def _agent_competitors(comps: list[dict[str, Any]], intake: ProductIntake, tb: Any) -> list[dict[str, Any]]:
+    given = {c.lower() for c in intake.competitors}
+    return [{"query": c["name"], "entity_id": c["entity_id"], "name": c["name"], "matched_by": "agent",
+             "source": "agent", "tags": [], "why": c["why"], "cites": c["cites"], "listed_by_you": c["name"].lower() in given}
+            for c in comps]
 
 
 async def execute_personas(opts: PersonaOptions, settings: Settings, store: ReferenceStore,
@@ -95,7 +104,23 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
     transport = qloo_transport or (make_transport(mock_reject) if opts.mock else None)
     async with QlooClient(settings, rec, transport=transport, dry_run=opts.dry_run, max_calls=opts.max_calls,
                           concurrency=opts.concurrency, delay=opts.delay, synthetic=opts.mock) as client:
-        anchor = await E.resolve_and_skew(client, intake, llm=llm, discover=opts.discover)
+        preset, agent_out = None, None
+        if opts.agent and llm is not None:
+            from ..agent.loop import run_agent
+            from ..agent.tools import Toolbox
+            tb = Toolbox(client, intake.location)
+            agent_out = await run_agent(llm, tb, intake, {"tier": aff.tier, "price_vs_income_ratio": round(aff.ratio, 4), "country": aff.country_name, "calculated": True},
+                                        max_steps=opts.agent_steps, delay=opts.llm_delay)
+            rec.write_json("agent/trace.json", {"trace": agent_out["trace"], "notebook": agent_out["notebook"]})
+            rec.write_json("agent/ledger.json", agent_out["ledger"])
+            rec.write_json("agent/result.json", agent_out["result"])
+            agent_out["result"]["competitors"] = _agent_competitors(agent_out["result"]["competitors"], intake, tb)
+            preset = {"anchors": agent_out["result"]["competitors"], "unresolved": [c for c in intake.competitors
+                      if c.lower() not in {a["name"].lower() for a in agent_out["result"]["competitors"]}],
+                      "notes": [], "category": None, "profiles": {}}
+        elif opts.agent:
+            summary["warnings"].append("--agent needs the LLM (not configured or disabled): fell back to the fixed competitor steps.")
+        anchor = await E.resolve_and_skew(client, intake, llm=llm, discover=opts.discover, preset=preset)
         # re-rank with the Qloo audience fit, then fetch persona evidence only for the final top segments
         scoring = score_segments(intake, aff, E.qloo_fit_from_age_index(anchor["age_index"], list(SEGMENTS))
                                  if anchor["age_index"] else None)
@@ -114,12 +139,13 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
     rec.write_json("03_evidence.json", ev_items)
 
     bundle = {"evidence": ev_items, "anchors": anchor["anchors"], "unresolved": anchor["unresolved"],
-              "age_index": anchor["age_index"], "gender_index": anchor["gender_index"], "category": anchor.get("category")}
+              "age_index": anchor["age_index"], "gender_index": anchor["gender_index"], "category": anchor.get("category"), "agent": agent_out}
     shared = anchor.get("notes", []) + E.shared_evidence_notes(ev_items, scoring.ranked, intake.location)
     personas = await writer.write_personas(llm, intake, aff, scoring.ranked, bundle, delay=opts.llm_delay)
     attribution = ["World Bank Open Data (CC BY 4.0)"] + ([FX_ATTRIBUTION] if aff.conversion else [])
     rec.write_json("04_personas.json", {"synthetic": opts.mock, "affordability": aff.to_dict(), "personas": personas,
                                         "anchor_audience": {k: bundle[k] for k in ("anchors", "unresolved", "age_index", "gender_index", "category")},
+                                        "agent": agent_out["result"] if agent_out else None,
                                         "evidence_notes": shared,
                                         "scoring": {"ranked_by": scoring.ranked_by, "notes": scoring.notes,
                                                     "omitted_by_limit": scoring.omitted_by_limit, "excluded": scoring.excluded},

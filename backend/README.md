@@ -96,3 +96,11 @@ compare params) live in `discover/qloo/calls.py` and `discover/qloo/demographics
 Set `product_type` ("toothpaste", "skin cream", "resume builder") so competitors can be found in Qloo. Competitors you list come
 first; if fewer than five, the tool adds Qloo brands for a tag matching the product type, then LLM-suggested names that Qloo
 confirms, then Qloo-related brands that share a tag. The report says how each competitor was found. `--no-discover` uses only your list.
+
+## Exploring agent (`discover personas --agent`)
+
+The LLM sets its own goals and explores Qloo through tools (`search_entity`, `entity_record`, `find_tags`, `tag_namespaces`,
+`insights`, `audience_taste`, `audience_demographics`, `heatmap`, `compare`). Tools return filtered, compact observations and
+every call gets an id (Q01...). The agent keeps a short notebook so prompts stay small, and ends with findings that cite call ids.
+Code only checks that cited calls and entity ids really exist; anything unsupported is dropped and listed in the report.
+Files: `agent/trace.json`, `agent/ledger.json`, `agent/result.json`. Budget: `--agent-steps` (default 14); use `--llm-delay 8` on Groq.

@@ -323,7 +323,7 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
             L += [f"> Competitor '{a['query']}' was matched to Qloo's '{a['name']}'.", ""]
     if bundle.get("anchors"):
         how = {"given": "you listed it", "qloo_tag": "Qloo brands for the product's tag", "llm_confirmed": "suggested by the LLM, confirmed in Qloo",
-               "qloo_competitor_tags": "listed as a competitor or similar brand on a Qloo brand record above", "qloo_category": "a Qloo brand in the same category as your competitors", "related": "related to the listed brands in Qloo and in the same Qloo brand category"}
+               "qloo_competitor_tags": "listed as a competitor or similar brand on a Qloo brand record above", "qloo_category": "a Qloo brand in the same category as your competitors", "agent": "chosen by the exploring agent from Qloo results (calls cited in the agent section below)", "related": "related to the listed brands in Qloo and in the same Qloo brand category"}
         L += ["**Competitors used** (how each was found):", ""]
         L += [f"- {a['name']} — {how.get(a.get('source', 'given'), a.get('source'))}" for a in bundle["anchors"]] + [""]
         if bundle.get("category"):
@@ -335,6 +335,20 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
         if any(a.get("source", "given") != "given" for a in bundle["anchors"]):
             L += ["> Some competitors were found by the tool, not listed by you. Check they are real peers; if not, list your own "
                   "competitors and the audience skew below will be based on them.", ""]
+    if bundle.get("agent"):
+        ag = bundle["agent"]["result"]
+        L += ["## What the exploring agent found in Qloo", "",
+              f"*{bundle['agent']['steps']} steps, {len(bundle['agent']['ledger'])} tool calls. Every line cites the calls it rests on (Q-ids, see agent/ledger.json). "
+              "The words are the agent's interpretation of those calls.*", ""]
+        if ag.get("category"):
+            L += [f"- Category: `{ag['category']['tag']}` — {ag['category']['why']} [{', '.join(ag['category']['cites'])}]"]
+        L += [f"- {f['claim']} [{', '.join(f['cites'])}]" for f in ag.get("findings", [])]
+        L += [f"- Audience hint ({h['label']}; ages {', '.join(h['ages']) or 'n/a'}): {h['claim']} [{', '.join(h['cites'])}]" for h in ag.get("audience_hints", [])]
+        if ag.get("gaps"):
+            L += ["", "Could not establish: " + "; ".join(ag["gaps"])]
+        if ag.get("rejected"):
+            L += ["", "Dropped by the checker (not supported by any call): " + "; ".join(ag["rejected"])]
+        L += [""]
     if bundle.get("age_index"):
         sk = skew_summary(bundle["age_index"], bundle.get("gender_index") or {})
         idx = ", ".join(f"{k} {v:+.2f}" for k, v in bundle["age_index"].items())

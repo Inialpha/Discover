@@ -272,6 +272,26 @@ async def discover_competitors(client: QlooClient, intake: ProductIntake, ev: Ev
             profiles[a["entity_id"]] = pr
         return profiles[a["entity_id"]]
 
+    verified: set[str] = set()
+
+    async def verify() -> None:
+        """Identity check on anchors not yet checked (live: "Colgate" is Colgate University). Runs BEFORE competitor tags are
+        expanded, so a wrong entity cannot pull its own competitors (Bucknell University) into the list."""
+        todo = [a for a in anchors if a["entity_id"] not in verified]
+        if not todo or llm is None:
+            return
+        for a in todo:
+            await profile(a)
+        bad, why = await verify_anchors(llm, intake, {a["entity_id"]: profiles[a["entity_id"]] for a in todo})
+        verified.update(a["entity_id"] for a in todo)
+        if bad:
+            for a in todo:
+                if a["entity_id"] in bad:
+                    unresolved.append(a["query"] if a["source"] == "given" else a["name"])
+            anchors[:] = [a for a in anchors if a["entity_id"] not in bad]
+            notes.extend(why)
+
+    await verify()
     if 0 < len(anchors) < want:
         names: list[str] = []
         for a in anchors[:3]:
@@ -338,17 +358,8 @@ async def discover_competitors(client: QlooClient, intake: ProductIntake, ev: Ev
         keep.sort(key=lambda k: -k["category_depth"])
         ev.add("competitors", "related brands (same Qloo category)", res, {"entities": ents[:10], "kept": [k["name"] for k in keep]})
         add(keep)
-    # 5) identity check: a brand name can be a different Qloo entity (live probe: "Colgate" is Colgate University)
-    if anchors and llm is not None:
-        for a in anchors:
-            await profile(a)
-        bad, why = await verify_anchors(llm, intake, {a["entity_id"]: profiles[a["entity_id"]] for a in anchors})
-        if bad:
-            for a in anchors:
-                if a["entity_id"] in bad:
-                    unresolved.append(a["query"] if a["source"] == "given" else a["name"])
-            anchors[:] = [a for a in anchors if a["entity_id"] not in bad]
-            notes += why
+    # 5) identity check for anchors added after the first check
+    await verify()
     if not anchors:
         notes.append("No competitor could be found in Qloo; audience skew is unavailable and ranking uses rules only.")
     return {"anchors": anchors, "unresolved": unresolved, "notes": notes, "category": category_used,

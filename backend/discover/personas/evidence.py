@@ -65,12 +65,12 @@ def qloo_fit_from_age_index(age_index: dict[str, float], segments: list[Any]) ->
 
 
 async def resolve_and_skew(client: QlooClient, intake: ProductIntake, llm: Any = None, discover: bool = False,
-                           want: int = 5) -> dict[str, Any]:
+                           want: int = 5, preset: dict[str, Any] | None = None) -> dict[str, Any]:
     """Steps 1-2: find competitor anchors (given, and with discover=True also found through Qloo), then ask once for
     their audience's age/gender skew. See competitors.py for the sources and their labels."""
     from .competitors import discover_competitors
     ev = Evidence()
-    found = await discover_competitors(client, intake, ev, pick_anchor, llm=llm, want=want, discover=discover)
+    found = preset if preset is not None else await discover_competitors(client, intake, ev, pick_anchor, llm=llm, want=want, discover=discover)
     anchors, unresolved = found["anchors"], found["unresolved"]
     age_index: dict[str, float] = {}
     gender_index: dict[str, float] = {}
