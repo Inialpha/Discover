@@ -112,7 +112,7 @@ def entities_from_insights(body: Any) -> list[dict[str, Any]]:
     return out
 
 
-def entities_from_search(body: Any) -> list[dict[str, Any]]:
+def entities_from_search(body: Any, tag_limit: int = 12) -> list[dict[str, Any]]:
     res = _results(body)
     if isinstance(res, dict):
         res = res.get("entities", [])
@@ -127,7 +127,7 @@ def entities_from_search(body: Any) -> list[dict[str, Any]]:
             "types": types,
             "popularity": _num(e.get("popularity")),
             "disambiguation": e.get("disambiguation"),
-            "tags": _tags(e.get("tags"), 12),
+            "tags": _tags(e.get("tags"), tag_limit),
         })
     return out
 

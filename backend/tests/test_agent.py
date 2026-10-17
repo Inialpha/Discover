@@ -95,8 +95,10 @@ def test_checker_drops_invented_ids_and_uncited_claims(tmp_path):
                     "findings": [{"claim": "Nigerians love it", "cites": []}, {"claim": "ok", "cites": ["Q01"]}],
                     "audience_hints": [{"label": "a", "ages": ["25_to_29"], "claim": "c", "cites": ["Q42"]}]}}])
     r = out["result"]
-    assert r["competitors"] == [] and [f["claim"] for f in r["findings"]] == ["ok"] and r["audience_hints"] == []
-    assert len(r["rejected"]) == 4
+    # an entity a call really returned is accepted even when its cite is garbled (evidence = the call that returned it)
+    assert [(c["name"], c["cites"]) for c in r["competitors"]] == [("Colgate", ["Q01"])]
+    assert [f["claim"] for f in r["findings"]] == ["ok"] and r["audience_hints"] == []
+    assert len(r["rejected"]) == 3
 
 
 def test_unknown_tool_and_bad_args_become_observations_not_crashes(tmp_path):
@@ -234,3 +236,50 @@ def test_rate_limit_is_waited_out_not_fatal(tmp_path):
     L.MIN_GOOD_CALLS = 0
     out = run_async(go())
     assert waits == [L.RATE_LIMIT_WAIT] and out["result"]["gaps"] == ["x"]
+
+
+def test_name_only_competitor_is_matched_to_a_seen_entity(tmp_path):
+    out, tb, _, _ = run(tmp_path, [act("search_entity", query="Crest"),
+                                   {"finish": {"competitors": [{"name": "crest", "entity_id": "", "why": "w"}]}}])
+    assert out["result"]["competitors"][0]["entity_id"] == "id-Crest"
+
+
+def test_harmless_argument_slips_are_absorbed_and_reported(tmp_path):
+    out, tb, log, llm = run(tmp_path, [act("search_entity", query="Crest", limit=5, location="Lagos", namespace="brand"),
+                                       act("audience_demographics", entity_id="id-Crest"), {"finish": {}}])
+    assert [e["ok"] for e in out["ledger"]] == [True, True]
+    assert "ignored arguments" in llm.prompts[1]
+    demo = [q for p, q in log if p == "/v2/insights" and q.get("filter.type") == "urn:demographics"][0]
+    assert demo["signal.interests.entities"] == "id-Crest"
+
+
+def test_known_memory_lists_seen_entities_in_every_prompt(tmp_path):
+    out, tb, _, llm = run(tmp_path, [act("search_entity", query="Crest"), act("find_tags", query="toothpaste"), {"finish": {}}])
+    assert "id-Crest" in llm.prompts[2] and "genre:brand:health_and_beauty:oral_care" in llm.prompts[2]
+
+
+def test_noise_tag_namespaces_are_dropped_from_observations():
+    g = T.group_tags([{"id": "urn:tag:aesthetic_property:qloo:clinical"}, {"id": "urn:tag:lifestyle:qloo:x"},
+                      {"id": "urn:tag:industry:qloo:oral_care", "name": "Oral care"},
+                      {"id": "urn:tag:genre:brand:health_and_beauty"}])
+    assert set(g) == {"industry", "genre:brand"}
+
+
+def test_vet_anchors_drops_wrong_businesses(tmp_path):
+    from discover.personas import competitors as C
+    from tests.test_personas_categories import _broad_handler
+
+    def handler(req):
+        if req.url.path == "/entities":
+            return httpx.Response(200, json={"results": [{"name": "x", "tags": [{"id": "urn:tag:industry:qloo:higher_education", "name": "Higher Education"}]}]})
+        return httpx.Response(404, json={})
+
+    class Judge:
+        async def chat_json(self, *a, **k):
+            return {"matches": {"Colgate": False}}
+
+    async def go():
+        async with _client(tmp_path, httpx.MockTransport(handler)) as c:
+            return await C.vet_anchors(c, intake(), [{"name": "Colgate", "entity_id": "e1"}], Judge())
+    kept, notes, profiles = run_async(go())
+    assert kept == [] and "Higher Education" in notes[0]

@@ -140,6 +140,22 @@ async def verify_anchors(llm: Any, intake: ProductIntake, profiles: dict[str, di
 
 
 
+async def vet_anchors(client: Any, intake: ProductIntake, anchors: list[dict[str, Any]], llm: Any) -> tuple[list[dict[str, Any]], list[str], dict[str, Any]]:
+    """Code-side safety net for anchors chosen by the agent: read each brand's Qloo record and run the same identity check
+    as the fixed route. Returns (kept, notes, profiles by name)."""
+    profiles: dict[str, dict[str, Any]] = {}
+    for a in anchors:
+        res = await client.call(calls.entity_by_id(f"vet-{a['name']}", a["entity_id"], step="agent_vet"))
+        pr = profile_from_extras(nz.entity_extras(res.body) if res.ok else {})
+        pr["name"] = a["name"]
+        profiles[a["entity_id"]] = pr
+    if llm is None:
+        return anchors, [], {pr["name"]: pr for pr in profiles.values()}
+    bad, why = await verify_anchors(llm, intake, profiles)
+    kept = [a for a in anchors if a["entity_id"] not in bad]
+    return kept, why, {profiles[a["entity_id"]]["name"]: profiles[a["entity_id"]] for a in kept}
+
+
 def tag_matches(tag_name: str, term: str) -> bool:
     """A Qloo tag fits a search term when every word of the term appears in the tag name (singular/plural tolerant)."""
     def stem(w: str) -> str:

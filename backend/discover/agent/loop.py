@@ -10,6 +10,7 @@ from typing import Any
 from ..personas.intake import ProductIntake
 from .tools import Toolbox, clip
 
+AGE_BANDS = {"24_and_younger", "25_to_29", "30_to_34", "35_to_44", "45_to_54", "55_and_older"}
 MIN_GOOD_CALLS = 4
 RATE_LIMIT_WAIT = 30.0
 
@@ -19,6 +20,7 @@ Verified facts about Qloo (use them, do not guess around them):
 - filter_tags is a HARD filter: only entities carrying that tag come back. interest_tags is a soft taste signal and does NOT restrict category.
 - interest_entities alone returns taste neighbours from many categories, not competitors. filter_tags + interest_entities returns category brands ranked by similarity to your anchor: the best way to find peers.
 - Brand records list competitors as competitor_brand / similar_brand tags, and customer_segment / industry / product_service tags: read entity_record for each anchor brand.
+- Qloo search is semantic: a product word ("toothpaste") or "<brand> <product>" can return the category's brands and other lookalikes, not only that brand. Read each result's industry/product_service/genre tags before trusting a name; the brand you want may simply not be in Qloo, in which case use its competitors or the category route.
 - Names can resolve to the wrong entity (a toothpaste name can be a university). Check industry/product tags of the search result or record before trusting it.
 - Brands have no hard location filter; location only nudges ranking. Narrow categories can be empty for one city: retry with use_location=false and say so.
 - Category tags look like genre:brand:<group>:<category>. Use find_tags (semantic) to get real tag ids; never invent an id.
@@ -31,7 +33,7 @@ How to start (the product itself is the business's own, usually new, product: it
 3. If a search returns the wrong kind of entity, retry with a more specific query (add the product word or the maker's name) or move on to the category route.
 4. Get category brands with insights(filter_tags=[category tag], interest_entities=[a verified anchor]); read their records for competitor_brand / customer_segment tags.
 5. Ask for audience demographics and tastes of the verified competitors.
-Arguments must be LITERAL values copied from earlier results (ids, tag ids). Never write templates such as "{{Q03.tag_ids[0]}}": they are rejected. Use only the argument names listed for each tool. Never finish before you have made real calls, and never claim a search returned something it did not.
+The "known" field lists every entity id and tag id you have seen: copy ids from there. Arguments must be LITERAL values copied from earlier results (ids, tag ids). Never write templates such as "{{Q03.tag_ids[0]}}": they are rejected. Use only the argument names listed for each tool. Never finish before you have made real calls, and never claim a search returned something it did not.
 
 Loop: every turn reply with ONE JSON object:
 {"goal": "what I am trying to learn now", "notebook": "<=700 chars of what I know and what is left", "action": {"tool": "...", "args": {...}}}
@@ -58,6 +60,13 @@ def _recent(toolbox: Toolbox, n: int = 10) -> list[dict[str, Any]]:
             for e in toolbox.ledger.entries[-n:]]
 
 
+def _known(toolbox: Toolbox, n_ent: int = 14, n_tags: int = 10) -> dict[str, Any]:
+    """Code-kept working memory so a small model never has to scroll back for an id: recent entities and tag ids seen."""
+    ents = list(toolbox.ledger.seen_entities.items())[-n_ent:]
+    return {"entities_seen": [{"id": eid, "name": v["name"], "from": v["call"]} for eid, v in ents],
+            "tag_ids_seen": [t[len("urn:tag:"):] for t in list(toolbox.ledger.seen_tags)[-n_tags:]]}
+
+
 def _short_args(a: Any) -> Any:
     s = json.dumps(a, ensure_ascii=False)
     return a if len(s) < 160 else s[:157] + "..."
@@ -76,15 +85,16 @@ def validate_finish(fin: dict[str, Any], toolbox: Toolbox) -> dict[str, Any]:
         if not isinstance(c, dict):
             continue
         eid, name = str(c.get("entity_id") or ""), str(c.get("name") or "")
+        if eid not in seen:  # the model often drops or garbles the id: accept an exact name that a call returned (unique)
+            by_name = [k for k, v in seen.items() if str(v.get("name") or "").lower() == name.lower()]
+            if len(by_name) == 1:
+                eid = by_name[0]
         if eid not in seen:
             rejected.append(f"competitor '{name}': entity id was never returned by a Qloo call")
             continue
         if eid in taken:
             continue
-        cites = cites_ok(c.get("cites"))
-        if not cites:
-            rejected.append(f"competitor '{name}': no valid call cited")
-            continue
+        cites = cites_ok(c.get("cites")) or [seen[eid]["call"]]  # the call that returned this entity is its evidence
         taken.add(eid)
         comps.append({"name": seen[eid]["name"] or name, "entity_id": eid, "why": str(c.get("why") or "")[:200], "cites": cites})
     findings = []
@@ -98,7 +108,7 @@ def validate_finish(fin: dict[str, Any], toolbox: Toolbox) -> dict[str, Any]:
     for h in fin.get("audience_hints") or []:
         cites = cites_ok(h.get("cites")) if isinstance(h, dict) else []
         if cites:
-            hints.append({"label": str(h.get("label"))[:60], "ages": [a for a in h.get("ages") or [] if isinstance(a, str)],
+            hints.append({"label": str(h.get("label"))[:60], "ages": [a for a in h.get("ages") or [] if isinstance(a, str) and a in AGE_BANDS],
                           "claim": str(h.get("claim"))[:300], "cites": cites})
         else:
             rejected.append(f"audience hint without a valid cited call: {str(h)[:80]}")
@@ -122,7 +132,7 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
         left = max_steps - step
         user = json.dumps({"task": "Find the real competitors of this kind of product in Qloo and who buys this kind of product in this location. The product itself is not in Qloo.",
                            "context": ctx, "tools": catalogue if step == 1 else [t["tool"] for t in catalogue],
-                           "steps_left_including_this": left + 1, "notebook": notebook, "recent_calls": _recent(toolbox),
+                           "steps_left_including_this": left + 1, "notebook": notebook, "known": _known(toolbox), "recent_calls": _recent(toolbox),
                            "last_result": last_obs}, ensure_ascii=False)
         if step > 1 and step % 4 == 0:
             user = user.replace('"tools": [', '"tools_full": ' + json.dumps(catalogue, ensure_ascii=False) + ', "tools": [', 1)
@@ -134,8 +144,9 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
                 turn = await llm.chat_json(f"agent_step_{step:02d}", FIELD_GUIDE, user, temperature=0.2, max_tokens=900)
                 break
             except Exception as exc:
-                if "429" in str(exc) and attempt < 2:  # token-per-minute limit: wait it out instead of ending the exploration
-                    await sleep(RATE_LIMIT_WAIT)
+                if attempt < 2 and ("429" in str(exc) or "unparseable" in str(exc) or "no JSON" in str(exc)):
+                    if "429" in str(exc):  # token-per-minute limit: wait it out instead of ending the exploration
+                        await sleep(RATE_LIMIT_WAIT)
                     continue
                 trace.append({"step": step, "error": f"LLM failed: {exc}"})
                 break

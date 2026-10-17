@@ -114,10 +114,16 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
             rec.write_json("agent/trace.json", {"trace": agent_out["trace"], "notebook": agent_out["notebook"]})
             rec.write_json("agent/ledger.json", agent_out["ledger"])
             rec.write_json("agent/result.json", agent_out["result"])
-            agent_out["result"]["competitors"] = _agent_competitors(agent_out["result"]["competitors"], intake, tb)
-            preset = {"anchors": agent_out["result"]["competitors"], "unresolved": [c for c in intake.competitors
-                      if c.lower() not in {a["name"].lower() for a in agent_out["result"]["competitors"]}],
-                      "notes": [], "category": None, "profiles": {}}
+            cands = _agent_competitors(agent_out["result"]["competitors"], intake, tb)
+            from .competitors import vet_anchors
+            kept, vet_notes, vet_profiles = await vet_anchors(client, intake, cands, llm)
+            agent_out["result"]["competitors"] = [{k: c[k] for k in ("name", "entity_id", "why", "cites")} for c in kept]
+            agent_out["result"]["rejected"] += vet_notes
+            if len(kept) >= 2:
+                preset = {"anchors": kept, "unresolved": [c for c in intake.competitors if c.lower() not in {a["name"].lower() for a in kept}],
+                          "notes": vet_notes, "category": None, "profiles": vet_profiles}
+            else:
+                summary["warnings"].append(f"The agent verified only {len(kept)} competitor(s); the fixed competitor steps were used instead.")
         elif opts.agent:
             summary["warnings"].append("--agent needs the LLM (not configured or disabled): fell back to the fixed competitor steps.")
         anchor = await E.resolve_and_skew(client, intake, llm=llm, discover=opts.discover, preset=preset)

@@ -31,8 +31,13 @@ def _name_from_id(tid: str) -> str:
 NAMESPACES_OF_INTEREST = ("competitor_brand", "similar_brand", "customer_segment", "industry", "product_service", "price_range")
 
 
+# Namespaces that tell the agent WHAT a brand is. Aesthetic/lifestyle/core_value tags are noise for this job and cost tokens.
+KEEP_NS = ("genre:brand", "brand_type", "brand_subtype", "industry", "product_service", "product_category", "competitor_brand",
+           "similar_brand", "customer_segment", "price_range", "business_model", "wikipedia_category")
+
+
 def group_tags(tags: list[dict[str, Any]], keep_genre: int = 6) -> dict[str, list[str]]:
-    """Tag list -> {namespace: [names]} using the namespace in the id (urn:tag:<ns>:...)."""
+    """Tag list -> {namespace: [names]} using the namespace in the id (urn:tag:<ns>:...), identity-relevant namespaces only."""
     out: dict[str, list[str]] = {}
     for t in tags or []:
         tid = str(t.get("id") or "")
@@ -40,7 +45,9 @@ def group_tags(tags: list[dict[str, Any]], keep_genre: int = 6) -> dict[str, lis
         ns = parts[0] if parts else "?"
         if ns == "genre" and len(parts) > 1:
             ns = f"genre:{parts[1]}"
-        label = (t.get("name") or _name_from_id(tid)) if ns in NAMESPACES_OF_INTEREST else short_tag(tid)
+        if ns not in KEEP_NS:
+            continue
+        label = (t.get("name") or _name_from_id(tid)) if ns in NAMESPACES_OF_INTEREST else short_tag(tid).split(":", 1)[-1] if ns != "genre:brand" else short_tag(tid)[len("genre:brand:"):] or "brand"
         out.setdefault(ns, [])
         if label not in out[ns] and len(out[ns]) < (keep_genre if ns.startswith("genre") else 6):
             out[ns].append(label)
@@ -65,6 +72,7 @@ class Ledger:
 class Toolbox:
     def __init__(self, client: QlooClient, location: str):
         self.client, self.location, self.ledger = client, location, Ledger()
+        self._absorbed: list[str] = []
 
     # ------------------------------------------------------------------------------------------ catalogue
     @staticmethod
@@ -92,11 +100,35 @@ class Toolbox:
         ]
 
     # ------------------------------------------------------------------------------------------ dispatch
+    ALIASES = {"limit": "take", "top": "take", "n": "take", "entity_ids": "entity_id", "id": "entity_id"}
+    HARMLESS = {"location", "namespace", "country", "city"}  # models add these; the location is fixed by the run
+
+    def _tidy(self, name: str, args: dict[str, Any]) -> dict[str, Any]:
+        """Absorb harmless slips (limit vs take, a stray location) instead of wasting a step; the agent is told what was absorbed."""
+        out: dict[str, Any] = {}
+        for k, v in args.items():
+            if k in self.HARMLESS and not (name == "find_tags" and k == "namespace") and not (name == "tag_namespaces"):
+                self._absorbed.append(k)
+                continue
+            k2 = self.ALIASES.get(k, k)
+            if k2 == "entity_id" and name == "audience_demographics":
+                k2, v = "entity_ids", v if isinstance(v, list) else [v]
+            if k2 == "take" and name not in ("insights",):
+                self._absorbed.append(k)
+                continue
+            if k2 == "entity_id" and name not in ("entity_record",) and k2 != k:
+                k2 = k
+            if k == "use_location" and not isinstance(v, bool):
+                v = bool(v) and str(v).lower() not in ("false", "no", "0")
+            out[k2] = v
+        return out
+
     async def run(self, name: str, args: dict[str, Any]) -> dict[str, Any]:
         fn = getattr(self, f"t_{name}", None)
         if fn is None or name.startswith("_"):
             cid = self.ledger.add(name, args, False, None, error="unknown tool")
             return {"call": cid, "ok": False, "error": f"unknown tool {name!r}; tools: {[t['tool'] for t in self.catalogue()]}"}
+        args = self._tidy(name, dict(args or {}))
         bad = [k for k, v in (args or {}).items() if "{{" in json.dumps(v, default=str)]
         if bad:
             msg = (f"arguments {bad} contain a template ('{{{{...}}}}'). Arguments must be literal values copied from earlier results "
@@ -111,6 +143,9 @@ class Toolbox:
             return {"call": self.ledger.add(name, args, False, None, error=msg), "ok": False, "error": msg}
         cid = self.ledger.add(name, args, ok, obs if ok else None, files, err)
         out: dict[str, Any] = {"call": cid, "ok": ok}
+        if self._absorbed:
+            out["note"] = f"ignored arguments {sorted(set(self._absorbed))} (the location is fixed; use only the listed argument names)"
+            self._absorbed = []
         if ok:
             out["result"] = obs
         else:
@@ -140,14 +175,14 @@ class Toolbox:
             v["info"] = str(e["disambiguation"])[:50]
         if with_tags and e.get("tags"):
             g = group_tags(e["tags"])
-            v["tags"] = {k: x[:3] for k, x in list(g.items())[:4]}
+            v["tags"] = {k: x[:3] for k, x in list(g.items())[:6]}
         return v
 
     async def t_search_entity(self, query: str, kind: str = "brand"):
         res, files = await self._call(calls.search_entities(f"agent-search-{query}", str(query), kind if kind in KINDS else None, take=6, step="agent"))
         if not res.ok:
             return None, files, False, res.error or f"HTTP {res.status}"
-        ents = nz.entities_from_search(res.body)[:6]
+        ents = nz.entities_from_search(res.body, tag_limit=40)[:6]
         self._remember(ents, kind)
         return {"entities": [self._ent_view(e) for e in ents]}, files, True, None
 
