@@ -3,6 +3,7 @@ records it in a ledger (call ids Q01, Q02, ...). Tool errors come back as observ
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 from typing import Any
@@ -96,11 +97,18 @@ class Toolbox:
         if fn is None or name.startswith("_"):
             cid = self.ledger.add(name, args, False, None, error="unknown tool")
             return {"call": cid, "ok": False, "error": f"unknown tool {name!r}; tools: {[t['tool'] for t in self.catalogue()]}"}
+        bad = [k for k, v in (args or {}).items() if "{{" in json.dumps(v, default=str)]
+        if bad:
+            msg = (f"arguments {bad} contain a template ('{{{{...}}}}'). Arguments must be literal values copied from earlier results "
+                   "(e.g. the actual entity id or tag id string).")
+            return {"call": self.ledger.add(name, args, False, None, error=msg), "ok": False, "error": msg}
         try:
             obs, files, ok, err = await fn(**(args or {}))
         except TypeError as exc:
-            cid = self.ledger.add(name, args, False, None, error=str(exc))
-            return {"call": cid, "ok": False, "error": f"bad arguments: {exc}"}
+            import inspect
+            allowed = [p for p in inspect.signature(fn).parameters if p != "kw"]
+            msg = f"bad arguments: {exc}. Allowed for {name}: {allowed}" + (" plus insights signal arguments" if name == "insights" else "")
+            return {"call": self.ledger.add(name, args, False, None, error=msg), "ok": False, "error": msg}
         cid = self.ledger.add(name, args, ok, obs if ok else None, files, err)
         out: dict[str, Any] = {"call": cid, "ok": ok}
         if ok:
@@ -136,7 +144,7 @@ class Toolbox:
         return v
 
     async def t_search_entity(self, query: str, kind: str = "brand"):
-        res, files = await self._call(calls.search_entities(f"agent-search-{query}", str(query), kind if kind in KINDS else "brand", take=6, step="agent"))
+        res, files = await self._call(calls.search_entities(f"agent-search-{query}", str(query), kind if kind in KINDS else None, take=6, step="agent"))
         if not res.ok:
             return None, files, False, res.error or f"HTTP {res.status}"
         ents = nz.entities_from_search(res.body)[:6]
@@ -188,6 +196,10 @@ class Toolbox:
     async def t_insights(self, kind: str = "brand", take: int = 10, **kw: Any):
         if kind not in KINDS:
             return None, [], False, f"kind must be one of {list(KINDS)}"
+        allowed = {"filter_tags", "filter_operator", "interest_entities", "interest_tags", "age", "gender", "weights", "use_location"}
+        unknown = sorted(set(kw) - allowed)
+        if unknown:
+            return None, [], False, f"unknown insights arguments {unknown}. Allowed: kind, take, {sorted(allowed)}"
         sig = self._signals(**kw)
         take = max(1, min(int(take), 15))
         spec = calls.insights_entities("agent", f"agent-insights-{kind}", kind, sig, take=take, explain=False, allow_no_location=True)

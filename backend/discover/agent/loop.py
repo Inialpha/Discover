@@ -10,6 +10,9 @@ from typing import Any
 from ..personas.intake import ProductIntake
 from .tools import Toolbox, clip
 
+MIN_GOOD_CALLS = 4
+RATE_LIMIT_WAIT = 30.0
+
 FIELD_GUIDE = """You are a market-research agent. You explore the Qloo taste/culture API with tools to learn who buys a product and which brands compete with it. You decide your own goals and next step.
 
 Verified facts about Qloo (use them, do not guess around them):
@@ -21,6 +24,14 @@ Verified facts about Qloo (use them, do not guess around them):
 - Category tags look like genre:brand:<group>:<category>. Use find_tags (semantic) to get real tag ids; never invent an id.
 - Demographic indexes are relative and noisy. Age alone barely changes a ranking: pair it with an interest signal.
 - No platform, events or income data comes from Qloo. Do not claim any.
+
+How to start (the product itself is the business's own, usually new, product: it is NOT in Qloo, so never search for its name):
+1. Work out what kind of product it is and which Qloo category tag fits (find_tags, then read the ids).
+2. Take the competitors the business gave you (if any) and resolve them with search_entity; check the result's tags and read entity_record.
+3. If a search returns the wrong kind of entity, retry with a more specific query (add the product word or the maker's name) or move on to the category route.
+4. Get category brands with insights(filter_tags=[category tag], interest_entities=[a verified anchor]); read their records for competitor_brand / customer_segment tags.
+5. Ask for audience demographics and tastes of the verified competitors.
+Arguments must be LITERAL values copied from earlier results (ids, tag ids). Never write templates such as "{{Q03.tag_ids[0]}}": they are rejected. Use only the argument names listed for each tool. Never finish before you have made real calls, and never claim a search returned something it did not.
 
 Loop: every turn reply with ONE JSON object:
 {"goal": "what I am trying to learn now", "notebook": "<=700 chars of what I know and what is left", "action": {"tool": "...", "args": {...}}}
@@ -43,7 +54,8 @@ def _context(intake: ProductIntake, aff: dict[str, Any] | None) -> dict[str, Any
 
 
 def _recent(toolbox: Toolbox, n: int = 10) -> list[dict[str, Any]]:
-    return [{"id": e["id"], "tool": e["tool"], "args": _short_args(e["args"]), "ok": e["ok"]} for e in toolbox.ledger.entries[-n:]]
+    return [{"id": e["id"], "tool": e["tool"], "args": _short_args(e["args"]), "ok": e["ok"], **({"error": str(e["error"])[:120]} if not e["ok"] else {})}
+            for e in toolbox.ledger.entries[-n:]]
 
 
 def _short_args(a: Any) -> Any:
@@ -105,9 +117,10 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
     ctx = _context(intake, aff)
     catalogue = toolbox.catalogue()
     notebook, last_obs, trace, final = "", None, [], None
+    repeats: dict[str, int] = {}
     for step in range(1, max_steps + 1):
         left = max_steps - step
-        user = json.dumps({"task": "Find the product's real competitors in Qloo and who buys this kind of product in this location.",
+        user = json.dumps({"task": "Find the real competitors of this kind of product in Qloo and who buys this kind of product in this location. The product itself is not in Qloo.",
                            "context": ctx, "tools": catalogue if step == 1 else [t["tool"] for t in catalogue],
                            "steps_left_including_this": left + 1, "notebook": notebook, "recent_calls": _recent(toolbox),
                            "last_result": last_obs}, ensure_ascii=False)
@@ -115,10 +128,18 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
             user = user.replace('"tools": [', '"tools_full": ' + json.dumps(catalogue, ensure_ascii=False) + ', "tools": [', 1)
         if left == 0:
             user = user[:-1] + ', "instruction": "LAST STEP: you must finish now."}'
-        try:
-            turn = await llm.chat_json(f"agent_step_{step:02d}", FIELD_GUIDE, user, temperature=0.2, max_tokens=900)
-        except Exception as exc:  # LLM failure ends exploration; what was found so far is still reported
-            trace.append({"step": step, "error": f"LLM failed: {exc}"})
+        turn = None
+        for attempt in range(3):
+            try:
+                turn = await llm.chat_json(f"agent_step_{step:02d}", FIELD_GUIDE, user, temperature=0.2, max_tokens=900)
+                break
+            except Exception as exc:
+                if "429" in str(exc) and attempt < 2:  # token-per-minute limit: wait it out instead of ending the exploration
+                    await sleep(RATE_LIMIT_WAIT)
+                    continue
+                trace.append({"step": step, "error": f"LLM failed: {exc}"})
+                break
+        if turn is None:  # LLM failure ends exploration; what was found so far is still reported
             break
         if not isinstance(turn, dict):
             trace.append({"step": step, "error": "reply was not a JSON object"})
@@ -126,12 +147,23 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
             continue
         notebook = str(turn.get("notebook") or notebook)[:900]
         if isinstance(turn.get("finish"), dict):
+            good = sum(1 for e in toolbox.ledger.entries if e["ok"])
+            if good < MIN_GOOD_CALLS and left > 0:
+                trace.append({"step": step, "goal": turn.get("goal"), "refused_finish": True})
+                last_obs = {"error": f"you cannot finish yet: only {good} successful calls so far (minimum {MIN_GOOD_CALLS}). "
+                                     "Start with find_tags for the category and search_entity for the given competitors."}
+                continue
             final = turn["finish"]
             trace.append({"step": step, "goal": turn.get("goal"), "finish": True})
             break
         act = turn.get("action") if isinstance(turn.get("action"), dict) else {}
         tool, args = str(act.get("tool") or ""), act.get("args") if isinstance(act.get("args"), dict) else {}
         obs = await toolbox.run(tool, args)
+        sig = json.dumps([tool, args], sort_keys=True, default=str)
+        if not obs.get("ok"):
+            repeats[sig] = repeats.get(sig, 0) + 1
+            if repeats[sig] > 1:
+                obs["error"] = str(obs.get("error")) + " | You already made this exact failing call. Change the arguments or the approach."
         trace.append({"step": step, "goal": turn.get("goal"), "tool": tool, "args": args, "call": obs.get("call"), "ok": obs.get("ok")})
         last_obs = clip(obs)
         if delay:

@@ -59,7 +59,9 @@ def intake():
     return ProductIntake(**CASES["toothpaste"])
 
 
-def run(tmp_path, turns, steps=10, **hk):
+def run(tmp_path, turns, steps=10, min_calls=0, **hk):
+    from discover.agent import loop as L
+    L.MIN_GOOD_CALLS = min_calls
     log = []
     llm = ScriptedLLM(turns)
 
@@ -155,6 +157,8 @@ def test_clip_shortens_big_observations():
 def test_runner_with_agent_uses_checked_competitors_and_writes_trace(make_intake, store, tmp_path):
     from tests.test_personas_step2 import LLM_SETTINGS, fake_llm_transport, opts
     from discover.personas.runner import execute_personas
+    from discover.agent import loop as L
+    L.MIN_GOOD_CALLS = 0
     inner, seen = fake_llm_transport()
     agent_turns = [act("search_entity", query="Crest"),
                    {"finish": {"competitors": [{"name": "Crest", "entity_id": "x", "why": "w", "cites": ["Q01"]}],
@@ -182,3 +186,51 @@ def test_runner_with_agent_uses_checked_competitors_and_writes_trace(make_intake
     assert (run / "agent" / "trace.json").exists() and (run / "agent" / "ledger.json").exists()
     md = (run / "04_personas.md").read_text()
     assert "What the exploring agent found in Qloo" in md and "[Q01]" in md and "Could not establish: no price data" in md
+
+
+def test_finishing_before_exploring_is_refused(tmp_path):
+    from discover.agent import loop as L
+    out, tb, _, llm = run(tmp_path, [{"finish": {"gaps": ["GlowSkin not found"]}}, act("find_tags", query="skin cream"),
+                                     act("search_entity", query="Nivea"), act("entity_record", entity_id="id-Nivea"),
+                                     act("find_tags", query="cream"), {"finish": {"gaps": []}}], min_calls=4)
+    L.MIN_GOOD_CALLS = 0
+    assert out["trace"][0].get("refused_finish") and "cannot finish yet" in llm.prompts[1] and len(out["ledger"]) == 4
+
+
+def test_template_placeholders_are_rejected_with_a_clear_error(tmp_path):
+    out, tb, _, llm = run(tmp_path, [act("insights", kind="brand", filter_tags=["{{Q03.tag_ids[0]}}"]), {"finish": {}}])
+    assert out["ledger"][0]["ok"] is False and "literal values" in out["ledger"][0]["error"]
+
+
+def test_unknown_insights_args_are_reported_not_ignored(tmp_path):
+    out, tb, _, _ = run(tmp_path, [act("insights", kind="brand", filter_tag_ids=["a"]), {"finish": {}}])
+    assert out["ledger"][0]["ok"] is False and "filter_tag_ids" in out["ledger"][0]["error"] and "filter_tags" in out["ledger"][0]["error"]
+
+
+def test_repeating_the_same_failing_call_is_called_out(tmp_path):
+    out, tb, _, llm = run(tmp_path, [act("hack"), act("hack"), {"finish": {}}])
+    assert "exact failing call" in llm.prompts[2]
+
+
+def test_rate_limit_is_waited_out_not_fatal(tmp_path):
+    from discover.agent import loop as L
+    waits = []
+
+    class Flaky(ScriptedLLM):
+        n = 0
+
+        async def chat_json(self, name, system, user, **kw):
+            Flaky.n += 1
+            if Flaky.n == 1:
+                raise RuntimeError("HTTP 429")
+            return await super().chat_json(name, system, user, **kw)
+
+    async def fake_sleep(x):
+        waits.append(x)
+
+    async def go():
+        async with _client(tmp_path, httpx.MockTransport(handler_factory([]))) as c:
+            return await run_agent(Flaky([{"finish": {"gaps": ["x"]}}]), T.Toolbox(c, "Lagos"), intake(), None, max_steps=3, sleep=fake_sleep)
+    L.MIN_GOOD_CALLS = 0
+    out = run_async(go())
+    assert waits == [L.RATE_LIMIT_WAIT] and out["result"]["gaps"] == ["x"]
