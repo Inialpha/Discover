@@ -110,6 +110,9 @@ class Toolbox:
         """Absorb harmless slips (limit vs take, a stray location) instead of wasting a step; the agent is told what was absorbed."""
         out: dict[str, Any] = {}
         for k, v in args.items():
+            if name in ("search_entity", "entity_record", "find_tags", "tag_namespaces", "audience_demographics", "audience_taste", "heatmap", "compare") and k == "use_location":
+                self._absorbed.append(k)
+                continue
             if k in self.HARMLESS and not (name == "find_tags" and k == "namespace") and not (name == "tag_namespaces"):
                 self._absorbed.append(k)
                 continue

@@ -109,8 +109,14 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
             from ..agent.loop import run_agent
             from ..agent.tools import Toolbox
             tb = Toolbox(client, intake.location)
-            agent_out = await run_agent(llm, tb, intake, {"tier": aff.tier, "price_vs_income_ratio": round(aff.ratio, 4), "country": aff.country_name, "calculated": True},
+            agent_llm = llm
+            if settings.for_agent() != settings:  # AGENT_LLM_* set: the agent runs on its own model/quota
+                agent_llm = LLMClient(settings.for_agent(), rec, transport=llm_transport)
+            agent_out = await run_agent(agent_llm, tb, intake, {"tier": aff.tier, "price_vs_income_ratio": round(aff.ratio, 4), "country": aff.country_name, "calculated": True},
                                         max_steps=opts.agent_steps, delay=opts.llm_delay)
+            if agent_llm.daily_exhausted:
+                summary["warnings"].append(f"LLM daily token limit reached during the agent ({agent_llm.daily_exhausted}). "
+                                           "Use AGENT_LLM_MODEL for another model, upgrade the plan, or wait for the quota to reset.")
             rec.write_json("agent/trace.json", {"trace": agent_out["trace"], "notebook": agent_out["notebook"]})
             rec.write_json("agent/ledger.json", agent_out["ledger"])
             rec.write_json("agent/result.json", agent_out["result"])
@@ -159,6 +165,8 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
     rec.write_text("04_personas.md", writer.markdown(intake, aff, personas, bundle, shared + scoring.notes + aff.caveats,
                                                      attribution, opts.mock))
 
+    if llm is not None and llm.daily_exhausted:
+        summary["warnings"].append(f"LLM daily token limit reached ({llm.daily_exhausted}): some steps used templates instead of the LLM.")
     ok_calls = sum(1 for r in results if r.ok)
     llm_failed = sum(1 for p in personas if llm and p["source"] != "llm")
     summary.update({

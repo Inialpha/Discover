@@ -33,16 +33,32 @@ class LLMError(RuntimeError):
     pass
 
 
+def _limit_message(body: Any) -> str:
+    try:
+        return str(body["error"]["message"])[:160]
+    except (KeyError, TypeError):
+        return "rate limit"
+
+
+def _is_daily_limit(body: Any) -> bool:
+    """Groq style: "... on tokens per day (TPD): Limit 200000, Used 199705 ..." : waiting seconds will not help."""
+    m = _limit_message(body).lower()
+    return "per day" in m or "(tpd)" in m or "requests per day" in m
+
+
 class LLMClient:
     def __init__(self, settings: Settings, recorder: RunRecorder, transport: httpx.AsyncBaseTransport | None = None):
         if not settings.llm_configured:
             raise LLMError("LLM not configured (LLM_API_KEY, LLM_BASE_URL, LLM_MODEL)")
         self.s, self.rec, self._transport = settings, recorder, transport
         self.calls = 0
+        self.daily_exhausted: str | None = None  # set when the provider says the DAY's token quota is spent: retrying is pointless
         self.max_wait = 30.0
         self._sleep = asyncio.sleep
 
     async def chat_json(self, name: str, system: str, user: str, temperature: float = 0.2, max_tokens: int = 2000) -> Any:
+        if self.daily_exhausted:
+            raise LLMError(f"daily token limit reached ({self.daily_exhausted}); not calling the provider again this run")
         payload: dict[str, Any] = {
             "model": self.s.llm_model,
             "temperature": temperature,
@@ -77,6 +93,10 @@ class LLMClient:
                 if r.status_code == 400 and "reasoning_effort" in payload:
                     payload.pop("reasoning_effort")
                     continue
+                if r.status_code == 429 and _is_daily_limit(entry.get("json")):
+                    self.daily_exhausted = _limit_message(entry.get("json"))
+                    error = f"daily token limit reached: {self.daily_exhausted}"
+                    break
                 if r.status_code >= 400:
                     error = f"HTTP {r.status_code}"
                     if r.status_code < 500 and r.status_code != 429:

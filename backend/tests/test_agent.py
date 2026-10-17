@@ -312,3 +312,56 @@ def test_exclude_tags_and_audiences_reach_the_request(tmp_path):
     out, tb, log, _ = run(tmp_path, [act("insights", kind="brand", filter_tags=["a:b"], exclude_tags=["c:d"], audiences=["urn:audience:life_stage"]), {"finish": {}}])
     q = [q for p, q in log if p == "/v2/insights"][0]
     assert q["filter.exclude.tags"] == "urn:tag:c:d" and q["signal.demographics.audiences"] == "urn:audience:life_stage"
+
+
+def _daily_429():
+    return {"error": {"message": "Rate limit reached for model x on tokens per day (TPD): Limit 200000, Used 199705, Requested 2307."}}
+
+
+def test_daily_token_limit_fails_fast_without_retries_and_sticks():
+    from discover.llm.client import LLMClient, LLMError
+    from discover.recorder import RunRecorder
+    from tests.test_personas_step2 import LLM_SETTINGS
+    import tempfile, pathlib
+    n = {"c": 0}
+
+    def h(req):
+        n["c"] += 1
+        return httpx.Response(429, json=_daily_429(), headers={"retry-after": "5"})
+    llm = LLMClient(LLM_SETTINGS, RunRecorder(pathlib.Path(tempfile.mkdtemp())), transport=httpx.MockTransport(h))
+    for _ in range(2):
+        try:
+            run_async(llm.chat_json("x", "s", "u"))
+            assert False
+        except LLMError as e:
+            assert "daily token limit" in str(e)
+    assert n["c"] == 1 and llm.daily_exhausted
+
+
+def test_agent_stops_immediately_on_daily_limit(tmp_path):
+    from discover.llm.client import LLMError
+
+    class Dead(ScriptedLLM):
+        async def chat_json(self, *a, **k):
+            self.calls += 1
+            raise LLMError("daily token limit reached (x)")
+    log, llm = [], Dead([])
+
+    async def go():
+        async with _client(tmp_path, httpx.MockTransport(handler_factory(log))) as c:
+            return await run_agent(llm, T.Toolbox(c, "Lagos"), intake(), None, max_steps=5)
+    out = run_async(go())
+    assert llm.calls == 1 and "daily token limit" in out["trace"][0]["error"]
+
+
+def test_agent_llm_settings_override():
+    from tests.test_personas_step2 import LLM_SETTINGS
+    from dataclasses import replace
+    s = replace(LLM_SETTINGS, agent_llm_model="other-model")
+    assert s.for_agent().llm_model == "other-model" and s.for_agent().llm_api_key == LLM_SETTINGS.llm_api_key
+    assert LLM_SETTINGS.for_agent() == LLM_SETTINGS
+
+
+def test_use_location_on_search_is_absorbed(tmp_path):
+    out, tb, _, _ = run(tmp_path, [act("search_entity", query="Crest", use_location=False), {"finish": {}}])
+    assert out["ledger"][0]["ok"] is True

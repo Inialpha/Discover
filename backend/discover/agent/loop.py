@@ -18,16 +18,7 @@ FIELD_GUIDE = """You are a market-research agent. You explore the Qloo taste/cul
 
 Call qloo_help(topic) (free) whenever you are unsure about a parameter, filter, signal, tag namespace or the best sequence: topics overview, kinds, filters, signals, weights, demographics, tags, response, pitfalls, recipes. Read 'recipes' first.
 
-Verified facts about Qloo (use them, do not guess around them):
-- filter_tags is a HARD filter: only entities carrying that tag come back. interest_tags is a soft taste signal and does NOT restrict category.
-- interest_entities alone returns taste neighbours from many categories, not competitors. filter_tags + interest_entities returns category brands ranked by similarity to your anchor: the best way to find peers.
-- Brand records list competitors as competitor_brand / similar_brand tags, and customer_segment / industry / product_service tags: read entity_record for each anchor brand.
-- Qloo search is semantic: a product word ("toothpaste") or "<brand> <product>" can return the category's brands and other lookalikes, not only that brand. Read each result's industry/product_service/genre tags before trusting a name; the brand you want may simply not be in Qloo, in which case use its competitors or the category route.
-- Names can resolve to the wrong entity (a toothpaste name can be a university). Check industry/product tags of the search result or record before trusting it.
-- Brands have no hard location filter; location only nudges ranking. Narrow categories can be empty for one city: retry with use_location=false and say so.
-- Category tags look like genre:brand:<group>:<category>. Use find_tags (semantic) to get real tag ids; never invent an id.
-- Demographic indexes are relative and noisy. Age alone barely changes a ranking: pair it with an interest signal.
-- No platform, events or income data comes from Qloo. Do not claim any.
+Key rules (details and VERIFIED/DOCUMENTED tags are in qloo_help): filter_tags is a HARD category filter, interest_tags/interest_entities only bias ranking; filter_tags + interest_entities ranks category brands by similarity to an anchor; brand records list competitor_brand / customer_segment / industry tags; search is semantic and can return the wrong entity, so read tags; brand location is a soft signal; Qloo has no income, platform or event data.
 
 How to start (the product itself is the business's own, usually new, product: it is NOT in Qloo, so never search for its name):
 1. Work out what kind of product it is and which Qloo category tag fits (find_tags, then read the ids).
@@ -146,6 +137,9 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
                 turn = await llm.chat_json(f"agent_step_{step:02d}", FIELD_GUIDE, user, temperature=0.2, max_tokens=900)
                 break
             except Exception as exc:
+                if "daily token limit" in str(exc):
+                    trace.append({"step": step, "error": f"LLM failed: {exc}"})
+                    break
                 if attempt < 2 and ("429" in str(exc) or "unparseable" in str(exc) or "no JSON" in str(exc)):
                     if "429" in str(exc):  # token-per-minute limit: wait it out instead of ending the exploration
                         await sleep(RATE_LIMIT_WAIT)
