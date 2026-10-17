@@ -78,6 +78,8 @@ class Toolbox:
     @staticmethod
     def catalogue() -> list[dict[str, Any]]:
         return [
+            {"tool": "qloo_help", "args": {"topic": "overview|kinds|filters|signals|weights|demographics|tags|response|pitfalls|recipes"},
+             "does": "Reference on Qloo parameters, filters, signals, tag namespaces, response shapes, known pitfalls and step-by-step recipes. Free (no Qloo call). Read it when unsure which parameter to use."},
             {"tool": "search_entity", "args": {"query": "str", "kind": f"one of {list(KINDS)}, default brand"},
              "does": "Find entities by name. Returns id, name, popularity, and tags grouped by namespace. Names can resolve to the wrong entity (a brand name may be a university): read the tags."},
             {"tool": "entity_record", "args": {"entity_id": "str"},
@@ -88,7 +90,8 @@ class Toolbox:
             {"tool": "insights", "args": {"kind": "entity kind", "filter_tags": "[tag ids] HARD category filter", "filter_operator": "union|intersection",
                                          "interest_entities": "[entity ids] taste signal", "interest_tags": "[tag ids] SOFT taste signal",
                                          "age": "[24_and_younger,25_to_29,30_to_34,35_to_44,45_to_54,55_and_older]", "gender": "male|female",
-                                         "weights": "{interests.entities|interests.tags|demographics.age: very_low..very_high}",
+                                         "weights": "{interests.entities|interests.tags|demographics.age|demographics.audiences: very_low..very_high}",
+                                         "exclude_tags": "[tag ids] documented, unverified", "audiences": "[urn:audience:...] documented, unverified",
                                          "use_location": "bool, default true", "take": "int<=15"},
              "does": "Ranked entities. Brands: location is a soft signal only. Combine filter_tags (category) with interest_entities (anchor) to rank category brands by similarity."},
             {"tool": "audience_taste", "args": {"interest_entities": "[ids]", "tag_type": "optional namespace urn", "age": "[..]", "gender": "optional"},
@@ -178,6 +181,10 @@ class Toolbox:
             v["tags"] = {k: x[:3] for k, x in list(g.items())[:6]}
         return v
 
+    async def t_qloo_help(self, topic: str = "overview"):
+        from .reference import help_text
+        return {"topic": topic, "text": help_text(topic)}, [], True, None
+
     async def t_search_entity(self, query: str, kind: str = "brand"):
         res, files = await self._call(calls.search_entities(f"agent-search-{query}", str(query), kind if kind in KINDS else None, take=6, step="agent"))
         if not res.ok:
@@ -225,13 +232,15 @@ class Toolbox:
         w = {k: v for k, v in (kw.get("weights") or {}).items() if v in ("very_low", "low", "medium", "high", "very_high")}
         return calls.Signals(entities=ents, tags=tags, filter_tags=[full_tag(str(x)) for x in kw.get("filter_tags") or []],
                              filter_operator=kw.get("filter_operator") if kw.get("filter_operator") in ("union", "intersection") else None,
+                             exclude_tags=[full_tag(str(x)) for x in kw.get("exclude_tags") or []],
+                             audiences=[str(x) for x in kw.get("audiences") or []],
                              age=[str(a) for a in age], gender=kw.get("gender") if kw.get("gender") in ("male", "female") else None,
                              location=loc, weights=w)
 
     async def t_insights(self, kind: str = "brand", take: int = 10, **kw: Any):
         if kind not in KINDS:
             return None, [], False, f"kind must be one of {list(KINDS)}"
-        allowed = {"filter_tags", "filter_operator", "interest_entities", "interest_tags", "age", "gender", "weights", "use_location"}
+        allowed = {"filter_tags", "filter_operator", "interest_entities", "interest_tags", "age", "gender", "weights", "use_location", "exclude_tags", "audiences"}
         unknown = sorted(set(kw) - allowed)
         if unknown:
             return None, [], False, f"unknown insights arguments {unknown}. Allowed: kind, take, {sorted(allowed)}"

@@ -38,6 +38,7 @@ class Signals:
     gender: str | None = None
     location: str | None = None  # a place name (Qloo resolves it)
     filter_operator: str | None = None  # "union" (default, OR) or "intersection" (AND) for filter.tags; docs: operator.filter.tags
+    exclude_tags: list[str] = field(default_factory=list)  # documented filter.exclude.tags (not live-verified)
     weights: dict[str, str] = field(default_factory=dict)  # e.g. {"interests.entities": "high"} -> signal.interests.entities.weight
 
     def demographic_params(self) -> dict[str, str]:
@@ -65,6 +66,9 @@ class Signals:
         if self.filter_operator and len(self.filter_tags) > 1:
             p["operator.filter.tags"] = self.filter_operator
         return p
+
+    def exclude_params(self) -> dict[str, str]:
+        return {"filter.exclude.tags": ",".join(self.exclude_tags)} if self.exclude_tags else {}
 
     def weight_params(self) -> dict[str, str]:
         return {f"signal.{k}.weight": v for k, v in self.weights.items()}
@@ -123,7 +127,7 @@ def insights_entities(
     allow_no_location: bool = False,
 ) -> CallSpec:
     base = {"filter.type": entity_urn(kind), "take": str(take), **signals.interest_params(), **signals.demographic_params(),
-            **signals.filter_params(), **signals.weight_params()}
+            **signals.filter_params(), **signals.exclude_params(), **signals.weight_params()}
     if explain and (signals.entities or signals.tags):
         base["feature.explainability"] = "true"
     order = ("signal", "filter") if kind != "place" else ("filter", "signal")

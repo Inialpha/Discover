@@ -283,3 +283,32 @@ def test_vet_anchors_drops_wrong_businesses(tmp_path):
             return await C.vet_anchors(c, intake(), [{"name": "Colgate", "entity_id": "e1"}], Judge())
     kept, notes, profiles = run_async(go())
     assert kept == [] and "Higher Education" in notes[0]
+
+
+def test_help_tool_serves_reference_without_a_qloo_call(tmp_path):
+    out, tb, log, _ = run(tmp_path, [act("qloo_help", topic="recipes"), act("qloo_help", topic="nonsense"), {"finish": {}}])
+    assert "filter_tags" in out["ledger"][0]["observation"]["text"] and "Unknown topic" in out["ledger"][1]["observation"]["text"]
+    assert log == []
+
+
+def test_help_is_not_counted_as_exploration(tmp_path):
+    out, tb, _, llm = run(tmp_path, [act("qloo_help"), {"finish": {"gaps": ["x"]}}, act("find_tags", query="a"), act("find_tags", query="b"),
+                                     act("find_tags", query="c"), act("find_tags", query="d"), {"finish": {}}], min_calls=4)
+    from discover.agent import loop as L
+    L.MIN_GOOD_CALLS = 0
+    assert out["trace"][1].get("refused_finish")
+
+
+def test_reference_names_every_parameter_the_insights_tool_accepts():
+    from discover.agent.reference import SECTIONS
+    text = " ".join(SECTIONS.values())
+    for name in ("filter_tags", "filter_operator", "interest_entities", "interest_tags", "weights", "exclude_tags", "audiences", "use_location"):
+        assert name in text, name
+    for band in ("24_and_younger", "25_to_29", "30_to_34", "35_to_44", "45_to_54", "55_and_older"):
+        assert band in SECTIONS["demographics"]
+
+
+def test_exclude_tags_and_audiences_reach_the_request(tmp_path):
+    out, tb, log, _ = run(tmp_path, [act("insights", kind="brand", filter_tags=["a:b"], exclude_tags=["c:d"], audiences=["urn:audience:life_stage"]), {"finish": {}}])
+    q = [q for p, q in log if p == "/v2/insights"][0]
+    assert q["filter.exclude.tags"] == "urn:tag:c:d" and q["signal.demographics.audiences"] == "urn:audience:life_stage"

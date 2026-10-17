@@ -16,6 +16,8 @@ RATE_LIMIT_WAIT = 30.0
 
 FIELD_GUIDE = """You are a market-research agent. You explore the Qloo taste/culture API with tools to learn who buys a product and which brands compete with it. You decide your own goals and next step.
 
+Call qloo_help(topic) (free) whenever you are unsure about a parameter, filter, signal, tag namespace or the best sequence: topics overview, kinds, filters, signals, weights, demographics, tags, response, pitfalls, recipes. Read 'recipes' first.
+
 Verified facts about Qloo (use them, do not guess around them):
 - filter_tags is a HARD filter: only entities carrying that tag come back. interest_tags is a soft taste signal and does NOT restrict category.
 - interest_entities alone returns taste neighbours from many categories, not competitors. filter_tags + interest_entities returns category brands ranked by similarity to your anchor: the best way to find peers.
@@ -158,7 +160,7 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
             continue
         notebook = str(turn.get("notebook") or notebook)[:900]
         if isinstance(turn.get("finish"), dict):
-            good = sum(1 for e in toolbox.ledger.entries if e["ok"])
+            good = sum(1 for e in toolbox.ledger.entries if e["ok"] and e["tool"] != "qloo_help")  # help is free: not exploration
             if good < MIN_GOOD_CALLS and left > 0:
                 trace.append({"step": step, "goal": turn.get("goal"), "refused_finish": True})
                 last_obs = {"error": f"you cannot finish yet: only {good} successful calls so far (minimum {MIN_GOOD_CALLS}). "
