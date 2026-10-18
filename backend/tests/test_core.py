@@ -1,14 +1,14 @@
 import asyncio, json
 from pathlib import Path
 import httpx
-from discover.qloo import calls, normalize as nz
-from discover.qloo.client import QlooClient
-from discover.qloo.demographics import age_range_to_buckets
-from discover.qloo.geo import decode, encode
-from discover.qloo.mock import make_transport
-from discover.recorder import RunRecorder
-from discover.runner import RunOptions, execute
-from discover.modes.business.brief import heuristic_brief, apply_overrides
+from discover.engine.qloo import calls, normalize as nz
+from discover.engine.qloo.client import QlooClient
+from discover.engine.qloo.demographics import age_range_to_buckets
+from discover.engine.qloo.geo import decode, encode
+from discover.engine.qloo.mock import make_transport
+from discover.engine.recorder import RunRecorder
+from discover.engine.runner import RunOptions, execute
+from discover.engine.modes.business.brief import heuristic_brief, apply_overrides
 
 
 def test_age_buckets():
@@ -113,7 +113,7 @@ def test_no_key_exit3(settings, tmp_path):
 
 
 def test_pick_tag_rejects_junk():
-    from discover.modes.business.pipeline import pick_tag
+    from discover.engine.modes.business.pipeline import pick_tag
     cands = [
         {"id": "urn:tag:specialty_dish:place:35_25", "name": "35 25"},
         {"id": "urn:tag:specialty_dish:place:sneakers", "name": "Sneakers"},
@@ -124,7 +124,7 @@ def test_pick_tag_rejects_junk():
 
 
 def test_keywords_drop_demographics():
-    from discover.modes.business.brief import Brief, clean_keywords
+    from discover.engine.modes.business.brief import Brief, clean_keywords
     b = Brief(question="q", locations=["Lagos"], keywords=["women", "25-35", "Lagos", "streetwear", "Streetwear"])
     assert clean_keywords(b).keywords == ["streetwear"]
 
@@ -139,7 +139,7 @@ def test_compare_and_heatmap_real_shapes():
 
 
 def test_evidence_fits_budget():
-    from discover.modes.business.synthesis import fit_evidence
+    from discover.engine.modes.business.synthesis import fit_evidence
     ents = [{"name": f"E{i}", "affinity": 0.9, "tags": [{"name": f"t{j}"} for j in range(8)], "disambiguation": "x" * 100} for i in range(10)]
     items = [{"id": f"E{i}", "step": "affinity", "label": "l", "ok": True, "data": {"kind": "movie", "entities": ents}} for i in range(12)]
     _, text = fit_evidence(items, 3000)
@@ -147,7 +147,7 @@ def test_evidence_fits_budget():
 
 
 def test_heatmap_named_by_nearest_place():
-    from discover.modes.business.pipeline import Evidence, _annotate_heatmaps
+    from discover.engine.modes.business.pipeline import Evidence, _annotate_heatmaps
     ev = Evidence()
     ev.items = [
         {"id": "E001", "step": "affinity", "ok": True, "segment": "S", "data": {"kind": "place", "entities": [
@@ -161,7 +161,7 @@ def test_heatmap_named_by_nearest_place():
 
 
 def test_confidence_capped_and_basis_set():
-    from discover.modes.business.synthesis import validate_report
+    from discover.engine.modes.business.synthesis import validate_report
     items = [{"id": "E001"}]
     r = validate_report({"findings": [{"claim": "c", "evidence_ids": ["E001"], "confidence": "high"}],
                          "media_recommendations": [{"channel_or_title": "Instagram", "evidence_ids": []}]}, items)
@@ -171,7 +171,7 @@ def test_confidence_capped_and_basis_set():
 def test_llm_truncation_retries(settings, tmp_path):
     import json as _j
     from dataclasses import replace
-    from discover.llm.client import LLMClient
+    from discover.engine.llm.client import LLMClient
     calls = []
     def h(req):
         body = _j.loads(req.content); calls.append(body["max_tokens"])
@@ -195,7 +195,7 @@ def test_multi_location_pipeline_and_coverage(settings, tmp_path):
 
 
 def test_coverage_probe_mock(settings, tmp_path):
-    from discover.runner import execute_coverage
+    from discover.engine.runner import execute_coverage
     code, run_dir, s = _run(execute_coverage(["Lagos", "New York"], "women", "25-35", ["movie", "artist", "place"], 5,
                                              tmp_path, settings, mock=True, zip_=False))
     res = json.loads((run_dir / "coverage.json").read_text())
@@ -208,7 +208,7 @@ def test_goal_content_heuristic():
 
 
 def test_infer_country_and_local_share():
-    from discover.modes.business.coverage import infer_country, local_share
+    from discover.engine.modes.business.coverage import infer_country, local_share
     jp = [{"properties": {"address": "1-1 Maihama, Urayasu, Chiba 279-0031 Japan"}}, {"properties": {"address": "Minato City, Tokyo 106-6150 Japan"}}]
     us = [{"properties": {"address": "20 W 34th St. New York, NY 10001"}}]
     uk = [{"properties": {"address": "Bankside London SE1 9TG United Kingdom"}}]
@@ -218,8 +218,8 @@ def test_infer_country_and_local_share():
 
 
 def test_entity_pick_requires_name_match_and_interests_dedupe():
-    from discover.modes.business.pipeline import _pick
-    from discover.modes.business.brief import Brief, clean_keywords
+    from discover.engine.modes.business.pipeline import _pick
+    from discover.engine.modes.business.brief import Brief, clean_keywords
     cands = [{"entity_id": "1", "name": "Rin: Daughters of Mnemosyne"}, {"entity_id": "2", "name": "Attack on Titan"}]
     assert _pick(cands, "Anime") is None
     assert _pick([{"entity_id": "9", "name": "King of Boys"}], "king of boys")["entity_id"] == "9"

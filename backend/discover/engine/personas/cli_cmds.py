@@ -177,7 +177,7 @@ def run_refdata(a: argparse.Namespace) -> int:
 
 def run_personas(a: argparse.Namespace) -> int:
     import asyncio
-    from ..config import Settings
+    from ...config import Settings
     from .runner import PersonaOptions, execute_personas
     try:
         intake = _intake_from_args(a)

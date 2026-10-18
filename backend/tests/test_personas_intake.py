@@ -1,6 +1,6 @@
 import pytest
-from discover.personas.geography import resolve_market
-from discover.personas.intake import CATEGORIES, ProductIntake
+from discover.engine.personas.geography import resolve_market
+from discover.engine.personas.intake import CATEGORIES, ProductIntake
 
 
 def test_valid_intake_has_no_errors(make_intake):
@@ -60,7 +60,7 @@ def test_resolve_market_never_guesses():
 
 
 def test_every_category_maps_to_a_known_profile():
-    from discover.personas.affordability import PROFILES
+    from discover.engine.personas.affordability import PROFILES
     assert set(CATEGORIES.values()) <= set(PROFILES)
 
 

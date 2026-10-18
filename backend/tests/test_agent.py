@@ -5,9 +5,9 @@ import json
 
 import httpx
 
-from discover.agent import tools as T
-from discover.agent.loop import run_agent, validate_finish
-from discover.personas.intake import ProductIntake
+from discover.engine.agent import tools as T
+from discover.engine.agent.loop import run_agent, validate_finish
+from discover.engine.personas.intake import ProductIntake
 from tests.test_personas_categories import CASES, _client
 from tests.test_personas_step2 import run_async
 
@@ -60,7 +60,7 @@ def intake():
 
 
 def run(tmp_path, turns, steps=10, min_calls=0, min_comps=0, **hk):
-    from discover.agent import loop as L
+    from discover.engine.agent import loop as L
     L.MIN_GOOD_CALLS = min_calls
     L.MIN_COMPETITORS = min_comps
     log = []
@@ -159,8 +159,8 @@ def test_clip_shortens_big_observations():
 
 def test_runner_with_agent_uses_checked_competitors_and_writes_trace(make_intake, store, tmp_path):
     from tests.test_personas_step2 import LLM_SETTINGS, fake_llm_transport, opts
-    from discover.personas.runner import execute_personas
-    from discover.agent import loop as L
+    from discover.engine.personas.runner import execute_personas
+    from discover.engine.agent import loop as L
     L.MIN_GOOD_CALLS = 0
     L.MIN_COMPETITORS = 0
     inner, seen = fake_llm_transport()
@@ -193,7 +193,7 @@ def test_runner_with_agent_uses_checked_competitors_and_writes_trace(make_intake
 
 
 def test_finishing_before_exploring_is_refused(tmp_path):
-    from discover.agent import loop as L
+    from discover.engine.agent import loop as L
     out, tb, _, llm = run(tmp_path, [{"finish": {"gaps": ["GlowSkin not found"]}}, act("find_tags", query="skin cream"),
                                      act("search_entity", query="Nivea"), act("entity_record", entity_id="id-Nivea"),
                                      act("find_tags", query="cream"), {"finish": {"gaps": []}}], min_calls=4)
@@ -217,7 +217,7 @@ def test_repeating_the_same_failing_call_is_called_out(tmp_path):
 
 
 def test_rate_limit_is_waited_out_not_fatal(tmp_path):
-    from discover.agent import loop as L
+    from discover.engine.agent import loop as L
     waits = []
 
     class Flaky(ScriptedLLM):
@@ -269,7 +269,7 @@ def test_noise_tag_namespaces_are_dropped_from_observations():
 
 
 def test_vet_anchors_drops_wrong_businesses(tmp_path):
-    from discover.personas import competitors as C
+    from discover.engine.personas import competitors as C
     from tests.test_personas_categories import _broad_handler
 
     def handler(req):
@@ -297,13 +297,13 @@ def test_help_tool_serves_reference_without_a_qloo_call(tmp_path):
 def test_help_is_not_counted_as_exploration(tmp_path):
     out, tb, _, llm = run(tmp_path, [act("qloo_help"), {"finish": {"gaps": ["x"]}}, act("find_tags", query="a"), act("find_tags", query="b"),
                                      act("find_tags", query="c"), act("find_tags", query="d"), {"finish": {}}], min_calls=4)
-    from discover.agent import loop as L
+    from discover.engine.agent import loop as L
     L.MIN_GOOD_CALLS = 0
     assert out["trace"][1].get("refused_finish")
 
 
 def test_reference_names_every_parameter_the_insights_tool_accepts():
-    from discover.agent.reference import SECTIONS
+    from discover.engine.agent.reference import SECTIONS
     text = " ".join(SECTIONS.values())
     for name in ("filter_tags", "filter_operator", "interest_entities", "interest_tags", "weights", "exclude_tags", "audiences", "use_location"):
         assert name in text, name
@@ -322,8 +322,8 @@ def _daily_429():
 
 
 def test_daily_token_limit_fails_fast_without_retries_and_sticks():
-    from discover.llm.client import LLMClient, LLMError
-    from discover.recorder import RunRecorder
+    from discover.engine.llm.client import LLMClient, LLMError
+    from discover.engine.recorder import RunRecorder
     from tests.test_personas_step2 import LLM_SETTINGS
     import tempfile, pathlib
     n = {"c": 0}
@@ -342,7 +342,7 @@ def test_daily_token_limit_fails_fast_without_retries_and_sticks():
 
 
 def test_agent_stops_immediately_on_daily_limit(tmp_path):
-    from discover.llm.client import LLMError
+    from discover.engine.llm.client import LLMError
 
     class Dead(ScriptedLLM):
         async def chat_json(self, *a, **k):
@@ -371,7 +371,7 @@ def test_use_location_on_search_is_absorbed(tmp_path):
 
 
 def test_finishing_without_verified_competitors_is_refused_with_a_concrete_next_step(tmp_path):
-    from discover.agent import loop as L
+    from discover.engine.agent import loop as L
     out, tb, _, llm = run(tmp_path, [act("find_tags", query="toothpaste"), act("search_entity", query="Pepsodent"),
                                      {"finish": {"gaps": ["lazy"]}},
                                      act("entity_record", entity_id="id-Pepsodent"),
@@ -382,13 +382,13 @@ def test_finishing_without_verified_competitors_is_refused_with_a_concrete_next_
 
 
 def test_refusals_are_capped_so_the_agent_cannot_loop_forever(tmp_path):
-    from discover.agent import loop as L
+    from discover.engine.agent import loop as L
     out, tb, _, _ = run(tmp_path, [act("find_tags", query="a")] + [{"finish": {"gaps": ["x"]}}] * 6, min_comps=2, steps=10)
     L.MIN_COMPETITORS = 0
     assert sum(1 for t in out["trace"] if t.get("refused_finish")) == 3 and out["trace"][-1].get("finish")
 
 
 def test_next_step_hint_walks_the_recipe(tmp_path):
-    from discover.agent.loop import next_step_hint
+    from discover.engine.agent.loop import next_step_hint
     out, tb, _, _ = run(tmp_path, [{"finish": {}}])
     assert "find_tags" in next_step_hint(tb, intake())

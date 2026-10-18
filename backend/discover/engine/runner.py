@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from .config import Settings
+from ..config import Settings
 from .llm.client import LLMClient, LLMError
 from .modes.business import brief as B, prompts
 from .modes.business.pipeline import ALL_STEPS, run_pipeline

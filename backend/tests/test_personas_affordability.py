@@ -1,7 +1,7 @@
 import pytest
-from discover.personas.affordability import (PROFILES, ReferenceDataMissing, assess, market_position, reach_for, tier_for)
-from discover.personas.refdata.records import FX_PER_USD, RefRecord
-from discover.personas.refdata.store import ReferenceStore
+from discover.engine.personas.affordability import (PROFILES, ReferenceDataMissing, assess, market_position, reach_for, tier_for)
+from discover.engine.personas.refdata.records import FX_PER_USD, RefRecord
+from discover.engine.personas.refdata.store import ReferenceStore
 
 
 @pytest.mark.parametrize("ratio,tier", [(0.0, "budget"), (0.0299, "budget"), (0.03, "mass"), (0.1499, "mass"),
@@ -55,7 +55,7 @@ def test_price_in_other_currency_is_converted_and_labelled(make_intake, store):
 
 def test_local_price_needs_no_fx_even_if_rates_missing(make_intake):
     s = ReferenceStore(cache_path=None, snapshot_path=None)
-    from discover.personas.refdata.records import GNI_PC_LCU
+    from discover.engine.personas.refdata.records import GNI_PC_LCU
     s.put_many([RefRecord("NGA", GNI_PC_LCU, 2024, 1_800_000.0, "t", "2026-01-01T00:00:00+00:00")])
     a = assess(make_intake(price=40_000), s)
     assert a.conversion is None and a.quintile_data == "none"
@@ -128,7 +128,7 @@ def test_caveats_always_state_national_average_limit(make_intake, store):
 
 
 def test_odd_share_sum_is_flagged(make_intake, store):
-    from discover.personas.refdata.records import QUINTILE_SHARES
+    from discover.engine.personas.refdata.records import QUINTILE_SHARES
     store.put_many([RefRecord("NGA", QUINTILE_SHARES[5], 2021, 10.0, "t", "2026-01-01T00:00:00+00:00")])
     a = assess(make_intake(), store)
     assert any("sum to" in c for c in a.caveats)

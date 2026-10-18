@@ -1,8 +1,8 @@
 import json
 import zipfile
 import pytest
-from discover.cli import main
-from discover.personas.engine import IntakeError, analyse
+from discover.engine.cli import main
+from discover.engine.personas.engine import IntakeError, analyse
 
 PHONE = ["segments", "--name", "Budget phone", "--description", "Affordable phone with long battery life for students",
          "--category", "smartphone", "--price", "40000", "--currency", "NGN", "--location", "Lagos", "--feature", "dual sim"]

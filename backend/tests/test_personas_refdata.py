@@ -1,11 +1,11 @@
 import json
 import httpx
 import pytest
-from discover.personas.refdata import fx as fxmod
-from discover.personas.refdata.fx import FxClient, FxError, convert, parse_rates
-from discover.personas.refdata.records import FX_PER_USD, GNI_PC_LCU, RefRecord
-from discover.personas.refdata.store import SNAPSHOT_PATH, ReferenceStore, age_days
-from discover.personas.refdata.worldbank import WorldBankClient, WorldBankError, parse_records
+from discover.engine.personas.refdata import fx as fxmod
+from discover.engine.personas.refdata.fx import FxClient, FxError, convert, parse_rates
+from discover.engine.personas.refdata.records import FX_PER_USD, GNI_PC_LCU, RefRecord
+from discover.engine.personas.refdata.store import SNAPSHOT_PATH, ReferenceStore, age_days
+from discover.engine.personas.refdata.worldbank import WorldBankClient, WorldBankError, parse_records
 
 WB_BODY = [{"page": 1, "pages": 1, "per_page": 1000, "total": 3}, [
     {"indicator": {"id": "X", "value": "x"}, "country": {"id": "NG", "value": "Nigeria"}, "countryiso3code": "NGA", "date": "2025", "value": 10.5},

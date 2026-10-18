@@ -6,17 +6,17 @@ from pathlib import Path
 import httpx
 import pytest
 
-from discover.cli import main
+from discover.engine.cli import main
 from discover.config import Settings
-from discover.llm.client import LLMClient
-from discover.personas import evidence as E
-from discover.personas import writer as W
-from discover.personas.affordability import assess
-from discover.personas.runner import PersonaOptions, execute_personas
-from discover.personas.scoring import score_segments
-from discover.qloo.client import QlooClient
-from discover.qloo.mock import make_transport
-from discover.recorder import RunRecorder
+from discover.engine.llm.client import LLMClient
+from discover.engine.personas import evidence as E
+from discover.engine.personas import writer as W
+from discover.engine.personas.affordability import assess
+from discover.engine.personas.runner import PersonaOptions, execute_personas
+from discover.engine.personas.scoring import score_segments
+from discover.engine.qloo.client import QlooClient
+from discover.engine.qloo.mock import make_transport
+from discover.engine.recorder import RunRecorder
 
 LLM_SETTINGS = Settings(qloo_api_key="qloo-secret-xyz", qloo_base_url="https://mock.invalid", qloo_timeout=5, qloo_retries=1,
                         llm_api_key="llm-secret", llm_base_url="https://llm.invalid", llm_model="m", llm_timeout=5)
@@ -103,7 +103,7 @@ def test_gather_segments_builds_per_segment_evidence(make_intake, store, tmp_pat
 
 def test_segment_view_reports_failures(make_intake, store):
     items = [{"id": "E001", "step": "affinity", "label": "x", "segment": "S", "ok": False, "error": "HTTP 400", "data": None}]
-    from discover.personas.scoring import SegmentScore
+    from discover.engine.personas.scoring import SegmentScore
     seg = SegmentScore("a", "S", "d", ("25_to_29",), None, 0.5, "low", {}, {}, [], [])
     assert E.segment_view(items, seg)["missing"][0]["error"] == "HTTP 400"
 
@@ -315,7 +315,7 @@ def test_runner_rejects_invalid_intake(make_intake, store, tmp_path):
 
 
 def test_runner_reports_missing_reference_data(make_intake, tmp_path):
-    from discover.personas.refdata.store import ReferenceStore
+    from discover.engine.personas.refdata.store import ReferenceStore
     empty = ReferenceStore(cache_path=None, snapshot_path=None)
     code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path), QLOO_SETTINGS, empty))
     assert code == 3 and summary["status"] == "missing_reference_data"
@@ -385,7 +385,7 @@ def _ev(segment, kind, names, eid, aff=0.7):
 
 
 def test_shared_evidence_notes_flag_identical_ages_and_overlapping_places():
-    from discover.personas.scoring import SegmentScore
+    from discover.engine.personas.scoring import SegmentScore
     a = SegmentScore("a", "Students", "d", ("24_and_younger",), None, 0.5, "low", {}, {}, [], [])
     b = SegmentScore("b", "First timers", "d", ("24_and_younger",), None, 0.5, "low", {}, {}, [], [])
     c = SegmentScore("c", "Households", "d", ("35_to_44",), None, 0.5, "low", {}, {}, [], [])
@@ -397,7 +397,7 @@ def test_shared_evidence_notes_flag_identical_ages_and_overlapping_places():
 
 
 def test_shared_evidence_notes_quiet_when_lists_differ():
-    from discover.personas.scoring import SegmentScore
+    from discover.engine.personas.scoring import SegmentScore
     a = SegmentScore("a", "A", "d", ("24_and_younger",), None, 0.5, "low", {}, {}, [], [])
     b = SegmentScore("b", "B", "d", ("35_to_44",), None, 0.5, "low", {}, {}, [], [])
     items = [_ev("A", "place", ["P1", "P2"], "E1"), _ev("B", "place", ["P3", "P4"], "E2")]

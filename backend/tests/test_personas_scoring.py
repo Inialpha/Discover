@@ -1,9 +1,9 @@
 import pytest
-from discover.personas.affordability import assess
-from discover.personas.refdata.records import GNI_PC_LCU, RefRecord
-from discover.personas.refdata.store import ReferenceStore
-from discover.personas.scoring import (WEIGHTS, keyword_hits, score_segments, qloo_scores_from_values)
-from discover.personas.segments import ALL_CATEGORIES, ALL_TIERS, SEGMENTS, by_id, candidates
+from discover.engine.personas.affordability import assess
+from discover.engine.personas.refdata.records import GNI_PC_LCU, RefRecord
+from discover.engine.personas.refdata.store import ReferenceStore
+from discover.engine.personas.scoring import (WEIGHTS, keyword_hits, score_segments, qloo_scores_from_values)
+from discover.engine.personas.segments import ALL_CATEGORIES, ALL_TIERS, SEGMENTS, by_id, candidates
 
 
 def run(make_intake, store, qloo=None, **kw):
@@ -24,7 +24,7 @@ def test_every_category_has_segments_at_every_tier(category, tier):
 
 
 def test_segment_ids_unique_and_fields_valid():
-    from discover.personas.segments import AGES
+    from discover.engine.personas.segments import AGES
     assert len({s.id for s in SEGMENTS}) == len(SEGMENTS)
     for s in SEGMENTS:
         assert set(s.ages) <= set(AGES) and set(s.quintiles) <= {1, 2, 3, 4, 5}
@@ -199,7 +199,7 @@ def test_without_income_bands_all_segments_use_the_same_components(make_intake):
 
 def test_partial_income_bands_do_not_skew_the_ranking(make_intake):
     s = ReferenceStore(cache_path=None, snapshot_path=None)
-    from discover.personas.refdata.records import QUINTILE_SHARES
+    from discover.engine.personas.refdata.records import QUINTILE_SHARES
     s.put_many([RefRecord("NGA", GNI_PC_LCU, 2024, 1_800_000.0, "t", "2026-01-01T00:00:00+00:00"),
                 RefRecord("NGA", QUINTILE_SHARES[1], 2022, 7.5, "t", "2026-01-01T00:00:00+00:00")])
     _, a, res = run(make_intake, s, price=40_000, max_personas=10)

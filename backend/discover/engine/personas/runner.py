@@ -15,7 +15,7 @@ from typing import Any
 
 import httpx
 
-from ..config import Settings
+from ...config import Settings
 from ..llm.client import LLMClient
 from ..qloo.client import QlooClient
 from ..qloo.mock import make_transport

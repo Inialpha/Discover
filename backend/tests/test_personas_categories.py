@@ -7,16 +7,16 @@ import json
 import httpx
 import pytest
 
-from discover.personas import competitors as C
-from discover.qloo import calls
-from discover.personas import evidence as E
-from discover.personas.affordability import assess
-from discover.personas.intake import ProductIntake
-from discover.personas.runner import PersonaOptions, execute_personas
-from discover.personas.scoring import score_segments
-from discover.qloo.client import QlooClient
-from discover.qloo.mock import make_transport
-from discover.recorder import RunRecorder
+from discover.engine.personas import competitors as C
+from discover.engine.qloo import calls
+from discover.engine.personas import evidence as E
+from discover.engine.personas.affordability import assess
+from discover.engine.personas.intake import ProductIntake
+from discover.engine.personas.runner import PersonaOptions, execute_personas
+from discover.engine.personas.scoring import score_segments
+from discover.engine.qloo.client import QlooClient
+from discover.engine.qloo.mock import make_transport
+from discover.engine.recorder import RunRecorder
 from tests.test_personas_step2 import LLM_SETTINGS, QLOO_SETTINGS, run_async
 
 CASES = {
@@ -159,7 +159,7 @@ def test_runner_end_to_end_per_category(key, store, tmp_path):
 
 
 def test_feature_words_flag_category_claims(store):
-    from discover.personas.writer import screen_claim
+    from discover.engine.personas.writer import screen_claim
     i = ProductIntake(**CASES["toothpaste"])
     assert screen_claim("Fluoride protection for daily use", i)[1] == []  # stated in the product text
     assert "whitening" in screen_claim("Whitening that lasts", i)[1]
@@ -341,7 +341,7 @@ def test_competitor_tags_on_brand_records_are_confirmed_before_use(tmp_path):
 
 
 def test_profile_from_extras_reads_competitor_and_segment_tags():
-    from discover.personas import competitors as C
+    from discover.engine.personas import competitors as C
     pr = C.profile_from_extras({"tags": [
         {"id": "urn:tag:competitor_brand:qloo:infinix", "name": None},
         {"id": "urn:tag:customer_segment:qloo:budget_conscious", "name": "Budget conscious"},
@@ -350,7 +350,7 @@ def test_profile_from_extras_reads_competitor_and_segment_tags():
 
 
 def test_entity_extras_finds_competitive_set_wherever_it_sits():
-    from discover.qloo import normalize as nz
+    from discover.engine.qloo import normalize as nz
     body = {"results": {"entities": [{"properties": {"competitive_set": ["A", "B"], "complementary_brands": ["C"]},
                                       "tags": [{"id": "urn:tag:genre:brand:x", "name": "X", "type": "urn:tag:genre:brand"}]}]}}
     e = nz.entity_extras(body)

@@ -13,7 +13,7 @@ import json
 import sys
 from pathlib import Path
 
-from .config import Settings, load_dotenv
+from ..config import Settings, load_dotenv
 from .runner import RunOptions, execute
 
 

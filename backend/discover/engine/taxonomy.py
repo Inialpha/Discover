@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from .config import Settings
+from ..config import Settings
 from .personas.competitors import genre_paths
 from .qloo import calls, normalize as nz
 from .qloo.client import QlooClient

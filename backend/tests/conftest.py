@@ -15,15 +15,15 @@ def examples():
 
 
 # ---- persona-discovery fixtures --------------------------------------------------------------------------
-from discover.personas.intake import ProductIntake
-from discover.personas.refdata.records import (FX_PER_USD, GNI_PC_LCU, OFFICIAL_FX, QUINTILE_SHARES, RefRecord)
-from discover.personas.refdata.store import ReferenceStore
+from discover.engine.personas.intake import ProductIntake
+from discover.engine.personas.refdata.records import (FX_PER_USD, GNI_PC_LCU, OFFICIAL_FX, QUINTILE_SHARES, RefRecord)
+from discover.engine.personas.refdata.store import ReferenceStore
 
 NOW = "2099-01-01T00:00:00+00:00"  # far future => never "stale" relative to snapshots in tests that care
 
 
 def rec(country, indicator, value, year=2024, source="test", fetched_at=None, as_of=None):
-    from discover.personas.refdata.records import now_iso
+    from discover.engine.personas.refdata.records import now_iso
     return RefRecord(country, indicator, year, value, source, fetched_at or now_iso(), as_of)
 
 
@@ -40,7 +40,7 @@ def store():
         for q, v in zip(range(1, 6), vals):
             recs.append(rec(c, QUINTILE_SHARES[q], v, year=2021))
     for c, v in {"USD": 1.0, "NGN": 1500.0, "JPY": 150.0, "EUR": 0.9, "KES": 130.0}.items():
-        recs.append(RefRecord(c, FX_PER_USD, None, v, "test", __import__("discover.personas.refdata.records", fromlist=["now_iso"]).now_iso(), "as-of"))
+        recs.append(RefRecord(c, FX_PER_USD, None, v, "test", __import__("discover.engine.personas.refdata.records", fromlist=["now_iso"]).now_iso(), "as-of"))
     s.put_many(recs)
     return s
 

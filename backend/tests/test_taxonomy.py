@@ -4,12 +4,12 @@ from pathlib import Path
 import httpx
 import pytest
 
-from discover import taxonomy as T
-from discover.cli import main
-from discover.qloo import calls, normalize as nz
-from discover.qloo.client import QlooClient
-from discover.qloo.mock import make_transport
-from discover.recorder import RunRecorder
+from discover.engine import taxonomy as T
+from discover.engine.cli import main
+from discover.engine.qloo import calls, normalize as nz
+from discover.engine.qloo.client import QlooClient
+from discover.engine.qloo.mock import make_transport
+from discover.engine.recorder import RunRecorder
 from tests.test_personas_step2 import QLOO_SETTINGS, run_async
 
 

@@ -20,7 +20,7 @@ from typing import Any
 
 import httpx
 
-from ..config import Settings
+from ...config import Settings
 from ..recorder import RunRecorder, slugify
 
 _KEEP_HEADERS = ("content-type", "retry-after")

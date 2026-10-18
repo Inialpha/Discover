@@ -9,7 +9,7 @@ from typing import Any
 
 import httpx
 
-from ..config import Settings
+from ...config import Settings
 from ..recorder import RunRecorder
 
 
