@@ -119,12 +119,12 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
                                            "Use AGENT_LLM_MODEL for another model, upgrade the plan, or wait for the quota to reset.")
             rec.write_json("agent/trace.json", {"trace": agent_out["trace"], "notebook": agent_out["notebook"]})
             rec.write_json("agent/ledger.json", agent_out["ledger"])
-            rec.write_json("agent/result.json", agent_out["result"])
             cands = _agent_competitors(agent_out["result"]["competitors"], intake, tb)
             from .competitors import vet_anchors
             kept, vet_notes, vet_profiles = await vet_anchors(client, intake, cands, llm)
             agent_out["result"]["competitors"] = [{k: c[k] for k in ("name", "entity_id", "why", "cites")} for c in kept]
             agent_out["result"]["rejected"] += vet_notes
+            rec.write_json("agent/result.json", agent_out["result"])  # written after the identity check so the file matches the report
             if len(kept) >= 2:
                 preset = {"anchors": kept, "unresolved": [c for c in intake.competitors if c.lower() not in {a["name"].lower() for a in kept}],
                           "notes": vet_notes, "category": None, "profiles": vet_profiles}
