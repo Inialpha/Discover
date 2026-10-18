@@ -59,9 +59,10 @@ def intake():
     return ProductIntake(**CASES["toothpaste"])
 
 
-def run(tmp_path, turns, steps=10, min_calls=0, **hk):
+def run(tmp_path, turns, steps=10, min_calls=0, min_comps=0, **hk):
     from discover.agent import loop as L
     L.MIN_GOOD_CALLS = min_calls
+    L.MIN_COMPETITORS = min_comps
     log = []
     llm = ScriptedLLM(turns)
 
@@ -161,6 +162,7 @@ def test_runner_with_agent_uses_checked_competitors_and_writes_trace(make_intake
     from discover.personas.runner import execute_personas
     from discover.agent import loop as L
     L.MIN_GOOD_CALLS = 0
+    L.MIN_COMPETITORS = 0
     inner, seen = fake_llm_transport()
     agent_turns = [act("search_entity", query="Crest"),
                    {"finish": {"competitors": [{"name": "Crest", "entity_id": "x", "why": "w", "cites": ["Q01"]}],
@@ -234,6 +236,7 @@ def test_rate_limit_is_waited_out_not_fatal(tmp_path):
         async with _client(tmp_path, httpx.MockTransport(handler_factory([]))) as c:
             return await run_agent(Flaky([{"finish": {"gaps": ["x"]}}]), T.Toolbox(c, "Lagos"), intake(), None, max_steps=3, sleep=fake_sleep)
     L.MIN_GOOD_CALLS = 0
+    L.MIN_COMPETITORS = 0
     out = run_async(go())
     assert waits == [L.RATE_LIMIT_WAIT] and out["result"]["gaps"] == ["x"]
 
@@ -365,3 +368,27 @@ def test_agent_llm_settings_override():
 def test_use_location_on_search_is_absorbed(tmp_path):
     out, tb, _, _ = run(tmp_path, [act("search_entity", query="Crest", use_location=False), {"finish": {}}])
     assert out["ledger"][0]["ok"] is True
+
+
+def test_finishing_without_verified_competitors_is_refused_with_a_concrete_next_step(tmp_path):
+    from discover.agent import loop as L
+    out, tb, _, llm = run(tmp_path, [act("find_tags", query="toothpaste"), act("search_entity", query="Pepsodent"),
+                                     {"finish": {"gaps": ["lazy"]}},
+                                     act("entity_record", entity_id="id-Pepsodent"),
+                                     {"finish": {"competitors": [{"name": "Pepsodent", "entity_id": "id-Pepsodent"}, {"name": "Colgate", "entity_id": "id-Pepsodent"}]}},
+                                     {"finish": {"gaps": ["still lazy"]}}], min_comps=2, steps=8)
+    L.MIN_COMPETITORS = 0
+    assert out["trace"][2].get("refused_finish") and "entity_record" in llm.prompts[3] and "Pepsodent" in llm.prompts[3]
+
+
+def test_refusals_are_capped_so_the_agent_cannot_loop_forever(tmp_path):
+    from discover.agent import loop as L
+    out, tb, _, _ = run(tmp_path, [act("find_tags", query="a")] + [{"finish": {"gaps": ["x"]}}] * 6, min_comps=2, steps=10)
+    L.MIN_COMPETITORS = 0
+    assert sum(1 for t in out["trace"] if t.get("refused_finish")) == 3 and out["trace"][-1].get("finish")
+
+
+def test_next_step_hint_walks_the_recipe(tmp_path):
+    from discover.agent.loop import next_step_hint
+    out, tb, _, _ = run(tmp_path, [{"finish": {}}])
+    assert "find_tags" in next_step_hint(tb, intake())

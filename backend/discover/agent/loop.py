@@ -12,6 +12,8 @@ from .tools import Toolbox, clip
 
 AGE_BANDS = {"24_and_younger", "25_to_29", "30_to_34", "35_to_44", "45_to_54", "55_and_older"}
 MIN_GOOD_CALLS = 4
+MIN_COMPETITORS = 2
+MAX_REFUSALS = 3
 RATE_LIMIT_WAIT = 30.0
 
 FIELD_GUIDE = """You are a market-research agent. You explore the Qloo taste/culture API with tools to learn who buys a product and which brands compete with it. You decide your own goals and next step.
@@ -58,6 +60,34 @@ def _known(toolbox: Toolbox, n_ent: int = 14, n_tags: int = 10) -> dict[str, Any
     ents = list(toolbox.ledger.seen_entities.items())[-n_ent:]
     return {"entities_seen": [{"id": eid, "name": v["name"], "from": v["call"]} for eid, v in ents],
             "tag_ids_seen": [t[len("urn:tag:"):] for t in list(toolbox.ledger.seen_tags)[-n_tags:]]}
+
+
+def next_step_hint(toolbox: Toolbox, intake: ProductIntake) -> str:
+    """A concrete suggestion computed from what the agent has (not) done, used when it tries to finish too early.
+    The agent still chooses; this only stops a small model from quitting before the useful calls."""
+    led = toolbox.ledger
+    done = {(e["tool"], json.dumps(e["args"], sort_keys=True, default=str)) for e in led.entries}
+    used = [e for e in led.entries if e["ok"]]
+    recorded = {str(e["args"].get("entity_id")) for e in used if e["tool"] == "entity_record"}
+    has_cat = any(e["tool"] == "find_tags" and (e["observation"] or {}).get("tags") for e in used)
+    if not has_cat:
+        return f"Call find_tags with query='{intake.product_type or intake.category}' and namespace='genre:brand' to get the category tag."
+    todo = [(eid, v["name"]) for eid, v in led.seen_entities.items() if eid not in recorded]
+    if not recorded and todo:
+        eid, nm = todo[-1]
+        return f"Call entity_record on a competitor you found (e.g. {nm}, entity_id {eid}) and read its competitor_brand / similar_brand tags."
+    names: list[str] = []
+    searched = {str(e["args"].get("query", "")).lower() for e in used if e["tool"] == "search_entity"}
+    for e in used:
+        if e["tool"] == "entity_record":
+            for k in ("competitor_brand", "similar_brand"):
+                names += [n for n in ((e["observation"] or {}).get("tags") or {}).get(k, []) if n.lower() not in searched]
+    if names:
+        return f"Call search_entity for each competitor name Qloo listed on the record: {names[:4]}. Then check their tags."
+    anchors = [eid for eid in recorded]
+    if anchors and not any(e["tool"] == "insights" for e in used):
+        return f"Call insights(kind='brand', filter_tags=[the category tag from find_tags], interest_entities=['{anchors[0]}']) to get category peers ranked by similarity."
+    return "Call audience_demographics(entity_ids=[ids of the verified competitors]) so the audience can be described, then finish."
 
 
 def _short_args(a: Any) -> Any:
@@ -121,6 +151,7 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
     catalogue = toolbox.catalogue()
     notebook, last_obs, trace, final = "", None, [], None
     repeats: dict[str, int] = {}
+    refusals = 0
     for step in range(1, max_steps + 1):
         left = max_steps - step
         user = json.dumps({"task": "Find the real competitors of this kind of product in Qloo and who buys this kind of product in this location. The product itself is not in Qloo.",
@@ -155,10 +186,13 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
         notebook = str(turn.get("notebook") or notebook)[:900]
         if isinstance(turn.get("finish"), dict):
             good = sum(1 for e in toolbox.ledger.entries if e["ok"] and e["tool"] != "qloo_help")  # help is free: not exploration
-            if good < MIN_GOOD_CALLS and left > 0:
+            verified = len(validate_finish(turn["finish"], toolbox)["competitors"])
+            too_few = good < MIN_GOOD_CALLS or (verified < MIN_COMPETITORS and refusals < MAX_REFUSALS)
+            if too_few and left > 0:
+                refusals += 1
                 trace.append({"step": step, "goal": turn.get("goal"), "refused_finish": True})
-                last_obs = {"error": f"you cannot finish yet: only {good} successful calls so far (minimum {MIN_GOOD_CALLS}). "
-                                     "Start with find_tags for the category and search_entity for the given competitors."}
+                last_obs = {"error": f"you cannot finish yet: {good} successful Qloo calls and {verified} verified competitors "
+                                     f"(need {MIN_COMPETITORS}). Suggested next step: {next_step_hint(toolbox, intake)}"}
                 continue
             final = turn["finish"]
             trace.append({"step": step, "goal": turn.get("goal"), "finish": True})
