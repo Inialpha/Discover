@@ -19,11 +19,12 @@ from typing import Any
 from ..llm.client import LLMClient, LLMError
 from .affordability import Affordability
 from .evidence import entity_names, place_affinity, place_names, segment_view
+from .identity import enrich
 from .intake import ProductIntake
 from .scoring import SegmentScore
 
 PERSONA_SYSTEM = """You write ONE buyer persona for a business, using ONLY the JSON you are given. Reply with one JSON object:
-{"segment_id": str, "name": str, "headline": str, "who": str,
+{"segment_id": str, "name": str, "first_name": str, "gender": "female"|"male", "headline": str, "who": str,
  "motivations": [{"text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
  "objections": [{"text": str, "basis": "interpretation", "evidence": [ids]}],
  "messages": [{"angle": str, "text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
@@ -35,7 +36,9 @@ PERSONA_SYSTEM = """You write ONE buyer persona for a business, using ONLY the J
 Rules:
 - Evidence ids look like E012 and appear in the input. Cite them in "evidence" for every claim about tastes or places.
   If a claim has no evidence id, its basis must be "interpretation".
-- "name" is a short descriptor of the persona (for example "Budget-minded student"); no first name, no real person.
+- "name" is a short descriptor of the persona (for example "Budget-minded student"); no real person.
+- "first_name" is ONE common first name that fits the market, used only to label an illustration; "gender" (female or male) is
+  only for the illustration. Neither is evidence and neither may appear in any claim.
 - "who" paraphrases the segment's description and age bands only. Do not invent a specific age, gender, job, employer,
   income, family situation or personal story.
 - Never state a number, percentage, population size or market share that is not in the input. Qloo scores and indexes
@@ -272,7 +275,7 @@ def template_persona(seg: SegmentScore, view: dict[str, Any], aff: Affordability
 
 
 async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affordability, ranked: list[SegmentScore],
-                         bundle: dict[str, Any], delay: float = 0.0) -> list[dict[str, Any]]:
+                         bundle: dict[str, Any], delay: float = 0.0, on_persona: Any = None) -> list[dict[str, Any]]:
     items = bundle["evidence"]
     out: list[dict[str, Any]] = []
     for n, seg in enumerate(ranked):
@@ -298,6 +301,7 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
                 persona["caveats"].append(f"LLM failed for this persona ({error}); template used.")
         persona["source"] = source
         persona["rank"] = n + 1
+        enrich(persona, seg.id, getattr(seg, "gender", None) or intake.gender_focus, list(seg.ages), n + 1)
         persona["score"] = seg.score
         persona["confidence"] = seg.confidence
         persona["score_components"] = {k: v["value"] for k, v in seg.components.items()}
@@ -305,6 +309,8 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
         persona["tied"] = seg.tied
         persona["niche"] = seg.niche
         out.append(persona)
+        if on_persona:
+            on_persona(n + 1, len(ranked), persona)
     return out
 
 

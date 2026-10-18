@@ -48,6 +48,17 @@ class PersonaOptions:
     discover: bool = True  # find competitors through Qloo when fewer than 5 are given
     agent: bool = False  # the LLM explores Qloo with tools instead of the fixed competitor steps
     agent_steps: int = 14
+    progress: Any = None  # optional callback(stage: str, message: str, data: dict | None): used by the API for live progress
+
+
+def _agent_line(t: dict[str, Any]) -> str:
+    if t.get("error"):
+        return f"Agent step {t.get('step')}: {t['error']}"
+    if t.get("finish"):
+        return f"Agent step {t.get('step')}: finished with its findings"
+    if t.get("refused_finish"):
+        return f"Agent step {t.get('step')}: needs more evidence before finishing"
+    return f"Agent step {t.get('step')}: {t.get('goal') or t.get('tool')} ({t.get('tool')})"
 
 
 def _agent_competitors(comps: list[dict[str, Any]], intake: ProductIntake, tb: Any) -> list[dict[str, Any]]:
@@ -55,6 +66,14 @@ def _agent_competitors(comps: list[dict[str, Any]], intake: ProductIntake, tb: A
     return [{"query": c["name"], "entity_id": c["entity_id"], "name": c["name"], "matched_by": "agent",
              "source": "agent", "tags": [], "why": c["why"], "cites": c["cites"], "listed_by_you": c["name"].lower() in given}
             for c in comps]
+
+
+def _emit(opts: "PersonaOptions", stage: str, message: str, data: dict[str, Any] | None = None) -> None:
+    if opts.progress:
+        try:
+            opts.progress(stage, message, data or {})
+        except Exception:  # progress reporting must never break a run
+            pass
 
 
 async def execute_personas(opts: PersonaOptions, settings: Settings, store: ReferenceStore,
@@ -98,6 +117,7 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
     elif not (opts.no_llm or opts.mock or opts.dry_run):
         summary["warnings"].append("LLM not configured: template personas (no messages, platforms or motivations).")
 
+    _emit(opts, "affordability", f"Price tier in {aff.country_name}: {aff.tier}", {"tier": aff.tier})
     first = score_segments(intake, aff)  # rules + affordability + features, before any Qloo signal
     rec.write_json("01_segments_before_qloo.json", {"affordability": aff.to_dict(), "segments": first.to_dict()})
 
@@ -113,7 +133,8 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
             if settings.for_agent() != settings:  # AGENT_LLM_* set: the agent runs on its own model/quota
                 agent_llm = LLMClient(settings.for_agent(), rec, transport=llm_transport)
             agent_out = await run_agent(agent_llm, tb, intake, {"tier": aff.tier, "price_vs_income_ratio": round(aff.ratio, 4), "country": aff.country_name, "calculated": True},
-                                        max_steps=opts.agent_steps, delay=opts.llm_delay)
+                                        max_steps=opts.agent_steps, delay=opts.llm_delay,
+                                        on_step=lambda t: _emit(opts, "agent", _agent_line(t), {"step": t.get("step")}))
             if agent_llm.daily_exhausted:
                 summary["warnings"].append(f"LLM daily token limit reached during the agent ({agent_llm.daily_exhausted}). "
                                            "Use AGENT_LLM_MODEL for another model, upgrade the plan, or wait for the quota to reset.")
@@ -132,11 +153,17 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
                 summary["warnings"].append(f"The agent verified only {len(kept)} competitor(s); the fixed competitor steps were used instead.")
         elif opts.agent:
             summary["warnings"].append("--agent needs the LLM (not configured or disabled): fell back to the fixed competitor steps.")
+        _emit(opts, "competitors", "Looking up competitors and their audience in Qloo")
         anchor = await E.resolve_and_skew(client, intake, llm=llm, discover=opts.discover, preset=preset)
+        _emit(opts, "competitors", "Competitors used: " + (", ".join(a["name"] for a in anchor["anchors"]) or "none found"),
+              {"competitors": [a["name"] for a in anchor["anchors"]]})
+        if anchor["age_index"]:
+            _emit(opts, "audience", "Read the competitor audience (age and gender skew)")
         # re-rank with the Qloo audience fit, then fetch persona evidence only for the final top segments
         scoring = score_segments(intake, aff, E.qloo_fit_from_age_index(anchor["age_index"], list(SEGMENTS))
                                  if anchor["age_index"] else None)
         rec.write_json("02_segments_after_qloo.json", scoring.to_dict())
+        _emit(opts, "segments", f"Collecting Qloo taste, place and area data for {len(scoring.ranked)} buyer segments")
         await E.gather_segments(client, intake, scoring.ranked, anchor["ev"], opts.kinds, opts.take)
         results, auth_failed, calls_used = client.results, client.auth_failed, client.calls_used
 
@@ -153,7 +180,10 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
     bundle = {"evidence": ev_items, "anchors": anchor["anchors"], "unresolved": anchor["unresolved"],
               "age_index": anchor["age_index"], "gender_index": anchor["gender_index"], "category": anchor.get("category"), "agent": agent_out}
     shared = anchor.get("notes", []) + E.shared_evidence_notes(ev_items, scoring.ranked, intake.location)
-    personas = await writer.write_personas(llm, intake, aff, scoring.ranked, bundle, delay=opts.llm_delay)
+    _emit(opts, "personas", "Writing personas")
+    personas = await writer.write_personas(llm, intake, aff, scoring.ranked, bundle, delay=opts.llm_delay,
+                                           on_persona=lambda i, n, p: _emit(opts, "personas", f"Persona {i} of {n}: {p.get('display_name')} — {p.get('title')}"))
+    _emit(opts, "report", "Assembling the report")
     attribution = ["World Bank Open Data (CC BY 4.0)"] + ([FX_ATTRIBUTION] if aff.conversion else [])
     rec.write_json("04_personas.json", {"synthetic": opts.mock, "affordability": aff.to_dict(), "personas": personas,
                                         "anchor_audience": {k: bundle[k] for k in ("anchors", "unresolved", "age_index", "gender_index", "category")},

@@ -146,10 +146,19 @@ def validate_finish(fin: dict[str, Any], toolbox: Toolbox) -> dict[str, Any]:
 
 
 async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict[str, Any] | None = None, max_steps: int = 14,
-                    delay: float = 0.0, sleep: Any = asyncio.sleep) -> dict[str, Any]:
+                    delay: float = 0.0, sleep: Any = asyncio.sleep, on_step: Any = None) -> dict[str, Any]:
     ctx = _context(intake, aff)
+
+    class _Trace(list):
+        def append(self, item):  # report each step as it happens
+            super().append(item)
+            if on_step:
+                try:
+                    on_step(item)
+                except Exception:
+                    pass
     catalogue = toolbox.catalogue()
-    notebook, last_obs, trace, final = "", None, [], None
+    notebook, last_obs, trace, final = "", None, _Trace(), None
     repeats: dict[str, int] = {}
     refusals = 0
     for step in range(1, max_steps + 1):
@@ -212,4 +221,4 @@ async def run_agent(llm: Any, toolbox: Toolbox, intake: ProductIntake, aff: dict
     if final is None:
         final = {"gaps": ["The agent ran out of steps or failed before it finished; only the calls made are reported."]}
     checked = validate_finish(final, toolbox)
-    return {"result": checked, "trace": trace, "ledger": toolbox.ledger.entries, "notebook": notebook, "steps": len(trace)}
+    return {"result": checked, "trace": list(trace), "ledger": toolbox.ledger.entries, "notebook": notebook, "steps": len(trace)}
