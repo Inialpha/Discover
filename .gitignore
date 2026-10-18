@@ -224,3 +224,4 @@ backend/runs/
 # reference-data cache
 .discover_cache/
 node_modules/
+*.tsbuildinfo
