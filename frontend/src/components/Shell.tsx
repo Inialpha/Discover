@@ -32,7 +32,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main>{children}</main>
-      <footer className="foot">Audience data from Qloo. Messages, platforms and events are AI interpretation and are labelled as such.</footer>
+      <footer className="foot">Market data powered by Qloo. Anything marked Suggestion is not confirmed by data.</footer>
     </div>
   );
 }

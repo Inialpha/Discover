@@ -36,7 +36,13 @@ export interface Result {
   affordability: { tier: string; country_name: string; local_currency: string; local_price: number; ratio: number | null; [k: string]: unknown };
   anchor_audience: { anchors: { name: string; source: string; query: string }[]; age_index: Record<string, number>; gender_index: Record<string, number> };
   agent: { goals?: string[]; steps?: number } | null;
+  market?: Market | null;
   scoring: { notes: string[] };
+}
+export interface MarketRow { label: string; brands: { name: string }[] }
+export interface Market {
+  need: string; confirmed: boolean; tiers: { direct: MarketRow[]; alternative: MarketRow[]; sector: MarketRow[] };
+  alternatives_audience?: { brands: string[]; age_index: Record<string, number>; gender_index: Record<string, number> } | null;
 }
 export interface Analysis {
   id: string; title: string; status: "queued" | "running" | "complete" | "failed"; intake: Intake; options: Record<string, unknown>;

@@ -63,6 +63,7 @@ class Settings:
     agent_llm_model: str | None = None  # optional: a different model for the exploring agent (separate quota on most providers)
     agent_llm_base_url: str | None = None
     agent_llm_api_key: str | None = None
+    llm_fallback_models: tuple[str, ...] = ()  # tried in order (same provider and key) when the main model fails or its daily quota is spent
 
     def for_agent(self) -> "Settings":
         """Settings with the agent's own model/provider when AGENT_LLM_* are set; otherwise the normal LLM."""
@@ -91,4 +92,5 @@ class Settings:
             agent_llm_model=os.environ.get("AGENT_LLM_MODEL") or None,
             agent_llm_base_url=(os.environ.get("AGENT_LLM_BASE_URL") or "").rstrip("/") or None,
             agent_llm_api_key=os.environ.get("AGENT_LLM_API_KEY") or None,
+            llm_fallback_models=tuple(m.strip() for m in (os.environ.get("LLM_FALLBACK_MODELS") or "").split(",") if m.strip()),
         )

@@ -1,5 +1,5 @@
 """PowerPoint and Word exports of an analysis. Same content as the app: avatar, name, title, summary, then messages,
-platforms and places, each marked as Qloo evidence, a calculation, or an AI interpretation."""
+platforms and places, each marked as confirmed by data, calculated, or a suggestion."""
 
 from __future__ import annotations
 
@@ -18,12 +18,12 @@ from pptx.util import Emu, Inches, Pt
 
 from ...engine.personas import avatar
 
-BADGE = {"evidence": "Qloo", "calculated": "calculated", "interpretation": "AI interpretation"}
+BADGE = {"evidence": "Confirmed", "calculated": "Calculated", "interpretation": "Suggestion"}
 INK, MUTED, ACCENT, SOFT = RGBColor(0x1B, 0x1F, 0x3B), RGBColor(0x6B, 0x72, 0x88), RGBColor(0x4F, 0x6B, 0xED), RGBColor(0xF3, 0xF5, 0xFB)
 
 
 def _badge(item: dict[str, Any]) -> str:
-    return BADGE.get(item.get("basis", "interpretation"), "AI interpretation")
+    return BADGE.get(item.get("basis", "interpretation"), "Suggestion")
 
 
 def _fit(p: dict[str, Any]) -> str:
@@ -37,10 +37,18 @@ def _market_lines(intake: dict[str, Any], res: dict[str, Any]) -> list[str]:
     anchors = (res.get("anchor_audience") or {}).get("anchors") or []
     if anchors:
         lines.append("Competitors used: " + ", ".join(a["name"] for a in anchors))
+    mk = res.get("market") or {}
+    if mk.get("need"):
+        lines.append(f"The customer's problem: {mk['need']}")
+    for tier, title in (("alternative", "What customers use instead (confirmed)"), ("sector", "Wider sector (confirmed)")):
+        for row in (mk.get("tiers") or {}).get(tier, []):
+            lines.append(f"{title}: {row['label']}: " + ", ".join(b["name"] for b in row["brands"]))
+    if mk and not mk.get("confirmed"):
+        lines.append("Not confirmed: no competing or alternative brands could be confirmed for this market, so the personas rest on income data and the audience profile only.")
     ai = (res.get("anchor_audience") or {}).get("age_index") or {}
     if ai:
         top = sorted(ai.items(), key=lambda kv: -kv[1])[:2]
-        lines.append("Competitor audience skews toward: " + ", ".join(f"{k.replace('_', ' ')} ({v:+.2f})" for k, v in top) + " (Qloo relative index)")
+        lines.append("Competitor audience skews toward: " + ", ".join(f"{k.replace('_', ' ')} ({v:+.2f})" for k, v in top) + " (relative index)")
     return lines
 
 
@@ -94,8 +102,8 @@ def build_pptx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
     bg = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, prs.slide_width, prs.slide_height)
     bg.fill.solid(); bg.fill.fore_color.rgb = INK; bg.line.fill.background()
     _tb(s, 0.8, 2.3, 11.5, 1.2, f"Who buys {intake['name']}?", 40, True, RGBColor(255, 255, 255))
-    _tb(s, 0.8, 3.5, 11.5, 0.6, f"Buyer personas for {intake['location']} · grounded in Qloo taste data", 18, False, RGBColor(0xC8, 0xCE, 0xE8))
-    _tb(s, 0.8, 6.5, 11.5, 0.4, "Personas are illustrations of buyer segments, not real people. Every item is labelled: Qloo evidence, calculated, or AI interpretation.", 11, False, RGBColor(0x9A, 0xA3, 0xC7))
+    _tb(s, 0.8, 3.5, 11.5, 0.6, f"Buyer personas for {intake['location']} · grounded in market taste data", 18, False, RGBColor(0xC8, 0xCE, 0xE8))
+    _tb(s, 0.8, 6.5, 11.5, 0.4, "Personas are illustrations of buyer segments, not real people. Every item is labelled: Confirmed by data, Calculated, or Suggestion (not confirmed by data).", 11, False, RGBColor(0x9A, 0xA3, 0xC7))
     # 2. market
     s = prs.slides.add_slide(blank)
     _bar(s, prs, "The market")
@@ -115,16 +123,16 @@ def build_pptx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
         _tb(s, 0.6, 4.7, 3.2, 1.2, "Name and picture are illustrative.", 10, False, MUTED)
         _tb(s, 3.3, 1.2, 9.5, 0.9, p.get("summary") or p.get("headline", ""), 16, True)
         _tb(s, 3.3, 2.0, 9.5, 0.8, p.get("who", ""), 12, False, MUTED)
-        _section(s, 3.3, 2.9, 4.6, "Motivations", [(m["text"], _badge(m)) for m in p.get("motivations", [])], "None (template persona: no LLM text)", h=1.7)
+        _section(s, 3.3, 2.9, 4.6, "Motivations", [(m["text"], _badge(m)) for m in p.get("motivations", [])], "None (no suggestions for this persona)", h=1.7)
         _section(s, 8.2, 2.9, 4.6, "Barriers", [(m["text"], _badge(m)) for m in p.get("objections", [])], "None computed", h=1.7)
-        _section(s, 3.3, 5.0, 9.5, "Tastes (Qloo)", [(f"{t['name']} ({t.get('kind', '')})", "Qloo") for t in p.get("tastes", [])[:4]], "No Qloo tastes returned", h=1.4)
+        _section(s, 3.3, 5.0, 9.5, "Tastes", [(f"{t['name']} ({t.get('kind', '')})", "Confirmed") for t in p.get("tastes", [])[:4]], "No tastes confirmed", h=1.4)
         # second slide: how to reach them
         s = prs.slides.add_slide(blank)
         _bar(s, prs, f"How to reach {p.get('display_name', '')}", p.get("title", "")[:40])
         _section(s, 0.6, 1.2, 6.2, "Messages to test", [(f"{m.get('angle', '')}: {m['text']}" if m.get("angle") else m["text"], _badge(m)) for m in p.get("messages", [])],
                  "No messages (template persona)", 13, h=2.8)
         _section(s, 7.1, 1.2, 5.6, "Platforms", [(f"{x['platform']}: {x.get('why', '')}", _badge(x)) for x in p.get("platforms", [])], "None", 13, h=2.0)
-        _section(s, 7.1, 3.4, 5.6, "Places and venues (Qloo)", [(x["place"] + (f"  (affinity {x['affinity']:.2f})" if isinstance(x.get("affinity"), float) else ""), "Qloo") for x in p.get("where_to_reach", [])],
+        _section(s, 7.1, 3.4, 5.6, "Places and venues", [(x["place"] + (f"  (affinity {x['affinity']:.2f})" if isinstance(x.get("affinity"), float) else ""), "Confirmed") for x in p.get("where_to_reach", [])],
                  "None returned", 13, h=1.8)
         _section(s, 0.6, 4.4, 6.2, "Event ideas", [(f"{x['idea']}: {x.get('why', '')}", _badge(x)) for x in p.get("events", [])], "None", 13, h=1.6)
         if p.get("caveats"):
@@ -133,10 +141,11 @@ def build_pptx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
     s = prs.slides.add_slide(blank)
     _bar(s, prs, "How to read this deck")
     tf = _tb(s, 0.6, 1.3, 12, 5, "", 14)
-    _bullets(tf, [("Qloo: returned by the Qloo taste API (brands, places, audiences). Qloo scores are relative, not shares.", ""),
-                  ("calculated: computed from public income data (World Bank) and the price you entered.", ""),
-                  ("AI interpretation: written by a language model from the evidence above; treat as hypotheses to test.", ""),
-                  ("Qloo has no platform, event or income data. Platforms and events are interpretation.", "")] +
+    _bullets(tf, [("Confirmed: found in market data for your location (brands, places, audiences). Scores are relative, not shares.", ""),
+                  ("Calculated: worked out from public income data (World Bank) and the price you entered.", ""),
+                  ("Suggestion: our own reasoning from the data above. Not confirmed by data: treat it as an idea to test.", ""),
+                  ("There is no data on platforms, events or income by person, so platforms and events are suggestions.", ""),
+                  ("Market data powered by Qloo.", "")] +
              [(a, "") for a in (res.get("attribution") or [])], 14)
     buf = io.BytesIO()
     prs.save(buf)
@@ -162,8 +171,8 @@ def build_docx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
     doc.styles["Normal"].font.name = "Calibri"
     doc.styles["Normal"].font.size = DPt(11)
     _dh(doc, f"Who buys {intake['name']}?", 0)
-    doc.add_paragraph(f"Buyer personas for {intake['location']} · grounded in Qloo taste data").runs[0].font.color.rgb = DRGB(0x6B, 0x72, 0x88)
-    n = doc.add_paragraph("Personas are illustrations of buyer segments, not real people. Each item is labelled Qloo (evidence), calculated, or AI interpretation.")
+    doc.add_paragraph(f"Buyer personas for {intake['location']} · grounded in market taste data").runs[0].font.color.rgb = DRGB(0x6B, 0x72, 0x88)
+    n = doc.add_paragraph("Personas are illustrations of buyer segments, not real people. Each item is labelled Confirmed (by data), Calculated, or Suggestion (not confirmed by data).")
     n.runs[0].italic = True
     _dh(doc, "The market", 1)
     _dbul(doc, [(l, "") for l in _market_lines(intake, res)], "")
@@ -188,17 +197,18 @@ def build_docx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
         _dbul(doc, [(f"{m.get('angle', '')}: {m['text']}" if m.get("angle") else m["text"], _badge(m)) for m in p.get("messages", [])], "No messages (template persona)")
         _dh(doc, "Platforms", 2); _dbul(doc, [(f"{x['platform']}: {x.get('why', '')}", _badge(x)) for x in p.get("platforms", [])], "None")
         _dh(doc, "Places and venues", 2)
-        _dbul(doc, [(x["place"] + (f" (affinity {x['affinity']:.2f})" if isinstance(x.get("affinity"), float) else ""), "Qloo") for x in p.get("where_to_reach", [])], "None returned")
-        _dh(doc, "Tastes", 2); _dbul(doc, [(f"{x['name']} ({x.get('kind', '')})", "Qloo") for x in p.get("tastes", [])], "No Qloo tastes returned")
+        _dbul(doc, [(x["place"] + (f" (affinity {x['affinity']:.2f})" if isinstance(x.get("affinity"), float) else ""), "Confirmed") for x in p.get("where_to_reach", [])], "None returned")
+        _dh(doc, "Tastes", 2); _dbul(doc, [(f"{x['name']} ({x.get('kind', '')})", "Confirmed") for x in p.get("tastes", [])], "No tastes confirmed")
         _dh(doc, "Event ideas", 2); _dbul(doc, [(f"{x['idea']}: {x.get('why', '')}", _badge(x)) for x in p.get("events", [])], "None")
         for cv in p.get("caveats", []):
             doc.add_paragraph(f"Caveat: {cv}").runs[0].font.size = DPt(9)
     doc.add_page_break()
     _dh(doc, "How to read this document", 1)
-    _dbul(doc, [("Qloo: returned by the Qloo taste API. Scores are relative, not shares.", ""),
-                ("calculated: computed from public income data (World Bank) and your price.", ""),
-                ("AI interpretation: written by a language model from the evidence; treat as hypotheses to test.", ""),
-                ("Qloo has no platform, event or income data, so those are interpretation.", "")] + [(a, "") for a in (res.get("attribution") or [])], "")
+    _dbul(doc, [("Confirmed: found in market data for your location. Scores are relative, not shares.", ""),
+                ("Calculated: worked out from public income data (World Bank) and your price.", ""),
+                ("Suggestion: our own reasoning from the data. Not confirmed by data: treat it as an idea to test.", ""),
+                ("There is no data on platforms, events or income by person, so those are suggestions.", ""),
+                ("Market data powered by Qloo.", "")] + [(a, "") for a in (res.get("attribution") or [])], "")
     buf = io.BytesIO()
     doc.save(buf)
     return buf.getvalue()

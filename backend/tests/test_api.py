@@ -23,7 +23,8 @@ def settings(**kw):
 @pytest.fixture()
 def client(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    with TestClient(create_app(settings())) as c:
+    # a file database: one shared in-memory connection cannot serve concurrent requests and the background run
+    with TestClient(create_app(settings(database_url=f"sqlite:///{tmp_path}/api.db"))) as c:
         yield c
 
 
@@ -124,7 +125,7 @@ def test_users_cannot_see_each_others_analyses(client):
 
 def test_one_active_run_per_user_and_daily_cap(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    with TestClient(create_app(settings(max_runs_per_day=1))) as c:
+    with TestClient(create_app(settings(max_runs_per_day=1, database_url=f"sqlite:///{tmp_path}/cap.db"))) as c:
         h = signup(c)
         aid = c.post("/api/analyses", json={"intake": INTAKE}, headers=h).json()["id"]
         assert c.post("/api/analyses", json={"intake": INTAKE}, headers=h).status_code == 429  # still running
@@ -156,7 +157,7 @@ def test_export_before_completion_is_refused_and_failed_runs_are_reported(tmp_pa
 
 def test_signup_can_be_closed(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    with TestClient(create_app(settings(allow_signup=False))) as c:
+    with TestClient(create_app(settings(allow_signup=False, database_url=f"sqlite:///{tmp_path}/closed.db"))) as c:
         assert c.post("/api/auth/signup", json={"email": "a@example.com", "password": "password123"}).status_code == 403
 
 

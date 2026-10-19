@@ -133,7 +133,7 @@ def test_llm_suggestions_are_kept_only_when_qloo_confirms(tmp_path):
             return await E.resolve_and_skew(c, i, llm=llm, discover=True)
     r = run_async(go())
     assert [a["name"] for a in r["anchors"]] == ["Colgate"] and r["anchors"][0]["source"] == "llm_confirmed"
-    assert any("Zorblax" in n for n in r["notes"]) and llm.calls == 1
+    assert any("Zorblax" in n for n in r["notes"]) and llm.calls == 2  # suggestions + the ladder's market map (empty here)
 
 
 def test_no_competitor_anywhere_degrades_to_rules_with_a_note(tmp_path):

@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api, type Analysis as A, type Ev } from "../api";
+import { api, type Analysis as A, type Ev, type Market, type MarketRow } from "../api";
+import Badge from "../components/Badge";
 import PersonaCard from "../components/PersonaCard";
 import ExportMenu from "../components/ExportMenu";
 import AgeSkew from "../components/AgeSkew";
 
 const STAGES: [string, string][] = [
   ["affordability", "Checking what the price means locally"],
-  ["agent", "AI exploring Qloo"],
+  ["agent", "Exploring the market in depth"],
   ["competitors", "Confirming competitors"],
+  ["market", "Mapping alternatives and the wider market"],
   ["audience", "Reading who buys from them"],
   ["segments", "Splitting the audience"],
   ["personas", "Writing the personas"],
@@ -33,6 +35,40 @@ function Progress({ events, failed }: { events: Ev[]; failed: boolean }) {
       {last && !failed && <p className="live" aria-live="polite">{last.message}</p>}
       {!failed && <p className="muted small">You can leave this page. Your analysis keeps running and will be in My analyses.</p>}
     </div>
+  );
+}
+
+function MarketCard({ m }: { m: Market }) {
+  const groups: [string, MarketRow[]][] = [
+    ["Direct competitors", m.tiers.direct], ["What customers use instead", m.tiers.alternative], ["The wider sector", m.tiers.sector],
+  ];
+  const any = groups.some(([, rows]) => rows.length);
+  return (
+    <section className="card market">
+      <h2>The market around your product</h2>
+      {m.need && <p className="need">The problem your customers are solving: <strong>{m.need}</strong></p>}
+      {any ? (
+        <div className="tiers">
+          {groups.map(([title, rows]) => rows.length > 0 && (
+            <div key={title}>
+              <h4>{title} <Badge basis="evidence" /></h4>
+              {rows.map((row) => (
+                <p key={row.label}><span className="muted">{row.label}</span><br />{row.brands.map((b) => b.name).join(", ")}</p>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p><span className="badge b-notconfirmed">Not confirmed</span> We could not confirm competing or alternative brands for this market, so the personas rest on income data and the audience profile only.</p>
+      )}
+      {m.alternatives_audience && (
+        <div>
+          <h4>Who buys the alternatives <Badge basis="evidence" /></h4>
+          <p className="muted small">People using {m.alternatives_audience.brands.slice(0, 4).join(", ")} today. Reach them with a message that shows how your product solves the same problem better.</p>
+          <AgeSkew index={m.alternatives_audience.age_index} />
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -85,7 +121,7 @@ export default function Analysis() {
 
       {r && (
         <>
-          {r.synthetic && <p className="note">Demo data: this analysis ran on built-in sample data, not live Qloo results.</p>}
+          {r.synthetic && <p className="note">Demo data: this analysis ran on built-in sample data, not live market data.</p>}
           <section className="overview card">
             <div>
               <h2>The market at a glance</h2>
@@ -94,7 +130,7 @@ export default function Analysis() {
                 <strong>{r.affordability.tier}</strong> price{r.affordability.ratio != null && <> ({(r.affordability.ratio * 100).toFixed(1)}% of average yearly income)</>}.
               </p>
               {r.anchor_audience.anchors.length > 0 && (
-                <p className="muted">Audience read from Qloo's taste data for: {r.anchor_audience.anchors.slice(0, 8).map((x) => x.name).join(", ")}.</p>
+                <p className="muted">Audience read from the buyers of: {r.anchor_audience.anchors.slice(0, 8).map((x) => x.name).join(", ")}.</p>
               )}
               {r.evidence_notes.map((n) => <p key={n} className="muted small">{n}</p>)}
             </div>
@@ -103,12 +139,13 @@ export default function Analysis() {
               <AgeSkew index={r.anchor_audience.age_index} />
             </div>
           </section>
+          {r.market && <MarketCard m={r.market} />}
           <h2 className="sect">Your audience personas</h2>
           <div className="pgrid">
             {r.personas.map((p, i) => <PersonaCard key={p.segment_id + i} p={p} analysisId={a.id} index={i} />)}
           </div>
-          <p className="muted small">* Name, gender and avatar are illustrative. Only Qloo's age and gender figures are data.</p>
-          {r.attribution.length > 0 && <p className="muted small">Sources: Qloo; {r.attribution.join("; ")}.</p>}
+          <p className="muted small">* Name, gender and avatar are illustrative. Only the age and gender figures are data.</p>
+          {r.attribution.length > 0 && <p className="muted small">Sources: market data by Qloo; {r.attribution.join("; ")}.</p>}
         </>
       )}
     </div>

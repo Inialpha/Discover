@@ -57,6 +57,9 @@ Rules:
 - "platforms" and "events" are interpretation: Qloo has no platform or event data. At most 3 platforms and 2 events.
 - At most 3 messages (each under 25 words), 3 motivations, 3 objections. Messages must rest on a product fact in the input
   or a cited taste; do not promise features the product text does not state.
+- "market" (when given) lists what customers use instead of the product (alternatives) and the wider sector. One message may
+  speak to someone switching from an alternative, using only product facts from the input; never criticise or compare with a
+  named brand.
 - If qloo data is missing for something, say so in "caveats" instead of filling the gap."""
 
 
@@ -151,7 +154,8 @@ def price_barriers(seg: SegmentScore, aff: Affordability) -> list[dict[str, Any]
 
 
 def llm_input(intake: ProductIntake, aff: Affordability, seg: SegmentScore, view: dict[str, Any],
-              anchors: list[dict[str, str]], age_index: dict[str, float], gender_index: dict[str, float]) -> dict[str, Any]:
+              anchors: list[dict[str, str]], age_index: dict[str, float], gender_index: dict[str, float],
+              market: dict[str, Any] | None = None) -> dict[str, Any]:
     return {
         "product": {"name": intake.name, "description": intake.description[:400], "category": intake.category,
                     "features": intake.features[:8], "price": f"{intake.price:g} {intake.currency}",
@@ -167,7 +171,19 @@ def llm_input(intake: ProductIntake, aff: Affordability, seg: SegmentScore, view
                                      "age_index": {k: round(v, 2) for k, v in age_index.items()},
                                      "gender_index": {k: round(v, 2) for k, v in gender_index.items()},
                                      "note": "relative indexes; negative = under-indexes; not shares"} if age_index or gender_index else None,
+        "market": _market_for_llm(market),
     }
+
+
+def _market_for_llm(market: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Compact view of the confirmed market around the product: what customers use today instead (alternatives) and the wider sector."""
+    if not market or not market.get("confirmed"):
+        return None
+    t = market["tiers"]
+    def fmt(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        return [{"market": r["label"], "brands": [b["name"] for b in r["brands"]][:3]} for r in rows[:3]]
+    out = {"customer_need": market.get("need"), "alternatives": fmt(t["alternative"]), "sector": fmt(t["sector"])}
+    return {k: v for k, v in out.items() if v}
 
 
 def _clean_claims(rows: Any, valid: set[str], allowed_basis: tuple[str, ...], default: str,
@@ -285,7 +301,7 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
         if llm:
             if n and delay:
                 await asyncio.sleep(delay)
-            payload = llm_input(intake, aff, seg, view, bundle["anchors"], bundle["age_index"], bundle["gender_index"])
+            payload = llm_input(intake, aff, seg, view, bundle["anchors"], bundle["age_index"], bundle["gender_index"], bundle.get("market"))
             try:
                 raw = await llm.chat_json(f"persona_{seg.id}", PERSONA_SYSTEM, json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
                                           max_tokens=3000)

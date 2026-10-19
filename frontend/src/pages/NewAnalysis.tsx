@@ -81,7 +81,7 @@ export default function NewAnalysis() {
           <legend>3 · The competition <small>(optional)</small></legend>
           <label>Competitor brands you know of
             <input value={comp} onChange={(e) => setComp(e.target.value)} placeholder="Comma separated, e.g. Colgate, Close-Up" />
-            <small>We also look for competitors in Qloo and only keep the ones it confirms.</small>
+            <small>We also look for competitors and alternatives in market data, and only keep the ones it confirms.</small>
           </label>
         </fieldset>
         <button type="button" className="link" onClick={() => setMore(!more)}>{more ? "Hide" : "Show"} more options</button>
@@ -98,7 +98,7 @@ export default function NewAnalysis() {
                 <label key={k} className="check"><input type="checkbox" checked={f.age_focus.includes(k)} onChange={(e) => set("age_focus", e.target.checked ? [...f.age_focus, k] : f.age_focus.filter((x) => x !== k))} />{l}</label>
               ))}
             </div>
-            <label className="check"><input type="checkbox" checked={useAgent} onChange={(e) => setUseAgent(e.target.checked)} />Let the AI explore Qloo on its own first <small>(slower, can find more)</small></label>
+            <label className="check"><input type="checkbox" checked={useAgent} onChange={(e) => setUseAgent(e.target.checked)} />Explore the market in more depth first <small>(slower, can find more)</small></label>
             <label className="check"><input type="checkbox" checked={discover} onChange={(e) => setDiscover(e.target.checked)} />Look for more competitors than I listed</label>
           </fieldset>
         )}

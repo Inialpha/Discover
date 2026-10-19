@@ -31,15 +31,15 @@ export default function Login() {
       <section className="hero">
         <Logo />
         <h1>Know who you're really selling to.</h1>
-        <p>Describe your product. Discover reads Qloo's taste data for your market and returns audience personas: who they are, what they like, what might stop them buying, and where to reach them.</p>
+        <p>Describe your product. Discover reads real taste data for your market and returns audience personas: who they are, what they like, what might stop them buying, and where to reach them.</p>
         <div className="faces" aria-hidden="true">
           {["f-27-3", "m-41-5", "f-52-4", "m-23-1", "f-35-2"].map((k, i) => (
             <div key={k} style={{ transform: `translateY(${i % 2 ? 14 : 0}px)` }}><Avatar avatarKey={k} size={72} /></div>
           ))}
         </div>
         <ul className="points">
-          <li><b>Grounded.</b> Every taste and place comes from Qloo and carries its evidence id.</li>
-          <li><b>Honest.</b> Marketing ideas are labelled as AI interpretation, never as data.</li>
+          <li><b>Grounded.</b> Tastes, places and competitors are confirmed in market data, not guessed.</li>
+          <li><b>Honest.</b> Every point is marked Confirmed, Calculated or Suggestion.</li>
           <li><b>Ready to use.</b> Export slides or a written brief.</li>
         </ul>
       </section>

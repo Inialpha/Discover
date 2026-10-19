@@ -52,15 +52,42 @@ class LLMClient:
             raise LLMError("LLM not configured (LLM_API_KEY, LLM_BASE_URL, LLM_MODEL)")
         self.s, self.rec, self._transport = settings, recorder, transport
         self.calls = 0
-        self.daily_exhausted: str | None = None  # set when the provider says the DAY's token quota is spent: retrying is pointless
+        self.models = [settings.llm_model, *[m for m in settings.llm_fallback_models if m != settings.llm_model]]
+        self.exhausted: dict[str, str] = {}  # model -> provider message, once the DAY's token quota of that model is spent
+        self.fallbacks_used = 0  # calls answered by a model other than the main one
+        self.model_calls: dict[str, int] = {}
         self.max_wait = 30.0
         self._sleep = asyncio.sleep
 
+    @property
+    def daily_exhausted(self) -> str | None:
+        """Set only when EVERY configured model has spent its daily quota: retrying is pointless."""
+        if self.models and all(m in self.exhausted for m in self.models):
+            return "; ".join(f"{m}: {msg}" for m, msg in self.exhausted.items())
+        return None
+
     async def chat_json(self, name: str, system: str, user: str, temperature: float = 0.2, max_tokens: int = 2000) -> Any:
+        """Tries the main model, then each fallback model, skipping any whose daily quota is spent. The first answer wins."""
         if self.daily_exhausted:
             raise LLMError(f"daily token limit reached ({self.daily_exhausted}); not calling the provider again this run")
+        errors: list[str] = []
+        for i, model in enumerate(self.models):
+            if model in self.exhausted:
+                continue
+            try:
+                out = await self._chat_with(model, name if i == 0 else f"{name}_fallback{i}", system, user, temperature, max_tokens)
+            except LLMError as exc:
+                errors.append(f"{model}: {exc}")
+                continue
+            self.model_calls[model] = self.model_calls.get(model, 0) + 1
+            if i:
+                self.fallbacks_used += 1
+            return out
+        raise LLMError("; ".join(errors) or "no model available")
+
+    async def _chat_with(self, model: str, name: str, system: str, user: str, temperature: float, max_tokens: int) -> Any:
         payload: dict[str, Any] = {
-            "model": self.s.llm_model,
+            "model": model,
             "temperature": temperature,
             "max_tokens": max_tokens,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
@@ -94,8 +121,8 @@ class LLMClient:
                     payload.pop("reasoning_effort")
                     continue
                 if r.status_code == 429 and _is_daily_limit(entry.get("json")):
-                    self.daily_exhausted = _limit_message(entry.get("json"))
-                    error = f"daily token limit reached: {self.daily_exhausted}"
+                    self.exhausted[model] = _limit_message(entry.get("json"))
+                    error = f"daily token limit reached: {self.exhausted[model]}"
                     break
                 if r.status_code >= 400:
                     error = f"HTTP {r.status_code}"

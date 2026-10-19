@@ -18,6 +18,7 @@ from ...engine.personas.intake import ProductIntake
 from ...engine.personas.refdata.store import ReferenceStore
 from ...engine.personas.runner import PersonaOptions, execute_personas
 from ..models import Analysis, AnalysisEvent
+from . import categories
 from ..settings import ApiSettings
 
 _TASKS: set[asyncio.Task] = set()
@@ -45,10 +46,12 @@ class EventWriter:
 
     async def _drain(self) -> None:
         while (item := await self.queue.get()) is not None:
-            try:
-                await add_event(self.sf, self.analysis_id, *item)
-            except Exception:  # a lost progress line must never break the run
-                pass
+            for attempt in range(3):  # a busy database must not lose a progress line; a persistent failure must not break the run
+                try:
+                    await add_event(self.sf, self.analysis_id, *item)
+                    break
+                except Exception:
+                    await asyncio.sleep(0.2 * (attempt + 1))
 
     async def close(self) -> None:
         self.queue.put_nowait(None)
@@ -70,6 +73,10 @@ async def run_analysis(sf: SF, api: ApiSettings, analysis_id: str, engine_settin
         a.status = "running"
         await db.commit()
         intake_dict, options = dict(a.intake), dict(a.options or {})
+        try:
+            known = await categories.known_for(db, intake_dict.get("product_type", ""), intake_dict.get("category", ""))
+        except Exception:  # an optional speed-up: never block a run
+            known = []
     writer = EventWriter(sf, analysis_id)
     writer.callback("start", "Analysis started")
     out = Path(await asyncio.to_thread(tempfile.mkdtemp, prefix="run-", dir=_ensure(api.runs_dir)))
@@ -78,7 +85,7 @@ async def run_analysis(sf: SF, api: ApiSettings, analysis_id: str, engine_settin
         opts = PersonaOptions(intake=intake, out=out, mock=api.mock_engine, zip=False, max_calls=150,
                               discover=bool(options.get("discover", True)),
                               agent=bool(options.get("use_agent", True)) and api.agent_enabled and not api.mock_engine,
-                              llm_delay=api.llm_delay, progress=writer.callback)
+                              llm_delay=api.llm_delay, progress=writer.callback, known_categories=known)
         settings = engine_settings or Settings.from_env()
         code, run_dir, summary = await execute_personas(opts, settings, ReferenceStore(), llm_transport=llm_transport,
                                                         qloo_transport=qloo_transport)
@@ -86,7 +93,12 @@ async def run_analysis(sf: SF, api: ApiSettings, analysis_id: str, engine_settin
         if code == 3 or not pj.exists():
             raise RuntimeError("; ".join(summary.get("errors") or []) or summary.get("status") or "the engine could not run")
         result, md_text = await asyncio.to_thread(_read_outputs, Path(run_dir))
-        slim = {k: summary.get(k) for k in ("status", "qloo_calls", "qloo_ok", "qloo_failed", "llm_calls", "warnings", "seconds", "persona_sources")}
+        slim = {k: summary.get(k) for k in ("status", "qloo_calls", "qloo_ok", "qloo_failed", "llm_calls", "warnings", "seconds", "persona_sources", "llm_fallbacks")}
+        try:
+            async with sf() as db:
+                await categories.remember(db, intake_dict.get("product_type", ""), intake_dict.get("category", ""), summary.get("learned_categories") or [])
+        except Exception:
+            pass
         writer.callback("done", f"Finished: {len(result.get('personas', []))} personas")
         await writer.close()
         await _finish(sf, analysis_id, status="complete", result=result, summary=slim, report_md=md_text)

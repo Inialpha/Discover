@@ -4,8 +4,6 @@ import { api } from "../api";
 const FORMATS = [
   { id: "pptx", label: "Slides (.pptx)", hint: "One title slide, two per persona, a summary" },
   { id: "docx", label: "Document (.docx)", hint: "Full written brief" },
-  { id: "md", label: "Markdown (.md)", hint: "Plain text with evidence ids" },
-  { id: "json", label: "Data (.json)", hint: "Everything, for your own tools" },
 ] as const;
 
 export default function ExportMenu({ id, filename }: { id: string; filename: string }) {

@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -59,3 +59,19 @@ class AnalysisEvent(Base):
     data: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     analysis: Mapped[Analysis] = relationship(back_populates="events")
+
+
+class LearnedCategory(Base):
+    """A market label that was confirmed for a kind of product (label + the tags that returned brands). Generic words only:
+    no client names, brands or text. Shared by all users; the engine re-checks it with live data on every use."""
+    __tablename__ = "learned_categories"
+    __table_args__ = (UniqueConstraint("product_type", "label", name="uq_learned_type_label"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    product_type: Mapped[str] = mapped_column(String(80), index=True)
+    category: Mapped[str] = mapped_column(String(40), default="")
+    label: Mapped[str] = mapped_column(String(60))
+    tier: Mapped[str] = mapped_column(String(20), default="sector")
+    tags: Mapped[list] = mapped_column(JSON, default=list)
+    hits: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    last_used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

@@ -76,7 +76,7 @@ export default function PersonaPage() {
           <h4>Places in {a.intake.location} <Badge basis="evidence" /></h4>
           {p.where_to_reach.length ? (
             <ul className="places">{p.where_to_reach.map((pl) => <li key={pl.place}><span>{pl.place}</span>{pl.affinity != null && <small>{Math.round(pl.affinity * 100)}% match</small>}</li>)}</ul>
-          ) : <p className="muted">Qloo returned no places for this group.</p>}
+          ) : <p className="muted">No places were confirmed for this group.</p>}
           {p.events.length > 0 && (<><h4>Event ideas <Badge basis="interpretation" /></h4><Claims items={p.events} lead="idea" /></>)}
         </section>
         <section className="card">
@@ -92,7 +92,7 @@ export default function PersonaPage() {
       {p.caveats.length > 0 && (
         <section className="card caveats"><h3>Worth knowing</h3><ul>{p.caveats.map((c) => <li key={c}>{c}</li>)}</ul></section>
       )}
-      <p className="muted small">* Name, gender and avatar are illustrative. Only Qloo's age and gender figures are data.</p>
+      <p className="muted small">* Name, gender and avatar are illustrative. Only the age and gender figures are data.</p>
       {a.result.personas.length > 1 && <p className="next"><Link to={`/analysis/${id}/persona/${nextIdx}`}>Next persona: {a.result.personas[nextIdx].display_name} →</Link></p>}
     </div>
   );

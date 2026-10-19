@@ -125,3 +125,7 @@ label.check { display: flex; gap: .6rem; align-items: center; font-weight: 500; 
 }
 .chip.cap { text-transform: capitalize; } .places small { text-transform: none; }
 .intake > .link { justify-self: start; } .grid2 { align-items: end; }
+
+.market { margin-bottom: 1.5rem; } .market h2 { margin-bottom: .6rem; } .need { font-size: 1.05rem; }
+.tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.4rem; margin: 1rem 0; } .tiers p { margin: .3em 0 .7em; }
+.b-notconfirmed { background: #ececec; color: #4a4a4a; }

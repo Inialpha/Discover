@@ -48,6 +48,7 @@ class PersonaOptions:
     discover: bool = True  # find competitors through Qloo when fewer than 5 are given
     agent: bool = False  # the LLM explores Qloo with tools instead of the fixed competitor steps
     agent_steps: int = 14
+    known_categories: Any = None  # learned market labels with their Qloo tags (from the API's database); tried first by the ladder
     progress: Any = None  # optional callback(stage: str, message: str, data: dict | None): used by the API for live progress
 
 
@@ -154,9 +155,15 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
         elif opts.agent:
             summary["warnings"].append("--agent needs the LLM (not configured or disabled): fell back to the fixed competitor steps.")
         _emit(opts, "competitors", "Looking up competitors and their audience in Qloo")
-        anchor = await E.resolve_and_skew(client, intake, llm=llm, discover=opts.discover, preset=preset)
+        anchor = await E.resolve_and_skew(client, intake, llm=llm, discover=opts.discover, preset=preset,
+                                          known_categories=opts.known_categories)
         _emit(opts, "competitors", "Competitors used: " + (", ".join(a["name"] for a in anchor["anchors"]) or "none found"),
               {"competitors": [a["name"] for a in anchor["anchors"]]})
+        mk = anchor.get("market")
+        if mk:
+            n_alt = sum(len(x["brands"]) for x in mk["tiers"]["alternative"] + mk["tiers"]["sector"])
+            _emit(opts, "market", f"Mapped the market around the product: {n_alt} alternative or sector brands confirmed"
+                  if mk["confirmed"] else "Could not confirm competing or alternative brands for this market")
         if anchor["age_index"]:
             _emit(opts, "audience", "Read the competitor audience (age and gender skew)")
         # re-rank with the Qloo audience fit, then fetch persona evidence only for the final top segments
@@ -178,7 +185,8 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
     rec.write_json("03_evidence.json", ev_items)
 
     bundle = {"evidence": ev_items, "anchors": anchor["anchors"], "unresolved": anchor["unresolved"],
-              "age_index": anchor["age_index"], "gender_index": anchor["gender_index"], "category": anchor.get("category"), "agent": agent_out}
+              "age_index": anchor["age_index"], "gender_index": anchor["gender_index"], "category": anchor.get("category"), "agent": agent_out,
+              "market": anchor.get("market")}
     shared = anchor.get("notes", []) + E.shared_evidence_notes(ev_items, scoring.ranked, intake.location)
     _emit(opts, "personas", "Writing personas")
     personas = await writer.write_personas(llm, intake, aff, scoring.ranked, bundle, delay=opts.llm_delay,
@@ -187,7 +195,7 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
     attribution = ["World Bank Open Data (CC BY 4.0)"] + ([FX_ATTRIBUTION] if aff.conversion else [])
     rec.write_json("04_personas.json", {"synthetic": opts.mock, "affordability": aff.to_dict(), "personas": personas,
                                         "anchor_audience": {k: bundle[k] for k in ("anchors", "unresolved", "age_index", "gender_index", "category")},
-                                        "agent": agent_out["result"] if agent_out else None,
+                                        "agent": agent_out["result"] if agent_out else None, "market": bundle["market"],
                                         "evidence_notes": shared,
                                         "scoring": {"ranked_by": scoring.ranked_by, "notes": scoring.notes,
                                                     "omitted_by_limit": scoring.omitted_by_limit, "excluded": scoring.excluded},
@@ -203,7 +211,7 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
         "status": "dry_run" if opts.dry_run else "auth_failed" if auth_failed else "complete",
         "personas": len(personas), "persona_sources": [p["source"] for p in personas],
         "qloo_calls": len(results), "qloo_ok": ok_calls, "qloo_failed": len(results) - ok_calls, "http_requests": calls_used,
-        "llm_calls": llm.calls if llm else 0, "llm_failed_personas": llm_failed,
+        "llm_calls": llm.calls if llm else 0, "learned_categories": anchor.get("learned", []), "llm_fallbacks": llm.fallbacks_used if llm else 0, "llm_failed_personas": llm_failed,
         "failures": [{"label": r.spec.label, "status": r.status, "error": r.error or r.skipped_reason, "files": r.files}
                      for r in results if not r.ok],
         "seconds": round(time.time() - started, 1)})

@@ -65,25 +65,69 @@ def qloo_fit_from_age_index(age_index: dict[str, float], segments: list[Any]) ->
 
 
 async def resolve_and_skew(client: QlooClient, intake: ProductIntake, llm: Any = None, discover: bool = False,
-                           want: int = 5, preset: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Steps 1-2: find competitor anchors (given, and with discover=True also found through Qloo), then ask once for
-    their audience's age/gender skew. See competitors.py for the sources and their labels."""
+                           want: int = 5, preset: dict[str, Any] | None = None,
+                           known_categories: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Steps 1-2: find competitor anchors (given, and with discover=True also found through Qloo), run the category ladder for
+    alternatives and the wider sector, then ask for the audience skew of the competitors (and, separately, of the alternatives)."""
     from .competitors import discover_competitors
+    from .ladder import run_ladder
     ev = Evidence()
     found = preset if preset is not None else await discover_competitors(client, intake, ev, pick_anchor, llm=llm, want=want, discover=discover)
-    anchors, unresolved = found["anchors"], found["unresolved"]
+    anchors, unresolved, notes = list(found["anchors"]), found["unresolved"], list(found["notes"])
+    market: dict[str, Any] | None = None
+    if discover and llm is not None:
+        lad = await run_ladder(client, intake, ev, llm, anchors, known=known_categories)
+        notes += lad["notes"]
+        have = {a["entity_id"] for a in anchors}
+        for b in lad["kept"]:
+            n_direct = sum(1 for a in anchors if a.get("tier", "direct") == "direct")
+            # direct brands join the competitors; with fewer than 2 direct ones, other tiers stand in so the audience can still be read
+            if b["entity_id"] not in have and ((b["tier"] == "direct" and n_direct < want) or n_direct < 2):
+                have.add(b["entity_id"])
+                anchors.append({"query": b["label"], "entity_id": b["entity_id"], "name": b["name"], "matched_by": "category",
+                                "source": "ladder", "tags": b["tags"], "tier": b["tier"], "label": b["label"],
+                                "category": b["category"], "scope": b["scope"]})
+        market = _market_view(lad, anchors)
+    direct = [a for a in anchors if a.get("tier", "direct") == "direct"]
+    base = direct if len(direct) >= 2 else anchors  # with too few direct competitors, the others stand in so personas still have data
     age_index: dict[str, float] = {}
     gender_index: dict[str, float] = {}
-    if anchors:
-        sig = calls.Signals(entities=[a["entity_id"] for a in anchors], location=intake.location)
+    if base:
+        sig = calls.Signals(entities=[a["entity_id"] for a in base], location=intake.location)
         res = await client.call(calls.insights_demographics("demographics", "anchor-audience-skew", sig))
         data = nz.demographics_from_body(res.body) if res.ok else None
         ev.add("demographics", "anchor audience (competitors): relative index, location-independent", res, data)
         if data:
             age_index = dict((data.get("groups") or {}).get("age", {}))
             gender_index = dict((data.get("groups") or {}).get("gender", {}))
+    if market and market["tiers"]["alternative"] and len(direct) >= 2:
+        alts = [b["name"] for lab in market["tiers"]["alternative"] for b in lab["brands"]]
+        ids = [b["entity_id"] for b in lad["kept"] if b["tier"] == "alternative"][:5]
+        if ids:
+            res = await client.call(calls.insights_demographics("demographics", "alternatives-audience-skew",
+                                                                calls.Signals(entities=ids, location=intake.location)))
+            data = nz.demographics_from_body(res.body) if res.ok else None
+            eid = ev.add("demographics", "audience of the alternatives: relative index, location-independent", res, data)
+            if data:
+                market["alternatives_audience"] = {"brands": alts[:5], "age_index": dict((data.get("groups") or {}).get("age", {})),
+                                                   "gender_index": dict((data.get("groups") or {}).get("gender", {})), "evidence": eid}
     return {"ev": ev, "anchors": anchors, "unresolved": unresolved, "age_index": age_index, "gender_index": gender_index,
-            "notes": found["notes"], "category": found.get("category"), "profiles": found.get("profiles", {})}
+            "notes": notes, "category": found.get("category"), "profiles": found.get("profiles", {}), "market": market,
+            "learned": (lad["learned"] if market else [])}
+
+
+def _market_view(lad: dict[str, Any], anchors: list[dict[str, Any]]) -> dict[str, Any]:
+    """What the report shows about the market around the product: tiers with confirmed brands, the need, and what was not confirmed."""
+    tiers: dict[str, list[dict[str, Any]]] = {"direct": [], "alternative": [], "sector": []}
+    direct_names = [a["name"] for a in anchors if a.get("tier", "direct") == "direct" and a.get("source") != "ladder"]
+    if direct_names:
+        tiers["direct"].append({"label": "your competitors", "brands": [{"name": n} for n in direct_names]})
+    for lab in dict.fromkeys(b["label"] for b in lad["kept"]):
+        brands = [b for b in lad["kept"] if b["label"] == lab]
+        tiers[brands[0]["tier"]].append({"label": lab, "brands": [{"name": b["name"], "entity_id": b["entity_id"]} for b in brands],
+                                         "evidence": [b["evidence"] for b in brands][:1]})
+    return {"need": lad["need"], "confirmed": lad["confirmed"] or bool(direct_names), "tiers": tiers,
+            "ledger": lad["ledger"], "alternatives_audience": None}
 
 
 async def gather_segments(client: QlooClient, intake: ProductIntake, segments: list[SegmentScore], ev: Evidence,
