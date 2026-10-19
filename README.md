@@ -265,6 +265,6 @@ npm run dev                     # http://localhost:5173, /api is proxied to port
 
 ## Deploying
 
-- **Database:** any Postgres. Set `DATABASE_URL` (Neon free tier works). SQLite is the local default.
+- **Database:** any Postgres. Set `DATABASE_URL` (Neon free tier works; paste the connection string as given, `postgresql://...?sslmode=require` is converted automatically). The API is fully async: SQLAlchemy asyncio with asyncpg (Postgres) or aiosqlite (local SQLite).
 - **Backend on Render:** `render.yaml` at the repo root. Set `APP_ENV=production`, `SECRET_KEY`, `DATABASE_URL`, `CORS_ORIGINS` (the Vercel URL), `QLOO_API_KEY`, `LLM_API_KEY` and the other variables listed in `backend/.env.example`.
 - **Front end on Vercel:** root directory `frontend`, framework Vite, env `VITE_API_URL` = the Render URL. `vercel.json` handles client-side routes.

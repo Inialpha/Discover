@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 
@@ -19,14 +20,14 @@ TYPES = {"pptx": "application/vnd.openxmlformats-officedocument.presentationml.p
 
 
 @router.get("/{analysis_id}/export")
-def export(format: str = Query("pptx", pattern="^(pptx|docx|json|md)$"), a: Analysis = Depends(owned_analysis)) -> Response:
+async def export(format: str = Query("pptx", pattern="^(pptx|docx|json|md)$"), a: Analysis = Depends(owned_analysis)) -> Response:
     if a.status != "complete" or not a.result:
         raise HTTPException(409, "The analysis is not finished yet")
     res = merged_result(a)
     if format == "pptx":
-        body = ex.build_pptx(a.intake, res)
+        body = await asyncio.to_thread(ex.build_pptx, a.intake, res)
     elif format == "docx":
-        body = ex.build_docx(a.intake, res)
+        body = await asyncio.to_thread(ex.build_docx, a.intake, res)
     elif format == "md":
         body = (a.report_md or "").encode("utf-8")
     else:

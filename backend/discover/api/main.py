@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from ..config import load_dotenv
 from .db import Base, make_engine, make_session_factory
 from .routes import analyses, auth, exports, meta
+from .services import runner
 from .services.runner import fail_stale
 from .settings import ApiSettings
 
@@ -23,9 +24,14 @@ def create_app(settings: ApiSettings | None = None, engine_kwargs: dict[str, Any
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        Base.metadata.create_all(engine)  # the schema is small; switch to Alembic migrations if it grows
-        fail_stale(sf)
-        yield
+        async with engine.begin() as conn:  # the schema is small; switch to Alembic migrations if it grows
+            await conn.run_sync(Base.metadata.create_all)
+        await fail_stale(sf)
+        try:
+            yield
+        finally:
+            await runner.cancel_all()  # stop background runs cleanly on shutdown
+            await engine.dispose()
 
     app = FastAPI(title="Discover API", version="0.1.0", lifespan=lifespan)
     app.state.settings, app.state.session_factory, app.state.engine = st, sf, engine

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.orm import Session
+import asyncio
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db import get_db
 from ..deps import current_user
@@ -18,26 +21,26 @@ def _token(request: Request, user: User) -> TokenOut:
 
 
 @router.post("/signup", response_model=TokenOut, status_code=201)
-def signup(body: SignUp, request: Request, db: Session = Depends(get_db)) -> TokenOut:
+async def signup(body: SignUp, request: Request, db: AsyncSession = Depends(get_db)) -> TokenOut:
     if not request.app.state.settings.allow_signup:
         raise HTTPException(403, "Sign-ups are closed")
     email = body.email.lower()
-    if db.query(User).filter_by(email=email).first():
+    if (await db.execute(select(User).where(User.email == email))).scalar_one_or_none():
         raise HTTPException(409, "An account with this email already exists")
-    user = User(email=email, name=body.name.strip(), password_hash=hash_password(body.password))
+    user = User(email=email, name=body.name.strip(), password_hash=await asyncio.to_thread(hash_password, body.password))
     db.add(user)
-    db.commit()
+    await db.commit()
     return _token(request, user)
 
 
 @router.post("/login", response_model=TokenOut)
-def login(body: Login, request: Request, db: Session = Depends(get_db)) -> TokenOut:
-    user = db.query(User).filter_by(email=body.email.lower()).first()
-    if not user or not verify_password(body.password, user.password_hash):
+async def login(body: Login, request: Request, db: AsyncSession = Depends(get_db)) -> TokenOut:
+    user = (await db.execute(select(User).where(User.email == body.email.lower()))).scalar_one_or_none()
+    if not user or not await asyncio.to_thread(verify_password, body.password, user.password_hash):
         raise HTTPException(401, "Wrong email or password")
     return _token(request, user)
 
 
 @router.get("/me", response_model=UserOut)
-def me(user: User = Depends(current_user)) -> User:
+async def me(user: User = Depends(current_user)) -> User:
     return user

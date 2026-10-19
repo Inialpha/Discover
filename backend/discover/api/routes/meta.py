@@ -17,12 +17,12 @@ LABELS = {"smartphone": "Smartphone", "computing": "Computers & tablets", "appar
 
 
 @router.get("/health")
-def health() -> dict[str, str]:
+async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
 @router.get("/api/meta")
-def meta() -> dict:
+async def meta() -> dict:
     return {
         "categories": [{"id": c, "label": LABELS.get(c, c), "profile": p} for c, p in CATEGORIES.items()],
         "purchase_types": [{"id": "one_off", "label": "One-off purchase"}, {"id": "monthly", "label": "Monthly subscription"},
@@ -34,7 +34,7 @@ def meta() -> dict:
 
 
 @router.get("/api/avatars/{key}.svg")
-def avatar_svg(key: str) -> Response:
+async def avatar_svg(key: str) -> Response:
     if len(key) > 20:
         raise HTTPException(404)
     return Response(avatar.svg(key), media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})

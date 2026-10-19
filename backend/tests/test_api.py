@@ -136,14 +136,17 @@ def test_one_active_run_per_user_and_daily_cap(tmp_path, monkeypatch):
 def test_export_before_completion_is_refused_and_failed_runs_are_reported(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     from discover.api.models import Analysis
-    app = create_app(settings())
+    app = create_app(settings(database_url=f"sqlite:///{tmp_path}/restart.db"))  # a file: the in-memory db is dropped on shutdown
     with TestClient(app) as c:
         h = signup(c)
-        with app.state.session_factory() as db:
+        async def seed():
+            from sqlalchemy import select
             from discover.api.models import User
-            uid = db.query(User).first().id
-            db.add(Analysis(id="x1", user_id=uid, title="t", intake=INTAKE, status="running"))
-            db.commit()
+            async with app.state.session_factory() as db:
+                uid = (await db.execute(select(User))).scalars().first().id
+                db.add(Analysis(id="x1", user_id=uid, title="t", intake=INTAKE, status="running"))
+                await db.commit()
+        c.portal.call(seed)
         assert c.get("/api/analyses/x1/export?format=pptx", headers=h).status_code == 409
     # restart: stale running analyses are failed with an explanation
     with TestClient(app) as c2:
@@ -165,9 +168,12 @@ def test_avatar_endpoint_serves_svg(client):
 
 def test_postgres_urls_are_normalised():
     from discover.api.db import normalize_url
-    assert normalize_url("postgres://u:p@h/db").startswith("postgresql+psycopg://")
-    assert normalize_url("postgresql://u:p@h/db").startswith("postgresql+psycopg://")
-    assert normalize_url("sqlite:///x.db") == "sqlite:///x.db"
+    assert normalize_url("postgres://u:p@h/db").startswith("postgresql+asyncpg://")
+    assert normalize_url("postgresql://u:p@h/db").startswith("postgresql+asyncpg://")
+    assert normalize_url("sqlite:///x.db") == "sqlite+aiosqlite:///x.db"
+    # Neon-style libpq options become asyncpg ones
+    n = normalize_url("postgresql://u:p@h/db?sslmode=require&channel_binding=require")
+    assert "ssl=require" in n and "sslmode" not in n and "channel_binding" not in n
 
 
 def test_production_requires_a_secret_key(monkeypatch):

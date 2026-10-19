@@ -26,7 +26,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(120), default="")
     password_hash: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
-    analyses: Mapped[list["Analysis"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    analyses: Mapped[list["Analysis"]] = relationship(back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
 
 
 class Analysis(Base):
@@ -45,7 +45,7 @@ class Analysis(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     user: Mapped[User] = relationship(back_populates="analyses")
-    events: Mapped[list["AnalysisEvent"]] = relationship(back_populates="analysis", cascade="all, delete-orphan",
+    events: Mapped[list["AnalysisEvent"]] = relationship(back_populates="analysis", cascade="all, delete-orphan", passive_deletes=True,
                                                          order_by="AnalysisEvent.seq")
 
 
