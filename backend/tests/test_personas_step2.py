@@ -297,7 +297,12 @@ def test_runner_with_llm_and_fake_provider(make_intake, store, tmp_path):
     assert all(x["basis"] == "calculated" for p in res["personas"] for x in p["platforms"])  # computed in code, never by the LLM
     plats = {x["platform"] for p in res["personas"] for x in p["platforms"]}
     assert "Instagram" in plats and "WhatsApp" not in plats and "Wikidata" not in plats  # allowlist from data; the LLM's guess is ignored
-    persona_calls = [json.loads(b["messages"][1]["content"]) for b in seen if "segment" in json.loads(b["messages"][1]["content"])]
+    def _payload(b):
+        try:
+            return json.loads(b["messages"][1]["content"])
+        except ValueError:
+            return {}
+    persona_calls = [c for c in map(_payload, seen) if "segment" in c]
     assert persona_calls and all("culture" in c["qloo"] and "platforms" not in c["qloo"]["culture"] for c in persona_calls)
     assert any(c["qloo"]["culture"]["sentences"] for c in persona_calls)
     assert len(list((run / "llm").glob("*_persona_*.json"))) == 3
