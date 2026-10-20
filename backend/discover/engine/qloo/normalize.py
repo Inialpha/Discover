@@ -15,6 +15,12 @@ PROP_WHITELIST = (
 )
 
 
+# Qloo fields that describe the AUDIENCE of an entity (kept for the culture digest, see personas/culture.py).
+AUDIENCE_LISTS = ("customer_segments", "interest_adjacencies", "cultural_relevance", "influencer_appeal", "adjectives_for_fans",
+                  "audience_tags", "good_for")
+AUDIENCE_TEXTS = ("audience_identity", "target_demographics_description", "situational_contexts", "customer_demographics_description")
+
+
 def shape_of(obj: Any, depth: int = 3) -> Any:
     """A compact structural fingerprint (keys / list element shape) for debugging."""
     if depth <= 0:
@@ -44,6 +50,15 @@ def _compact_props(props: Any) -> dict[str, Any]:
         if isinstance(v, str) and len(v) > 280:
             v = v[:277] + "..."
         out[k] = v
+    for k in AUDIENCE_LISTS:
+        v = props.get(k)
+        if isinstance(v, list) and v:
+            names = [(x.get("name") if isinstance(x, dict) else x) for x in v]
+            out[k] = [n for n in names if isinstance(n, str)][:10]
+    for k in AUDIENCE_TEXTS:
+        v = props.get(k)
+        if isinstance(v, str) and v.strip():
+            out[k] = v if len(v) <= 400 else v[:397] + "..."
     return out
 
 
@@ -108,6 +123,7 @@ def entities_from_insights(body: Any) -> list[dict[str, Any]]:
             "tags": _tags(e.get("tags")),
             "properties": _compact_props(e.get("properties")),
             "external": _external_highlights(e.get("external") or (e.get("properties") or {}).get("external")),
+            "external_keys": sorted(str(k) for k in ((e.get("external") if isinstance(e.get("external"), dict) else {}) or {})),
         })
     return out
 

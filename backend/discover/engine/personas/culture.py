@@ -25,7 +25,7 @@ from typing import Any, Iterable
 
 # Qloo property -> kind of text. Only fields that talk about the audience, not about the entity itself.
 LIST_FIELDS: dict[str, tuple[str, ...]] = {
-    "brand": ("customer_segments", "target_age_group", "interest_adjacencies", "cultural_relevance", "influencer_appeal"),
+    "brand": ("customer_segments", "interest_adjacencies", "cultural_relevance", "influencer_appeal"),
     "artist": ("adjectives_for_fans",),
     "videogame": ("audience_tags",),
     "place": ("good_for",),
@@ -94,13 +94,17 @@ def _list_stats(entities: list[dict[str, Any]]) -> tuple[dict[str, dict[str, dic
                 continue
             carry[f] += 1
             for c, label in {_canon(v): v for v in vals}.items():
-                slot = stats[f].setdefault(c, {"label": label, "n": 0, "names": []})
+                slot = stats[f].setdefault(c, {"label": label, "n": 0, "names": [], "eids": []})
                 slot["n"] += 1
                 slot["names"].append(e.get("name"))
+                if e.get("evidence_id"):
+                    slot["eids"].append(e["evidence_id"])
     return stats, carry
 
 
 MIN_SUPPORT = 2  # an item carried by a single entity is an anecdote, not a pattern
+MIN_LIFT = 1.5   # items that every segment has ("Loyal") say nothing about this one; applied once the baseline is big enough
+MIN_BASELINE = 8
 
 
 def rank_lists(seg_entities: list[dict[str, Any]], base_entities: list[dict[str, Any]], top: int = 6) -> dict[str, Any]:
@@ -119,9 +123,12 @@ def rank_lists(seg_entities: list[dict[str, Any]], base_entities: list[dict[str,
             b = base.get(f, {}).get(c, {}).get("n", 0)
             share_b = (b + 0.5) / (mb + 1.0)  # smoothed: an item the baseline never saw is not infinitely distinctive
             lift = share / share_b
+            if mb >= MIN_BASELINE and lift < MIN_LIFT:
+                continue
             rows.append({"item": s["label"], "n": s["n"], "of": m, "lift": round(lift, 2),
                          "score": round(share * math.log2(1.0 + lift), 3),
-                         "from": [x for x in dict.fromkeys(s["names"]) if x][:3]})
+                         "from": [x for x in dict.fromkeys(s["names"]) if x][:3],
+                         "evidence": list(dict.fromkeys(s["eids"]))[:3]})
         rows.sort(key=lambda r: (-r["score"], -r["n"], r["item"]))
         if rows:
             out[f] = rows[:top]
@@ -136,7 +143,8 @@ def _sentence_pool(entities: Iterable[dict[str, Any]]) -> list[dict[str, str]]:
         for f in SENTENCE_FIELDS.get(_kind(e), ()):
             t = _props(e).get(f)
             if isinstance(t, str) and len(t.split()) >= 5:
-                pool.append({"text": " ".join(t.split()), "entity": e.get("name") or "", "kind": _kind(e), "field": f})
+                pool.append({"text": " ".join(t.split()), "entity": e.get("name") or "", "kind": _kind(e), "field": f,
+                             "eid": e.get("evidence_id") or ""})
     return pool
 
 
@@ -194,7 +202,7 @@ def pick_sentences(seg_entities: list[dict[str, Any]], base_entities: list[dict[
             break
         chosen.append(best)
     return [{"text": _clip(pool[i]["text"]), "entity": pool[i]["entity"], "kind": pool[i]["kind"],
-             "centrality": round(cent[i], 2)} for i in chosen]
+             "evidence": pool[i]["eid"], "centrality": round(cent[i], 2)} for i in chosen]
 
 
 # ----------------------------------------------------------------------------------------- platforms
@@ -202,16 +210,18 @@ def pick_sentences(seg_entities: list[dict[str, Any]], base_entities: list[dict[
 def platforms(seg_entities: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Allowlisted social platforms found in the entities' `external` blocks, with how many entities carry each."""
     carriers: dict[str, set[str]] = defaultdict(set)
+    eids: dict[str, list[str]] = defaultdict(list)
     for e in seg_entities:
         ext = e.get("external") or _props(e).get("external") or {}
-        if not isinstance(ext, dict):
-            continue
-        for key, val in ext.items():
-            label = PLATFORMS.get(str(key).lower())
-            if label and val:
-                carriers[label].add(e.get("name") or "")
+        keys = set(ext) if isinstance(ext, dict) else set()
+        keys |= set(e.get("external_keys") or [])
+        for label in {PLATFORMS[k.lower()] for k in map(str, keys) if k.lower() in PLATFORMS}:
+            carriers[label].add(e.get("name") or "")
+            if e.get("evidence_id"):
+                eids[label].append(e["evidence_id"])
     total = len(seg_entities)
-    rows = [{"platform": p, "n": len(v), "of": total, "examples": sorted(x for x in v if x)[:3]} for p, v in carriers.items()]
+    rows = [{"platform": p, "n": len(v), "of": total, "examples": sorted(x for x in v if x)[:3],
+             "evidence": list(dict.fromkeys(eids[p]))[:4]} for p, v in carriers.items()]
     rows.sort(key=lambda r: (-r["n"], r["platform"]))
     return rows
 

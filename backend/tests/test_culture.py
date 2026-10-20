@@ -39,3 +39,12 @@ def test_platforms_come_from_allowlist_only():
          ent("B", "brand", external={"twitter": [{"id": "t"}], "wikidata": [{"id": "q"}], "instagram": [{"id": "y"}]})]
     got = {p["platform"]: p["n"] for p in C.platforms(s)}
     assert got == {"Instagram": 2, "Spotify": 1, "X (Twitter)": 1}
+
+
+def test_platforms_in_persona_come_from_digest_not_llm():
+    from discover.engine.personas import writer as W
+    cv = {"platforms": [{"platform": "Instagram", "n": 5, "of": 8, "evidence": ["E3"]}, {"platform": "Spotify", "n": 2, "of": 8, "evidence": []}]}
+    rows = W.platform_rows(cv)
+    assert [r["platform"] for r in rows] == ["Instagram", "Spotify"]
+    assert rows[0]["basis"] == "calculated" and rows[0]["evidence"] == ["E3"] and "5 of the 8" in rows[0]["why"]
+    assert W.platform_rows(None) == []

@@ -5,8 +5,8 @@ Every claim carries a `basis`:
   evidence        cites Qloo evidence ids that exist in this run
   calculated      computed from cited statistics (price vs income bands)
   interpretation  the model's reasoning; never presented as data
-Names of places and tastes are only kept if Qloo actually returned them for that segment. Platforms and events are
-always interpretation (Qloo has no platform or event data).
+Names of places and tastes are only kept if Qloo actually returned them for that segment. Platforms are computed in code from
+the `external` accounts of the segment's entities (an allowlist of social platforms); events are always interpretation.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from typing import Any
 
 from ..llm.client import LLMClient, LLMError
 from .affordability import Affordability
-from .evidence import entity_names, place_affinity, place_names, segment_view
+from .evidence import culture_for, entity_names, place_affinity, place_names, segment_view
 from .identity import enrich
 from .intake import ProductIntake
 from .scoring import SegmentScore
@@ -28,7 +28,6 @@ PERSONA_SYSTEM = """You write ONE buyer persona for a business, using ONLY the J
  "motivations": [{"text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
  "objections": [{"text": str, "basis": "interpretation", "evidence": [ids]}],
  "messages": [{"angle": str, "text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
- "platforms": [{"platform": str, "why": str}],
  "where_to_reach": [{"place": str, "evidence": [ids]}],
  "tastes": [{"name": str, "kind": str, "evidence": [ids]}],
  "events": [{"idea": str, "why": str}],
@@ -54,13 +53,15 @@ Rules:
 - Never invent product specs or numbers (hours of battery, megapixels, storage, speeds). Use only what the product text
   states. Never use comparatives or social proof ("outlasts", "best", "top-rated", "chosen by", "trusted by", "fans of").
 - If an item looks foreign to the market (for example an artist from another country), you may list it but say it is cross-market.
-- "platforms" and "events" are interpretation: Qloo has no platform or event data. At most 3 platforms and 2 events.
+- "events" are interpretation: Qloo has no event data. At most 2 events.
 - At most 3 messages (each under 25 words), 3 motivations, 3 objections. Messages must rest on a product fact in the input
   or a cited taste; do not promise features the product text does not state.
-- Items in the qloo lists may carry "audience": Qloo's own description of the kind of person who likes that item. Use these
-  to describe the persona's values, outlook and tone, and to shape message angles, citing the list's evidence id. Paraphrase
-  them; never quote them as statistics, never attribute a trait to the persona that no "audience" text supports, and if
-  few items carry one, say little about values instead of guessing.
+- "qloo.culture" is a digest of Qloo's own descriptions of the AUDIENCE of the items this segment likes: "lists" (items
+  with "n of m" support, meaning n of the m items that had that field) and "sentences". Use them to describe the persona's
+  values, outlook, tone and occasions, and to shape message angles, citing the evidence ids that come with them.
+  Paraphrase; never present n/m as a share of people; never attribute a trait that no entry supports. If the digest is
+  thin or empty, say little about values instead of guessing.
+- Do not write platforms; the system adds them from data.
 - "market" (when given) lists what customers use instead of the product (alternatives) and the wider sector. One message may
   speak to someone switching from an alternative, using only product facts from the input; never criticise or compare with a
   named brand.
@@ -157,6 +158,14 @@ def price_barriers(seg: SegmentScore, aff: Affordability) -> list[dict[str, Any]
     return out[:3]
 
 
+def culture_for_llm(c: dict[str, Any]) -> dict[str, Any]:
+    """The digest as the writer sees it: short keys, no counts of entities, no platforms (the system adds those)."""
+    lists = {f: [{"item": r["item"], "n": r["n"], "of": r["of"], "evidence": r["evidence"]} for r in rows]
+             for f, rows in (c.get("lists") or {}).items()}
+    sents = [{"text": x["text"], "evidence": x["evidence"]} for x in c.get("sentences") or []]
+    return {"lists": lists, "sentences": sents}
+
+
 def llm_input(intake: ProductIntake, aff: Affordability, seg: SegmentScore, view: dict[str, Any],
               anchors: list[dict[str, str]], age_index: dict[str, float], gender_index: dict[str, float],
               market: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -221,8 +230,19 @@ def _clean_claims(rows: Any, valid: set[str], allowed_basis: tuple[str, ...], de
     return kept, fixed
 
 
+def platform_rows(culture_view: dict[str, Any] | None, limit: int = 3) -> list[dict[str, Any]]:
+    """Platforms come from data, never from the LLM: social platforms the segment's brands, artists and shows are on."""
+    rows = []
+    for x in ((culture_view or {}).get("platforms") or [])[:limit]:
+        rows.append({"platform": x["platform"],
+                     "why": f"{x['n']} of the {x['of']} brands, artists and shows this audience likes have a presence on "
+                            f"{x['platform']} (it shows where they are active, not where the audience spends time).",
+                     "evidence": list(x.get("evidence") or []), "basis": "calculated"})
+    return rows
+
+
 def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[str, Any]], aff: Affordability,
-                     intake: ProductIntake | None = None) -> dict[str, Any]:
+                     intake: ProductIntake | None = None, culture_view: dict[str, Any] | None = None) -> dict[str, Any]:
     valid = {i["id"] for i in ev_items if i.get("ok")}
     dropped = {"tastes": 0, "where_to_reach": 0}
     downgraded = 0
@@ -241,8 +261,7 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
     barriers = price_barriers(seg, aff)
     seen = {_norm(o["text"]) for o in barriers}
     p["objections"] = (barriers + [o for o in p["objections"] if _norm(o.get("text", "")) not in seen])[:4]
-    p["platforms"] = [{"platform": str(x.get("platform")), "why": str(x.get("why", "")), "basis": "interpretation"}
-                      for x in (p.get("platforms") or []) if isinstance(x, dict) and x.get("platform")][:3]
+    p["platforms"] = platform_rows(culture_view)
     p["events"] = [{"idea": str(x.get("idea")), "why": str(x.get("why", "")), "basis": "interpretation"}
                    for x in (p.get("events") or []) if isinstance(x, dict) and x.get("idea")][:2]
     places = {_norm(n): n for n in place_names(ev_items, seg.label)}
@@ -273,7 +292,7 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
     return p
 
 
-def template_persona(seg: SegmentScore, view: dict[str, Any], aff: Affordability) -> dict[str, Any]:
+def template_persona(seg: SegmentScore, view: dict[str, Any], aff: Affordability, culture_view: dict[str, Any] | None = None) -> dict[str, Any]:
     """No-LLM persona: only what the rules, the numbers and Qloo returned. No messages, platforms or motivations."""
     tastes = []
     for kind, block in (view.get("lists") or {}).items():
@@ -289,8 +308,8 @@ def template_persona(seg: SegmentScore, view: dict[str, Any], aff: Affordability
                            "evidence": [pl["evidence_id"]], "basis": "evidence"})
     return {"segment_id": seg.id, "name": seg.label, "headline": seg.description,
             "who": f"Ages {', '.join(seg.ages)} (rule-based segment).", "motivations": [], "messages": [],
-            "objections": price_barriers(seg, aff), "platforms": [], "events": [], "tastes": tastes[:6],
-            "where_to_reach": places, "caveats": ["Template persona: no LLM was used, so there are no messages, platforms or motivations."],
+            "objections": price_barriers(seg, aff), "platforms": platform_rows(culture_view), "events": [], "tastes": tastes[:6],
+            "where_to_reach": places, "caveats": ["Template persona: no LLM was used, so there are no messages or motivations."],
             "validation": {"dropped": {}, "downgraded_to_interpretation": 0}}
 
 
@@ -300,6 +319,8 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
     out: list[dict[str, Any]] = []
     for n, seg in enumerate(ranked):
         view = segment_view(items, seg)
+        cult = culture_for(items, seg.label, [r.label for r in ranked])
+        view["culture"] = culture_for_llm(cult)
         persona: dict[str, Any] | None = None
         source, error = "template", None
         if llm:
@@ -310,13 +331,13 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
                 raw = await llm.chat_json(f"persona_{seg.id}", PERSONA_SYSTEM, json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
                                           max_tokens=3000)
                 if isinstance(raw, dict):
-                    persona, source = validate_persona(raw, seg, items, aff, intake), "llm"
+                    persona, source = validate_persona(raw, seg, items, aff, intake, cult), "llm"
                 else:
                     error = "LLM returned a non-object"
             except LLMError as e:
                 error = str(e)
         if persona is None:
-            persona = template_persona(seg, view, aff)
+            persona = template_persona(seg, view, aff, cult)
             if error:
                 persona["caveats"].append(f"LLM failed for this persona ({error}); template used.")
         persona["source"] = source
@@ -412,7 +433,7 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
                 aff_txt = f", affinity {w['affinity']}" if w.get("affinity") is not None else ""
                 L.append(f"- {w['place']} *[Qloo{aff_txt}]* `{','.join(w['evidence'])}`")
             L.append("")
-        section("Platforms (no platform data in Qloo)", p["platforms"], ("platform", "why"))
+        section("Platforms (where the brands, artists and shows this audience likes are active)", p["platforms"], ("platform", "why"))
         section("Event ideas (no event data in Qloo)", p["events"], ("idea", "why"))
         if p["caveats"]:
             L += ["**Caveats:** " + " ".join(p["caveats"]), ""]

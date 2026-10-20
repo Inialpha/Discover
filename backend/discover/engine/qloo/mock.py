@@ -55,6 +55,14 @@ def _entity(kind: str, i: int, seed: int, with_query: bool = True) -> dict:
         e["tags"] = [{"id": "urn:tag:genre:brand:mock_category", "name": "Mock Category", "type": "urn:tag:genre:brand", "weight": 0.9},
                      {"id": "urn:tag:genre:brand:mock_category:sub", "name": "Mock Sub", "type": "urn:tag:genre:brand", "weight": 0.8},
                      {"id": "urn:tag:aesthetic_property:qloo:clean", "name": "Clean", "type": "urn:tag:aesthetic_property:qloo", "weight": 0.5}]
+    if kind in ("brand", "tv_show", "movie"):
+        e["properties"]["audience_identity"] = f"[SYNTHETIC] People who value everyday reliability and enjoy {name} with family at home."
+    if kind == "brand":
+        e["properties"]["customer_segments"] = ["Families", "Students"] if i % 2 == 0 else ["Families"]
+    if kind == "artist":
+        e["properties"]["adjectives_for_fans"] = ["Loyal", "Energetic"] if i % 2 == 0 else ["Loyal"]
+    if kind in ("brand", "artist"):
+        e["external"] = {"instagram": [{"id": f"mock{i}"}], "wikidata": [{"id": f"Q{i}"}]}
     if kind == "place":
         e["location"] = {"lat": round(6.45 + (i % 4) * 0.02, 4), "lon": round(3.4 + (i % 4) * 0.02, 4), "geohash": "s0yd5k"}
     if with_query:

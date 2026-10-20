@@ -18,6 +18,7 @@ from typing import Any
 from ..modes.business.pipeline import Evidence, _annotate_heatmaps, _pick
 from ..qloo import calls, normalize as nz
 from ..qloo.client import QlooClient
+from . import culture
 from .intake import ProductIntake
 from .scoring import SegmentScore
 from .segments import by_id
@@ -151,21 +152,20 @@ async def gather_segments(client: QlooClient, intake: ProductIntake, segments: l
     _annotate_heatmaps(ev)
 
 
-AUDIENCE_MAX = 170
+def segment_entities(ev_items: list[dict[str, Any]], seg_label: str) -> list[dict[str, Any]]:
+    """Every entity Qloo returned for a segment, each tagged with the evidence id of the call it came from."""
+    out: list[dict[str, Any]] = []
+    for it in ev_items:
+        if it.get("segment") == seg_label and it.get("ok") and it["step"] == "affinity":
+            for e in (it.get("data") or {}).get("entities", []):
+                out.append({**e, "evidence_id": it["id"]})
+    return out
 
 
-def _audience_text(entity: dict[str, Any]) -> str | None:
-    """Qloo's own one-sentence description of who likes this entity (properties.audience_identity), trimmed on a word boundary.
-
-    Present for most brands and many TV shows, absent for artists and places. It is the cultural text the writer uses to
-    describe values and tone; it is never invented, and an entity without it simply has none."""
-    t = (entity.get("properties") or {}).get("audience_identity") or entity.get("audience_identity")
-    if not isinstance(t, str) or not t.strip():
-        return None
-    t = " ".join(t.split())
-    if len(t) <= AUDIENCE_MAX:
-        return t
-    return t[:AUDIENCE_MAX].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+def culture_for(ev_items: list[dict[str, Any]], seg_label: str, other_labels: list[str]) -> dict[str, Any]:
+    """Culture digest for one segment (see personas/culture.py): the other segments' entities are the baseline."""
+    base = [e for lab in other_labels if lab != seg_label for e in segment_entities(ev_items, lab)]
+    return culture.digest(segment_entities(ev_items, seg_label), base, top=5, sentences=4)
 
 
 def segment_view(ev_items: list[dict[str, Any]], seg: SegmentScore, per_kind: int = 5, areas: int = 4) -> dict[str, Any]:
@@ -182,8 +182,7 @@ def segment_view(ev_items: list[dict[str, Any]], seg: SegmentScore, per_kind: in
             view["lists"][d.get("kind")] = {"evidence_id": it["id"], "items": [
                 {"name": e.get("name"), **({"affinity": round(e["affinity"], 2)} if isinstance(e.get("affinity"), float) else {}),
                  **({"address": (e.get("properties") or {}).get("address")} if (e.get("properties") or {}).get("address") else {}),
-                 **({"info": str(e["disambiguation"])[:60]} if e.get("disambiguation") else {}),
-                 **({"audience": a} if (a := _audience_text(e)) else {})}
+                 **({"info": str(e["disambiguation"])[:60]} if e.get("disambiguation") else {})}
                 for e in d.get("entities", [])[:per_kind]]}
         elif it["step"] == "heatmap":
             pts = sorted(d.get("points", []), key=lambda p: -(p.get("affinity") or 0))
