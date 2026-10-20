@@ -111,7 +111,8 @@ async def run_analysis(sf: SF, api: ApiSettings, analysis_id: str, engine_settin
         await writer.close()
         await _finish(sf, analysis_id, status="failed", error=str(exc)[:1000])
     finally:
-        await asyncio.to_thread(shutil.rmtree, out, ignore_errors=True)
+        if not api.keep_runs:
+            await asyncio.to_thread(shutil.rmtree, out, ignore_errors=True)
 
 
 def _read_outputs(run_dir: Path) -> tuple[dict[str, Any], str | None]:

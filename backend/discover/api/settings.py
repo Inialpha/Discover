@@ -32,6 +32,7 @@ class ApiSettings:
     runs_dir: str
     agent_enabled: bool
     llm_delay: float  # seconds between LLM calls (provider token-per-minute limits, e.g. 8 on Groq's free tier)
+    keep_runs: bool = False  # keep every run's folder (calls, model exchanges, evidence, ledger) under RUNS_DIR for debugging
 
     @classmethod
     def from_env(cls) -> "ApiSettings":
@@ -53,4 +54,5 @@ class ApiSettings:
             runs_dir=os.environ.get("RUNS_DIR") or "/tmp/discover-runs",
             agent_enabled=_bool("AGENT_ENABLED", True),
             llm_delay=float(os.environ.get("LLM_DELAY_SECONDS") or 0),
+            keep_runs=_bool("KEEP_RUNS", False),
         )
