@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
+import Footer from "./Footer";
 
 export function Logo() {
   return (
@@ -32,7 +33,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main>{children}</main>
-      <footer className="foot">Market data powered by Qloo. Anything marked Suggestion is not confirmed by data.</footer>
+      <Footer />
     </div>
   );
 }
