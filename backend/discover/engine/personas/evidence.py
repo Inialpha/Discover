@@ -151,6 +151,23 @@ async def gather_segments(client: QlooClient, intake: ProductIntake, segments: l
     _annotate_heatmaps(ev)
 
 
+AUDIENCE_MAX = 170
+
+
+def _audience_text(entity: dict[str, Any]) -> str | None:
+    """Qloo's own one-sentence description of who likes this entity (properties.audience_identity), trimmed on a word boundary.
+
+    Present for most brands and many TV shows, absent for artists and places. It is the cultural text the writer uses to
+    describe values and tone; it is never invented, and an entity without it simply has none."""
+    t = (entity.get("properties") or {}).get("audience_identity") or entity.get("audience_identity")
+    if not isinstance(t, str) or not t.strip():
+        return None
+    t = " ".join(t.split())
+    if len(t) <= AUDIENCE_MAX:
+        return t
+    return t[:AUDIENCE_MAX].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+
+
 def segment_view(ev_items: list[dict[str, Any]], seg: SegmentScore, per_kind: int = 5, areas: int = 4) -> dict[str, Any]:
     """Compact per-segment evidence for the persona writer: ids stay attached so claims can cite them."""
     view: dict[str, Any] = {"segment_id": seg.id, "label": seg.label, "ages": list(seg.ages), "lists": {}, "areas": []}
@@ -165,7 +182,8 @@ def segment_view(ev_items: list[dict[str, Any]], seg: SegmentScore, per_kind: in
             view["lists"][d.get("kind")] = {"evidence_id": it["id"], "items": [
                 {"name": e.get("name"), **({"affinity": round(e["affinity"], 2)} if isinstance(e.get("affinity"), float) else {}),
                  **({"address": (e.get("properties") or {}).get("address")} if (e.get("properties") or {}).get("address") else {}),
-                 **({"info": str(e["disambiguation"])[:60]} if e.get("disambiguation") else {})}
+                 **({"info": str(e["disambiguation"])[:60]} if e.get("disambiguation") else {}),
+                 **({"audience": a} if (a := _audience_text(e)) else {})}
                 for e in d.get("entities", [])[:per_kind]]}
         elif it["step"] == "heatmap":
             pts = sorted(d.get("points", []), key=lambda p: -(p.get("affinity") or 0))

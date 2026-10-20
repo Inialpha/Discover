@@ -4,6 +4,7 @@ import { api } from "../api";
 import { useAuth } from "../auth";
 import { Logo } from "../components/Shell";
 import Avatar from "../components/Avatar";
+import Footer from "../components/Footer";
 
 export default function Login() {
   const { user, signIn } = useAuth();
@@ -27,6 +28,7 @@ export default function Login() {
   };
 
   return (
+    <>
     <div className="login">
       <section className="hero">
         <Logo />
@@ -61,5 +63,7 @@ export default function Login() {
         <p className="fine">An account lets us keep your analyses and limit usage fairly.</p>
       </form>
     </div>
+    <Footer />
+    </>
   );
 }

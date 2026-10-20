@@ -57,6 +57,10 @@ Rules:
 - "platforms" and "events" are interpretation: Qloo has no platform or event data. At most 3 platforms and 2 events.
 - At most 3 messages (each under 25 words), 3 motivations, 3 objections. Messages must rest on a product fact in the input
   or a cited taste; do not promise features the product text does not state.
+- Items in the qloo lists may carry "audience": Qloo's own description of the kind of person who likes that item. Use these
+  to describe the persona's values, outlook and tone, and to shape message angles, citing the list's evidence id. Paraphrase
+  them; never quote them as statistics, never attribute a trait to the persona that no "audience" text supports, and if
+  few items carry one, say little about values instead of guessing.
 - "market" (when given) lists what customers use instead of the product (alternatives) and the wider sector. One message may
   speak to someone switching from an alternative, using only product facts from the input; never criticise or compare with a
   named brand.
