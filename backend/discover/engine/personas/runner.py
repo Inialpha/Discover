@@ -171,7 +171,7 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
                                  if anchor["age_index"] else None)
         rec.write_json("02_segments_after_qloo.json", scoring.to_dict())
         _emit(opts, "segments", f"Collecting Qloo taste, place and area data for {len(scoring.ranked)} buyer segments")
-        await E.gather_segments(client, intake, scoring.ranked, anchor["ev"], opts.kinds, opts.take)
+        await E.gather_segments(client, intake, scoring.ranked, anchor["ev"], opts.kinds, opts.take, anchors=anchor["anchors"])
         results, auth_failed, calls_used = client.results, client.auth_failed, client.calls_used
 
     ev_items = anchor["ev"].items

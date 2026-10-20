@@ -515,3 +515,27 @@ def test_fake_llm_cannot_smuggle_invented_numbers_through_write_personas(bundle_
     llm = LLMClient(LLM_SETTINGS, RunRecorder(tmp_path / "r7"), transport=httpx.MockTransport(handler))
     ps = run_async(W.write_personas(llm, i, aff, res.ranked, bundle))
     assert all(p["messages"] == [] and p["validation"]["dropped"]["messages"] == 1 for p in ps)
+
+
+def test_anchored_calls_use_competitors_and_feed_culture_only(make_intake, store, tmp_path):
+    code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path), LLM_SETTINGS, store, llm_transport=fake_llm_transport()[0]))
+    ev = json.loads((run / "03_evidence.json").read_text())
+    anchored = [e for e in ev if e["step"] == "affinity" and (e.get("data") or {}).get("anchored")]
+    plain = [e for e in ev if e["step"] == "affinity" and e["segment"] and not (e.get("data") or {}).get("anchored")]
+    assert anchored and {e["data"]["kind"] for e in anchored} == set(E.ANCHORED_KINDS)
+    assert len(anchored) == 3 * len({e["segment"] for e in anchored}) and plain
+    calls_log = [json.loads(x) for x in (run / "calls.jsonl").read_text().splitlines()]
+    sent = [c for c in calls_log if c["label"].endswith("-anchored")]
+    assert sent and all(c["ok"] for c in sent)
+    q = [f for f in (run / "qloo").glob("*anchored*")]
+    body = json.loads(q[0].read_text())
+    assert "signal.interests.entities" in body["request"]["params"] and "signal.demographics.age" in body["request"]["params"]
+    # the plain per-segment lists are untouched by the extra calls
+    assert all("anchored" not in k for e in plain for k in (e.get("data") or {}))
+
+
+def test_anchor_ids_prefer_direct_competitors():
+    a = [{"entity_id": "1", "tier": "direct"}, {"entity_id": "2", "tier": "direct"}, {"entity_id": "3", "tier": "alternative"}, {"name": "x"}]
+    assert E.anchor_ids(a) == ["1", "2"]
+    assert E.anchor_ids([{"entity_id": "3", "tier": "alternative"}, {"entity_id": "1"}]) == ["3", "1"]  # too few direct: others stand in
+    assert E.anchor_ids(None) == [] and len(E.anchor_ids([{"entity_id": str(i)} for i in range(9)])) == E.ANCHORS_PER_CALL
