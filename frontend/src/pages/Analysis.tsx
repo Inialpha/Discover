@@ -107,11 +107,20 @@ export default function Analysis() {
     <div className="page">
       <div className="pagehead row between">
         <div>
-          <p className="crumb"><Link to="/history">My analyses</Link></p>
+          <p className="crumb">
+            <Link to="/history">My analyses</Link>
+            {a.product_id && <> / <Link to={`/product/${a.product_id}`}>{a.product_name}</Link> / Analysis {a.run_number} of {a.run_count}</>}
+          </p>
           <h1>{a.intake.name}</h1>
           <p className="lede">{a.intake.location} · {a.intake.price.toLocaleString()} {a.intake.currency}</p>
+          {a.run_number > 1 && a.changes.length > 0 && <p className="changes">{a.changes.map((c) => <span key={c} className="chg">{c}</span>)}</p>}
         </div>
-        {r && <ExportMenu id={a.id} filename={a.intake.name.replace(/[^\w-]+/g, "_")} />}
+        {(r || a.status === "failed") && (
+          <div className="row">
+            <Link className="ghost" to={`/?from=${a.id}`}>Run again with changes</Link>
+            {r && <ExportMenu id={a.id} filename={a.intake.name.replace(/[^\w-]+/g, "_")} />}
+          </div>
+        )}
       </div>
 
       {(active || a.status === "failed") && <Progress events={events} failed={a.status === "failed"} />}

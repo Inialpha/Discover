@@ -9,8 +9,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from ..config import load_dotenv
-from .db import Base, make_engine, make_session_factory
-from .routes import analyses, auth, exports, meta
+from . import migrations
+from .db import make_engine, make_session_factory
+from .routes import analyses, auth, exports, meta, products
 from .services import runner
 from .services.runner import fail_stale
 from .settings import ApiSettings
@@ -24,8 +25,9 @@ def create_app(settings: ApiSettings | None = None, engine_kwargs: dict[str, Any
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        async with engine.begin() as conn:  # the schema is small; switch to Alembic migrations if it grows
-            await conn.run_sync(Base.metadata.create_all)
+        if st.auto_migrate:  # Alembic: creates a new database, or upgrades an existing one without losing data
+            async with engine.begin() as conn:
+                await conn.run_sync(migrations.upgrade)
         await fail_stale(sf)
         try:
             yield
@@ -37,7 +39,7 @@ def create_app(settings: ApiSettings | None = None, engine_kwargs: dict[str, Any
     app.state.settings, app.state.session_factory, app.state.engine = st, sf, engine
     app.state.engine_kwargs = engine_kwargs or {}  # tests inject fake LLM/Qloo transports here
     app.add_middleware(CORSMiddleware, allow_origins=st.cors_origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
-    for r in (meta.router, auth.router, analyses.router, exports.router):
+    for r in (meta.router, auth.router, analyses.router, products.router, exports.router):
         app.include_router(r)
     return app
 

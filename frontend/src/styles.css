@@ -129,3 +129,9 @@ label.check { display: flex; gap: .6rem; align-items: center; font-weight: 500; 
 .market { margin-bottom: 1.5rem; } .market h2 { margin-bottom: .6rem; } .need { font-size: 1.05rem; }
 .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.4rem; margin: 1rem 0; } .tiers p { margin: .3em 0 .7em; }
 .b-notconfirmed { background: #ececec; color: #4a4a4a; }
+
+.runs { list-style: none; padding: 0; display: grid; gap: 1rem; margin: 1.2rem 0; } .run h3 { margin: 0; display: flex; gap: .6rem; align-items: center; }
+.runhead { display: flex; justify-content: space-between; align-items: center; } .run .row { margin-top: .6rem; } .run p { margin: .3em 0; }
+.changes { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; } .chg { background: #fdeccb; color: #7a5300; border-radius: 8px; padding: .1em .7em; font-size: .85rem; font-weight: 600; }
+.again { max-width: 760px; margin-bottom: 1.2rem; border-color: var(--teal); background: var(--teal-l); } .again p { margin: 0 0 .5rem; }
+.ghost.small, .primary.small { font-size: .85rem; text-decoration: none; } a.ghost { text-decoration: none; display: inline-block; }

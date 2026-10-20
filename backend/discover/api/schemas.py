@@ -59,15 +59,21 @@ class RunOptions(BaseModel):
 class AnalysisCreate(BaseModel):
     intake: IntakeIn
     options: RunOptions = Field(default_factory=RunOptions)
+    product_id: str | None = None  # run again for an existing product; omitted = a new product
+    based_on: str | None = None  # the run this one was copied from (what changed is shown against it); default: the latest run
 
 
 class AnalysisCreated(BaseModel):
     id: str
     status: str
+    product_id: str
+    run_number: int
 
 
 class AnalysisListItem(BaseModel):
     id: str
+    product_id: str | None = None
+    run_number: int = 1
     title: str
     status: str
     product: str
@@ -92,6 +98,11 @@ class EventsOut(BaseModel):
 
 class AnalysisOut(BaseModel):
     id: str
+    product_id: str | None = None
+    product_name: str | None = None
+    run_number: int = 1
+    run_count: int = 1
+    changes: list[str] = Field(default_factory=list)
     title: str
     status: str
     intake: dict[str, Any]
@@ -107,3 +118,41 @@ class PersonaEdit(BaseModel):
     display_name: str | None = Field(default=None, max_length=40)
     title: str | None = Field(default=None, max_length=120)
     summary: str | None = Field(default=None, max_length=400)
+
+
+class ProductListItem(BaseModel):
+    id: str
+    name: str
+    run_count: int
+    location: str  # of the latest run
+    price: float
+    currency: str
+    latest_run_id: str
+    latest_status: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class RunItem(BaseModel):
+    id: str
+    run_number: int
+    status: str
+    changes: list[str]
+    price: float
+    currency: str
+    location: str
+    persona_count: int
+    persona_names: list[str]
+    created_at: datetime
+    finished_at: datetime | None = None
+
+
+class ProductOut(BaseModel):
+    id: str
+    name: str
+    created_at: datetime
+    runs: list[RunItem]
+
+
+class ProductEdit(BaseModel):
+    name: str = Field(min_length=1, max_length=120)

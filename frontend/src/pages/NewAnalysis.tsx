@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { api, type Intake, type Meta } from "../api";
 
 const EXAMPLES: { label: string; intake: Intake }[] = [
@@ -13,6 +13,10 @@ const list = (s: string) => s.split(/[,\n]/).map((x) => x.trim()).filter(Boolean
 
 export default function NewAnalysis() {
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const fromId = params.get("from");
+  const [again, setAgain] = useState<{ productId: string; productName: string; runNumber: number; basedOn: string } | null>(null);
+  const [separate, setSeparate] = useState(false);
   const [meta, setMeta] = useState<Meta | null>(null);
   const [f, setF] = useState<Intake>(blank);
   const [comp, setComp] = useState("");
@@ -24,6 +28,14 @@ export default function NewAnalysis() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => { api.meta().then(setMeta).catch((e) => setErr(e.message)); }, []);
+  useEffect(() => {  // "Run again with changes": start from an earlier run's details
+    if (!fromId) { setAgain(null); return; }
+    api.get(fromId).then((a) => {
+      fill({ ...blank, ...a.intake, features: a.intake.features ?? [], competitors: a.intake.competitors ?? [], age_focus: a.intake.age_focus ?? [] });
+      setUseAgent(a.options.use_agent !== false); setDiscover(a.options.discover !== false);
+      if (a.product_id) setAgain({ productId: a.product_id, productName: a.product_name ?? a.intake.name, runNumber: a.run_number, basedOn: a.id });
+    }).catch((e) => setErr(e.message));
+  }, [fromId]);
   const currencies = useMemo(() => Array.from(new Set(["USD", "NGN", ...(meta?.markets.map((m) => m.currency) ?? [])])).sort(), [meta]);
   const set = <K extends keyof Intake>(k: K, v: Intake[K]) => setF((o) => ({ ...o, [k]: v }));
   const fill = (i: Intake) => { setF(i); setComp(i.competitors.join(", ")); setFeat(i.features.join(", ")); setPriceTxt(String(i.price)); };
@@ -33,7 +45,8 @@ export default function NewAnalysis() {
     try {
       const intake: Intake = { ...f, price: Number(priceTxt), competitors: list(comp), features: list(feat), country: null };
       if (intake.purchase_type !== "repeat") delete intake.purchases_per_year;
-      const r = await api.create(intake, { use_agent: useAgent, discover });
+      const link = again && !separate ? { product_id: again.productId, based_on: again.basedOn } : undefined;
+      const r = await api.create(intake, { use_agent: useAgent, discover }, link);
       nav(`/analysis/${r.id}`);
     } catch (e2) { setErr((e2 as Error).message); setBusy(false); }
   };
@@ -41,13 +54,19 @@ export default function NewAnalysis() {
   return (
     <div className="page">
       <div className="pagehead">
-        <h1>Who is your product for?</h1>
-        <p className="lede">Tell us what you sell and where. It takes about 3 to 4 minutes to read the market, and you can leave the page while it works.</p>
+        <h1>{again ? "Try something different" : "Who is your product for?"}</h1>
+        <p className="lede">{again ? "Change what you want to test, such as the price, the place or the competitors, then run it again." : "Tell us what you sell and where. It takes about 3 to 4 minutes to read the market, and you can leave the page while it works."}</p>
       </div>
-      <div className="examples">
+      {again && (
+        <div className="again card">
+          <p>{separate ? <>This will be saved as a <strong>new product</strong>.</> : <>This will be added to <strong>{again.productName}</strong> as a new analysis, started from analysis {again.runNumber}.</>}</p>
+          <label className="check"><input type="checkbox" checked={separate} onChange={(e) => setSeparate(e.target.checked)} />Save it as a separate product instead</label>
+        </div>
+      )}
+      {!again && <div className="examples">
         <span>Try an example:</span>
         {EXAMPLES.map((x) => <button key={x.label} type="button" className="pill" onClick={() => fill(x.intake)}>{x.label}</button>)}
-      </div>
+      </div>}
       <form className="intake" onSubmit={submit}>
         <fieldset>
           <legend>1 · The product</legend>
@@ -104,7 +123,7 @@ export default function NewAnalysis() {
         )}
         {err && <p className="err" role="alert">{err}</p>}
         <div className="submitrow">
-          <button className="primary big" disabled={busy || !meta}>{busy ? "Starting…" : "Find my audience"}</button>
+          <button className="primary big" disabled={busy || !meta}>{busy ? "Starting…" : again ? "Find my audience again" : "Find my audience"}</button>
         </div>
       </form>
     </div>

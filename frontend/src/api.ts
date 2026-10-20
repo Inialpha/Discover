@@ -45,9 +45,12 @@ export interface Market {
   alternatives_audience?: { brands: string[]; age_index: Record<string, number>; gender_index: Record<string, number> } | null;
 }
 export interface Analysis {
-  id: string; title: string; status: "queued" | "running" | "complete" | "failed"; intake: Intake; options: Record<string, unknown>;
+  id: string; product_id: string | null; product_name: string | null; run_number: number; run_count: number; changes: string[]; title: string; status: "queued" | "running" | "complete" | "failed"; intake: Intake; options: Record<string, unknown>;
   result: Result | null; summary: Record<string, unknown> | null; error: string | null; created_at: string; finished_at: string | null;
 }
+export interface ProductItem { id: string; name: string; run_count: number; location: string; price: number; currency: string; latest_run_id: string; latest_status: Analysis["status"]; created_at: string; updated_at: string }
+export interface RunItem { id: string; run_number: number; status: Analysis["status"]; changes: string[]; price: number; currency: string; location: string; persona_count: number; persona_names: string[]; created_at: string; finished_at: string | null }
+export interface ProductOut { id: string; name: string; created_at: string; runs: RunItem[] }
 export interface ListItem { id: string; title: string; status: Analysis["status"]; product: string; location: string; persona_count: number; created_at: string; finished_at: string | null }
 export interface Ev { seq: number; stage: string; message: string; data: Record<string, unknown>; created_at: string }
 
@@ -87,7 +90,12 @@ export const api = {
   signup: (email: string, password: string, name: string) => call<{ token: string; user: User }>("/api/auth/signup", { method: "POST", body: JSON.stringify({ email, password, name }) }),
   login: (email: string, password: string) => call<{ token: string; user: User }>("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
   me: () => call<User>("/api/auth/me"),
-  create: (intake: Intake, options: { use_agent: boolean; discover: boolean }) => call<{ id: string; status: string }>("/api/analyses", { method: "POST", body: JSON.stringify({ intake, options }) }),
+  create: (intake: Intake, options: { use_agent: boolean; discover: boolean }, link?: { product_id?: string; based_on?: string }) =>
+    call<{ id: string; status: string; product_id: string; run_number: number }>("/api/analyses", { method: "POST", body: JSON.stringify({ intake, options, ...link }) }),
+  products: () => call<ProductItem[]>("/api/products"),
+  product: (id: string) => call<ProductOut>(`/api/products/${id}`),
+  renameProduct: (id: string, name: string) => call<ProductOut>(`/api/products/${id}`, { method: "PATCH", body: JSON.stringify({ name }) }),
+  removeProduct: (id: string) => call<void>(`/api/products/${id}`, { method: "DELETE" }),
   list: () => call<ListItem[]>("/api/analyses"),
   get: (id: string) => call<Analysis>(`/api/analyses/${id}`),
   events: (id: string, since: number) => call<{ status: Analysis["status"]; events: Ev[] }>(`/api/analyses/${id}/events?since=${since}`),

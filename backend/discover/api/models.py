@@ -27,12 +27,29 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     analyses: Mapped[list["Analysis"]] = relationship(back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
+    products: Mapped[list["Product"]] = relationship(back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
+
+
+class Product(Base):
+    """The parent of a product's runs. Each run is an Analysis row that points here with product_id."""
+    __tablename__ = "products"
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_id)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(120))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    user: Mapped[User] = relationship(back_populates="products")
+    runs: Mapped[list["Analysis"]] = relationship(back_populates="product", cascade="all, delete-orphan", passive_deletes=True,
+                                                  order_by="Analysis.run_number")
 
 
 class Analysis(Base):
     __tablename__ = "analyses"
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_id)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    product_id: Mapped[str | None] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"), index=True, nullable=True)
+    run_number: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    changes: Mapped[list | None] = mapped_column(JSON, nullable=True)  # what differed from the previous run, as short readable lines
     title: Mapped[str] = mapped_column(String(200))
     status: Mapped[str] = mapped_column(String(20), default="queued", index=True)  # queued | running | complete | failed
     intake: Mapped[dict] = mapped_column(JSON)
@@ -45,6 +62,7 @@ class Analysis(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     user: Mapped[User] = relationship(back_populates="analyses")
+    product: Mapped["Product | None"] = relationship(back_populates="runs")
     events: Mapped[list["AnalysisEvent"]] = relationship(back_populates="analysis", cascade="all, delete-orphan", passive_deletes=True,
                                                          order_by="AnalysisEvent.seq")
 
