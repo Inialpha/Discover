@@ -1,0 +1,9 @@
+{
+  "name": "PayFlow",
+  "product_type": "payments app",
+  "category": "fintech_app",
+  "price": 0,
+  "currency": "USD",
+  "location": "New York",
+  "description": "A free app for splitting bills and sending money to friends."
+}

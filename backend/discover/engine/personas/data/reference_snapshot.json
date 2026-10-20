@@ -1,0 +1,409 @@
+{
+ "about": "Shipped fallback. Only values verified against the live APIs are included; run `discover refdata refresh` to fill the rest.",
+ "records": [
+  {
+   "country": "GBR",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2023,
+   "value": 59770,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "GBR",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2024,
+   "value": 62220,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "GBR",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2025,
+   "value": 64210,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "IND",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2023,
+   "value": 9710,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "IND",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2024,
+   "value": 10580,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "IND",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2025,
+   "value": 11600,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "JPN",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2023,
+   "value": 55760,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "JPN",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2024,
+   "value": 57450,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "JPN",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2025,
+   "value": 58920,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2023,
+   "value": 8520,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2024,
+   "value": 8900,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2025,
+   "value": 9230,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "USA",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2023,
+   "value": 81870,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "USA",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2024,
+   "value": 85270,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "USA",
+   "indicator": "NY.GNP.PCAP.PP.CD",
+   "year": 2025,
+   "value": 89490,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "JPN",
+   "indicator": "NY.GNP.PCAP.CN",
+   "year": 2024,
+   "value": 5427119.88,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "JPN",
+   "indicator": "NY.GNP.PCAP.CN",
+   "year": 2025,
+   "value": 5719985.83,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "NY.GNP.PCAP.CN",
+   "year": 2024,
+   "value": 1566415.79,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "NY.GNP.PCAP.CN",
+   "year": 2025,
+   "value": 1800770.86,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "USA",
+   "indicator": "NY.GNP.PCAP.CN",
+   "year": 2024,
+   "value": 85273.88,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "USA",
+   "indicator": "NY.GNP.PCAP.CN",
+   "year": 2025,
+   "value": 89488.53,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "JPN",
+   "indicator": "PA.NUS.FCRF",
+   "year": 2024,
+   "value": 151.37,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "JPN",
+   "indicator": "PA.NUS.FCRF",
+   "year": 2025,
+   "value": 149.66,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "PA.NUS.FCRF",
+   "year": 2024,
+   "value": 1478.97,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "PA.NUS.FCRF",
+   "year": 2025,
+   "value": 1518.38,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "USA",
+   "indicator": "PA.NUS.FCRF",
+   "year": 2024,
+   "value": 1.0,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "USA",
+   "indicator": "PA.NUS.FCRF",
+   "year": 2025,
+   "value": 1.0,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 2022,
+   "value": 7.5,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 2018,
+   "value": 7.1,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 2015,
+   "value": 7.0,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 2012,
+   "value": 7.1,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 2010,
+   "value": 7.1,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 2003,
+   "value": 5.7,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 1996,
+   "value": 3.7,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 1992,
+   "value": 4.0,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "NGA",
+   "indicator": "SI.DST.FRST.20",
+   "year": 1985,
+   "value": 6.0,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "note": "verified against the live World Bank API on 2026-10-12"
+  },
+  {
+   "country": "USD",
+   "indicator": "FX.LCU_PER_USD",
+   "year": null,
+   "value": 1.0,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "as_of": "Sun, 11 Oct 2026 00:02:31 +0000",
+   "note": "open.er-api.com daily rate, verified 2026-10-12"
+  },
+  {
+   "country": "NGN",
+   "indicator": "FX.LCU_PER_USD",
+   "year": null,
+   "value": 1330.995081,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "as_of": "Sun, 11 Oct 2026 00:02:31 +0000",
+   "note": "open.er-api.com daily rate, verified 2026-10-12"
+  },
+  {
+   "country": "JPY",
+   "indicator": "FX.LCU_PER_USD",
+   "year": null,
+   "value": 158.287265,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "as_of": "Sun, 11 Oct 2026 00:02:31 +0000",
+   "note": "open.er-api.com daily rate, verified 2026-10-12"
+  },
+  {
+   "country": "INR",
+   "indicator": "FX.LCU_PER_USD",
+   "year": null,
+   "value": 96.829695,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "as_of": "Sun, 11 Oct 2026 00:02:31 +0000",
+   "note": "open.er-api.com daily rate, verified 2026-10-12"
+  },
+  {
+   "country": "GBP",
+   "indicator": "FX.LCU_PER_USD",
+   "year": null,
+   "value": 0.755923,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "as_of": "Sun, 11 Oct 2026 00:02:31 +0000",
+   "note": "open.er-api.com daily rate, verified 2026-10-12"
+  },
+  {
+   "country": "EUR",
+   "indicator": "FX.LCU_PER_USD",
+   "year": null,
+   "value": 0.892438,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "as_of": "Sun, 11 Oct 2026 00:02:31 +0000",
+   "note": "open.er-api.com daily rate, verified 2026-10-12"
+  },
+  {
+   "country": "KES",
+   "indicator": "FX.LCU_PER_USD",
+   "year": null,
+   "value": 129.711254,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "as_of": "Sun, 11 Oct 2026 00:02:31 +0000",
+   "note": "open.er-api.com daily rate, verified 2026-10-12"
+  },
+  {
+   "country": "ZAR",
+   "indicator": "FX.LCU_PER_USD",
+   "year": null,
+   "value": 16.539966,
+   "source": "snapshot",
+   "fetched_at": "2026-10-12T08:00:00+00:00",
+   "as_of": "Sun, 11 Oct 2026 00:02:31 +0000",
+   "note": "open.er-api.com daily rate, verified 2026-10-12"
+  }
+ ]
+}

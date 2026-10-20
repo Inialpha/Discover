@@ -1,0 +1,10 @@
+{
+  "name": "CVForge",
+  "product_type": "resume builder",
+  "category": "software_saas",
+  "price": 9,
+  "currency": "USD",
+  "location": "New York",
+  "purchase_type": "monthly",
+  "description": "Generates a resume and cover letter from a job description."
+}

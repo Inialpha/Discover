@@ -1,0 +1,15 @@
+{
+  "name": "BrightSmile",
+  "product_type": "toothpaste",
+  "category": "beauty_personal_care",
+  "price": 1500,
+  "currency": "NGN",
+  "location": "Lagos",
+  "purchase_type": "repeat",
+  "purchases_per_year": 12,
+  "description": "Fluoride toothpaste for daily family use at an affordable price.",
+  "competitors": [
+    "Colgate",
+    "Pepsodent"
+  ]
+}

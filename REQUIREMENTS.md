@@ -97,6 +97,22 @@ Discover answers a broader question than "what is similar to this?":
 **FOC-004 (P0)** Taxonomy values for all modes stay reserved (§4.1); unbuilt modes return `501 mode_not_available` rather than silently falling back to Business.  
 **FOC-005 (P1)** Business UI (§6.6) is built before other mode UIs, using the shared component library so later modes reuse it.
 
+**Persona discovery is the current build focus (decided 2026-10-11).** Inside Business, the next slice is *persona discovery*: a business supplies a structured product description (text, or voice transcribed to the same fields), a price in local currency and a location, and gets 1–10 evidence-backed buyer personas. Free-form "what do people in X like" questions are not a product mode. Business/product-gap discovery (location + industry → opportunities) follows later.
+
+**PER-001 (P0)** Intake is structured and validated (name, description, category, price, currency, location, purchase type, optional features, competitors and competitor prices, persona limit, optional age/gender filters). Nothing is inferred silently; an unknown location requires a country.  
+**PER-002 (P0)** Price is entered in local currency. Affordability is computed from price ÷ GNI per capita in local currency (World Bank NY.GNP.PCAP.CN), which needs no exchange rate for a local price. Other currencies are converted with a dated, sourced daily rate and the conversion is stated in the output.  
+**PER-003 (P0)** Affordability yields a tier (`budget`, `mass`, `upper`, `premium`) from documented thresholds per product profile, and an income-band reach (comfortable / stretch / out of reach) per 20% income band when survey data exists. No tier is the default: every category must have candidate segments at every tier (enforced by a test).  
+**PER-004 (P0)** Candidate segments come from an explicit rule table (category × tier), not from the LLM. LLM-suggested extra segments, if added later, are labelled unvetted.  
+**PER-005 (P0)** Segment scoring is a transparent weighted mean of affordability, feature fit and (when available) Qloo taste fit, with components and inputs returned. It is an ordering aid, never a probability or share of buyers; confidence is capped at `medium`.  
+**PER-006 (P0)** Reference statistics use one record shape (`country, indicator, year, value, source, fetched_at, as_of`) whether they come from the live API, the cache or the shipped snapshot, so test and production code paths are identical. Only values verified against the live APIs may be shipped in the snapshot.  
+**PER-007 (P0)** Reference sources are free and keyless: World Bank Indicators API and open.er-api.com (attribution shown when used). Failures are reported, never raised into a report; stale exchange rates are flagged.  
+**PER-008 (P1)** Reports state the limits: national (not city) income, sparse survey years, no platform or event data in Qloo, and which parts are calculated, rule-based, Qloo evidence, or LLM interpretation.  
+**PER-009 (P0)** Qloo evidence per persona: competitors are resolved by exact name; one demographics call gives the competitor audience's relative age/gender skew, which is the only input to `qloo_fit` (weight 0.40). Per ranked segment, entity insights (brand, artist, TV, place) and a heatmap use the segment's age bands plus the location as signals; anchors are not sent there (interest signals drown out the age signal). Heatmap areas are named in code from nearby returned places, never by the LLM.  
+**PER-010 (P0)** Segments are re-ranked after the Qloo audience fit and evidence is fetched only for the final top segments (bounded call budget).  
+**PER-011 (P0)** Persona cards are written one LLM call per persona. Every claim has a basis (`evidence` cites existing Qloo evidence ids; `calculated` comes from the income numbers; `interpretation` is the model's reasoning). Tastes and places are kept only if Qloo returned them for that segment; platforms and events are always `interpretation` (Qloo has no such data); uncited "evidence" claims are downgraded. Price objections are computed from the numbers, not written by the model.  
+**PER-012 (P0)** Without an LLM (or when it fails for a persona) a template persona is produced from rules, numbers and Qloo results only. Provider rate limits (HTTP 429) are waited out; `--llm-delay` paces calls.  
+**PER-013 (P1)** Ties with no separating evidence are flagged as tied; prices out of reach for every band a segment draws on are flagged niche, not dropped. Income-band reach uses stricter limits than the tier boundaries (a band feels a purchase more than the national average does).  
+
 ---
 
 ## 2. Glossary
@@ -145,7 +161,7 @@ These enums are authoritative. Code, database, API, prompts, and UI must use exa
 | `someone_else` | Discover for Someone Else | One other person | Gifts, outings, and occasions are *goals* within this mode (`goal_type = gift` etc.), not a separate mode. Replaces `gift`. |
 | `group` | Discover for a Group | Two or more specific people | Blended tastes for shared plans. |
 | `community` | Discover for Community | A community, audience, or place-based group | Context, not individual taste. |
-| `business` | Discover for Business | A business, brand, or market | Cultural intelligence and opportunity exploration. |
+| `business` | Discover for Business | A business, brand, or market | Cultural intelligence and opportunity exploration; built first (§1a). Demo markets are chosen from measured coverage (MOD-056), not assumed. |
 
 **TAX-001 (P0)** `mode` may be omitted by the client; the agent infers it, records it in state with a confidence note, and the user can change it at any time.  
 **TAX-002 (P0)** Legacy values (`personal`, `gift`) must not appear in code or docs except in a migration note.
@@ -257,6 +273,10 @@ Every result and every explanation fragment carries provenance:
 | MOD-050 | Advertising advice: for a product/brand, output audience profile, media environments, messaging angles (labelled interpretation), location notes, caveats, next steps. Messaging angles are interpretation (TAX-007) and must not be presented as measured. | P1 |
 | MOD-051 | Every claim in a business report cites evidence IDs; claims citing no valid evidence are removed and the removal is disclosed. Affinity scores are described as relative scores, never as percentages of people. | P0 |
 | MOD-052 | Failed or skipped Qloo calls are recorded as evidence (`ok=false`) and surfaced in report caveats; a partial report is preferable to none. | P0 |
+| MOD-053 | **Market coverage honesty.** Qloo's strength varies by market and media type. Every business report includes a code-generated "Data coverage — what to expect" section: places/heatmap areas returned per location, and a standing note that non-place recommendations may reflect global taste for the demographic. The product never implies local sales or chart data. | P0 |
+| MOD-054 | **Multi-market briefs.** A brief may name up to four locations (cities); each segment is run per location and labelled `segment @ location`. Regions ("Asia", "America") are mapped by the planner to named major cities and the mapping is stated in the report. | P1 |
+| MOD-055 | **Content goal.** `goal = content` answers "what social/video content should I create for this audience": 3–6 content ideas with format and audience angle, hooks drawn from evidence (titles, artists, brands, taste tags); platform/format choices are labelled `interpretation`. | P1 |
+| MOD-056 | **Coverage probe.** A repeatable probe measures per location how local the results are (share of returned movies, TV and brands whose own metadata names the market's country, country inferred from returned places), place and heatmap counts, and overlap between cities, so strong demo markets (e.g. New York) can be chosen from data rather than assumed. Grade thresholds are heuristics and labelled as such. | P1 |
 
 ## 5.2 Analysis intents
 
@@ -1017,6 +1037,8 @@ The backend ships a CLI (`backend/`, command `discover`) that runs the Business 
 **CLI-006 (P0)** `--mock` uses a synthetic Qloo transport; all evidence and the report are flagged synthetic (TST-003, TST-012). `--dry-run` writes planned requests without any network call.  
 **CLI-007 (P0)** The default Qloo base URL is the hackathon host (`https://hackathon.api.qloo.com`), overridable by `QLOO_BASE_URL`.  
 **CLI-008 (P1)** `discover probe` makes two minimal calls to verify the key and base URL.
+**CLI-009 (P1)** `discover coverage --location <city> [--location ...] [--gender] [--age] [--kinds]` runs the coverage probe (MOD-056) and writes `coverage.json`/`coverage.md` to the run folder with all raw responses.  
+**CLI-010 (P0)** `discover run --location` is repeatable (MOD-054); `--location-mode auto|signal|filter|both` selects how location is sent to Qloo (experiment).  
 
 ---
 

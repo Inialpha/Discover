@@ -6,7 +6,7 @@ every request, raw response, evidence item and report into one run folder. Spec:
 ## Install
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate     # Python 3.12+
+python -m venv .venv && source .venv/bin/activate     # Python 3.10+
 pip install -e ".[dev]"
 cp ../.env.example .env                                # then fill in keys
 ```
@@ -28,8 +28,20 @@ discover run "..." --segment "Young women:female:25-35" --segment "Young men:mal
 discover run "..." --dry-run        # write the planned requests, call nothing
 discover run "..." --steps resolve,taste --max-calls 20
 ```
+`--location-mode`: leave on `auto`. Real runs showed `filter` does NOT localise movies/TV/music/brands (every city returned the same global list); `signal` does. `both` equals `signal`.
+The LLM only sees a compact view of the evidence (`LLM_MAX_INPUT_CHARS`, default 9000); full data stays in `03_evidence.json`.
+
 Without LLM settings the planner is heuristic and the report is a plain template. With them, an LLM plans the
 brief and writes the evidence-cited report (claims citing no valid evidence are removed).
+
+## Which markets does Qloo cover well?
+```bash
+discover coverage --location Lagos --location "New York" --location London --location Mumbai --location Tokyo \
+    --gender women --age 25-35
+```
+Writes `coverage.md/json`: per city, how local the results are (share of movies/TV/brands whose own metadata names the market's country),
+place/heatmap counts, and overlap between cities. Send the zip back; we choose demo markets from this.
+Multi-market questions: `discover run "what content should I create for women 25-35?" --location Tokyo --location "New York"`.
 
 ## Run folder (`runs/<timestamp>_<slug>/`, plus a `.zip`)
 | File | Content |
@@ -44,6 +56,32 @@ brief and writes the evidence-cited report (claims citing no valid evidence are 
 API keys are never written. **Send back the `.zip`** (and tell me what looks wrong); `99_run_summary.json`
 lists which parameter spellings worked.
 
+## Persona discovery (step 1: price, affordability, candidate segments)
+No Qloo key or LLM needed. Price is entered in local currency; the tier comes from price ÷ income, not from guesses.
+```bash
+discover refdata refresh                 # fetch World Bank + FX data into .discover_cache/ (run once, then weekly)
+discover refdata show --country NGA      # what is available and how old it is
+discover segments --name "Budget phone" --description "Affordable phone with long battery life for students" \
+  --category smartphone --price 40000 --currency NGN --location Lagos --feature "dual sim"
+discover segments --file intake.json     # same, from a JSON file (fields: see discover/personas/intake.py)
+```
+Output folder `runs/<ts>_segments_<slug>/` (+ zip): `00_input.json`, `01_result.json`, `02_summary.md`.
+Without `refdata refresh` only the values shipped in `discover/personas/data/reference_snapshot.json` are available
+(verified values only; income-band data is missing for most countries, and the report says so).
+Reference sources: World Bank Open Data (no key) and open.er-api.com (no key; attribution required).
+
+### Full persona discovery (step 2: Qloo evidence + persona cards)
+```bash
+discover personas --name "Budget phone" --description "Affordable phone with long battery life for students" \
+  --category smartphone --price 40000 --currency NGN --location Lagos --competitor Tecno --competitor Infinix \
+  --max-personas 4 --llm-delay 20          # --mock for synthetic offline data, --no-llm for template personas
+```
+Needs `QLOO_API_KEY` (and the LLM settings for written personas). Competitors are optional but they power the Qloo audience
+fit: without them personas are ranked on affordability and features only. `--llm-delay` waits between persona LLM calls
+(use it with token-per-minute limits like Groq's 8k). Run folder: `00_input.json`, `01_segments_before_qloo.json`,
+`02_segments_after_qloo.json`, `03_evidence.json`, `04_personas.json`, `04_personas.md`, `calls.jsonl`, `qloo/`, `llm/`,
+`99_run_summary.json` (+ zip). Every claim in `04_personas.md` is tagged Qloo / calculated / LLM interpretation.
+
 ## Correcting mistakes
 Unverified spellings (location param placement, `types` vs `filter.type`, tag query name, age buckets,
 compare params) live in `discover/qloo/calls.py` and `discover/qloo/demographics.py`. Response parsing is in
@@ -51,3 +89,18 @@ compare params) live in `discover/qloo/calls.py` and `discover/qloo/demographics
 
 ## Tests
 `pytest` (offline; uses a mock transport and `entity_examples/`).
+
+### Competitor discovery and example products
+
+`discover personas --file examples/personas/<toothpaste|cream|phone|fintech|resume>.json` runs the same pipeline for any category.
+Set `product_type` ("toothpaste", "skin cream", "resume builder") so competitors can be found in Qloo. Competitors you list come
+first; if fewer than five, the tool adds Qloo brands for a tag matching the product type, then LLM-suggested names that Qloo
+confirms, then Qloo-related brands that share a tag. The report says how each competitor was found. `--no-discover` uses only your list.
+
+## Exploring agent (`discover personas --agent`)
+
+The LLM sets its own goals and explores Qloo through tools (`search_entity`, `entity_record`, `find_tags`, `tag_namespaces`,
+`insights`, `audience_taste`, `audience_demographics`, `heatmap`, `compare`). Tools return filtered, compact observations and
+every call gets an id (Q01...). The agent keeps a short notebook so prompts stay small, and ends with findings that cite call ids.
+Code only checks that cited calls and entity ids really exist; anything unsupported is dropped and listed in the report.
+Files: `agent/trace.json`, `agent/ledger.json`, `agent/result.json`. Budget: `--agent-steps` (default 14); use `--llm-delay 8` on Groq.

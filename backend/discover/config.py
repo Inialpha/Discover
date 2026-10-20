@@ -57,6 +57,19 @@ class Settings:
     llm_base_url: str | None
     llm_model: str | None
     llm_timeout: float
+    llm_max_input_chars: int = 9000
+    llm_max_output_tokens: int = 3500
+    llm_reasoning_effort: str | None = None
+    agent_llm_model: str | None = None  # optional: a different model for the exploring agent (separate quota on most providers)
+    agent_llm_base_url: str | None = None
+    agent_llm_api_key: str | None = None
+    llm_fallback_models: tuple[str, ...] = ()  # tried in order (same provider and key) when the main model fails or its daily quota is spent
+
+    def for_agent(self) -> "Settings":
+        """Settings with the agent's own model/provider when AGENT_LLM_* are set; otherwise the normal LLM."""
+        from dataclasses import replace
+        return replace(self, llm_model=self.agent_llm_model or self.llm_model, llm_base_url=self.agent_llm_base_url or self.llm_base_url,
+                       llm_api_key=self.agent_llm_api_key or self.llm_api_key)
 
     @property
     def llm_configured(self) -> bool:
@@ -67,10 +80,17 @@ class Settings:
         return cls(
             qloo_api_key=os.environ.get("QLOO_API_KEY") or None,
             qloo_base_url=(os.environ.get("QLOO_BASE_URL") or DEFAULT_QLOO_BASE_URL).rstrip("/"),
-            qloo_timeout=_float("QLOO_TIMEOUT_SECONDS", 30.0),
+            qloo_timeout=_float("QLOO_TIMEOUT_SECONDS", 45.0),
             qloo_retries=_int("QLOO_RETRIES", 2),
             llm_api_key=os.environ.get("LLM_API_KEY") or None,
             llm_base_url=(os.environ.get("LLM_BASE_URL") or "").rstrip("/") or None,
             llm_model=os.environ.get("LLM_MODEL") or None,
             llm_timeout=_float("LLM_TIMEOUT_SECONDS", 90.0),
+            llm_max_input_chars=_int("LLM_MAX_INPUT_CHARS", 9000),
+            llm_max_output_tokens=_int("LLM_MAX_OUTPUT_TOKENS", 3500),
+            llm_reasoning_effort=os.environ.get("LLM_REASONING_EFFORT") or None,
+            agent_llm_model=os.environ.get("AGENT_LLM_MODEL") or None,
+            agent_llm_base_url=(os.environ.get("AGENT_LLM_BASE_URL") or "").rstrip("/") or None,
+            agent_llm_api_key=os.environ.get("AGENT_LLM_API_KEY") or None,
+            llm_fallback_models=tuple(m.strip() for m in (os.environ.get("LLM_FALLBACK_MODELS") or "").split(",") if m.strip()),
         )

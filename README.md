@@ -246,3 +246,39 @@ Start with [REQUIREMENTS.md](./REQUIREMENTS.md), then see the [documentation ind
 ---
 
 **Discover what you'll love next.**
+## Running the app locally
+
+Backend (FastAPI), from `backend/`:
+
+```bash
+pip install -e .
+cp .env.example .env            # add QLOO_API_KEY and LLM_API_KEY, or set DISCOVER_MOCK=true for a keyless demo
+uvicorn discover.api.main:app --reload --port 8000
+```
+
+Front end (React + Vite), from `frontend/`:
+
+```bash
+npm install
+npm run dev                     # http://localhost:5173, /api is proxied to port 8000
+```
+
+## Deploying
+
+- **Database:** any Postgres. Set `DATABASE_URL` (Neon free tier works; paste the connection string as given, `postgresql://...?sslmode=require` is converted automatically). The API is fully async: SQLAlchemy asyncio with asyncpg (Postgres) or aiosqlite (local SQLite).
+- **Backend on Render:** `render.yaml` at the repo root. Set `APP_ENV=production`, `SECRET_KEY`, `DATABASE_URL`, `CORS_ORIGINS` (the Vercel URL), `QLOO_API_KEY`, `LLM_API_KEY` and the other variables listed in `backend/.env.example`.
+- **Front end on Vercel:** root directory `frontend`, framework Vite, env `VITE_API_URL` = the Render URL. `vercel.json` handles client-side routes.
+
+## Database migrations (Alembic)
+
+Migrations live in `backend/discover/api/migrations/versions` and are applied automatically when the API starts (`AUTO_MIGRATE=true`, the default), so a deploy upgrades the database without losing data.
+
+```bash
+cd backend
+alembic upgrade head                                   # apply by hand (uses DATABASE_URL)
+alembic current                                        # which version the database is at
+# after changing discover/api/models.py:
+alembic revision --autogenerate -m "describe the change"   # then READ the new file before committing it
+```
+
+A test fails if `models.py` and the migrations disagree, so a forgotten migration is caught before it ships.
