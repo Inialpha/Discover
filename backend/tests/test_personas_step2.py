@@ -517,16 +517,15 @@ def test_fake_llm_cannot_smuggle_invented_numbers_through_write_personas(bundle_
     assert all(p["messages"] == [] and p["validation"]["dropped"]["messages"] == 1 for p in ps)
 
 
-def test_lean_run_uses_few_shared_calls_and_per_segment_tv_only(make_intake, store, tmp_path):
+def test_lean_run_uses_few_shared_calls_and_per_segment_tv_and_places(make_intake, store, tmp_path):
     code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path), LLM_SETTINGS, store, llm_transport=fake_llm_transport()[0]))
     ev = json.loads((run / "03_evidence.json").read_text())
     market = [e for e in ev if e["segment"] == "Market"]
     kinds = {(e.get("data") or {}).get("kind") or e["step"] for e in market}
     assert {"tv_show", "artist", "place", "heatmap", "brand"} <= kinds  # shared by every persona
     per_segment = [e for e in ev if e["segment"] not in (None, "Market")]
-    assert {(e.get("data") or {}).get("kind") for e in per_segment if e["step"] == "affinity"} == {"tv_show"}
-    assert len({e["segment"] for e in per_segment}) <= 3
-    assert summary["qloo_calls"] <= 16, summary["qloo_calls"]
+    assert {(e.get("data") or {}).get("kind") for e in per_segment if e["step"] == "affinity"} == {"tv_show", "place"}
+    assert summary["qloo_calls"] <= 28, summary["qloo_calls"]
     calls_log = [json.loads(x) for x in (run / "calls.jsonl").read_text().splitlines()]
     sent = [c for c in calls_log if c["label"].startswith("market-")]
     assert sent and all(c["ok"] for c in sent)

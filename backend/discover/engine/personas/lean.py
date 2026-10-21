@@ -1,6 +1,6 @@
 """Lean competitor discovery: few Qloo calls, one cheap LLM choice, and the choice is always checked against Qloo's data.
 
-Qloo calls (typical run: 4 to 5):
+Qloo calls (this part of a run: 6 to 9):
   1. resolve the competitors the business listed (one search each), then ONE call for their full records (identity check)
   2. ONE insights call for brands similar to them (hard category filter + the competitors as signals + the location),
      which also returns each brand's full record, including the text describing its audience
@@ -106,6 +106,43 @@ async def _records(client: QlooClient, ev: Evidence, anchors: list[dict[str, Any
     return out
 
 
+TAG_COMPETITORS = 2  # most competitor names read off the listed brands' own Qloo tags
+
+
+def tag_competitor_names(anchors: list[dict[str, Any]], limit: int = TAG_COMPETITORS) -> list[str]:
+    """Qloo's own brand tags name competitors (Crest and Sensodyne both carry urn:tag:competitor_brand:qloo:colgate). Those names that
+    are not already among the anchors, most shared first."""
+    from collections import Counter
+    have = {_norm(a["name"]) for a in anchors} | {_norm(a.get("query", "")) for a in anchors}
+    count: Counter = Counter()
+    label: dict[str, str] = {}
+    for a in anchors:
+        for t in a.get("tags") or []:
+            tid = str(t.get("id") or "")
+            if tid.startswith("urn:tag:competitor_brand:") and t.get("name") and _norm(t["name"]) not in have:
+                count[_norm(t["name"])] += 1
+                label.setdefault(_norm(t["name"]), t["name"])
+    return [label[k] for k, _ in sorted(count.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]]
+
+
+def _norm(t: str) -> str:
+    return "".join(ch for ch in str(t).lower() if ch.isalnum())
+
+
+def _deeper_from_anchors(anchors: list[dict[str, Any]], base: dict[str, Any] | None) -> dict[str, Any] | None:
+    """A narrower category already on one of the brands' own tags, under the shared one (Colgate: health_and_beauty:oral_care).
+    Free: no call. Only when every brand in the narrower category is also in the broad one, which is how the ids are built."""
+    if not base:
+        return None
+    best = None
+    for a in anchors:
+        for t in a.get("tags") or []:
+            tid = str(t.get("id") or "")
+            if tid.startswith(base["id"] + ":") and is_brand_tag(t) and (best is None or len(tid) > len(best["id"])):
+                best = {"id": tid, "name": t.get("name"), "depth": len(tid.split(":")) - 3}
+    return best
+
+
 async def _deeper_category(client: QlooClient, intake: ProductIntake, ev: Evidence, base: dict[str, Any] | None) -> dict[str, Any] | None:
     """The competitors usually share only a broad Qloo category (Crest and Sensodyne: health_and_beauty), and a broad filter returns
     skincare, pain relief and hair care next to the toothpastes (live run, New York: 1 oral-care brand in 10). A semantic search of Qloo's
@@ -128,7 +165,7 @@ async def _peers(client: QlooClient, intake: ProductIntake, ev: Evidence, anchor
     have = {a["entity_id"] for a in anchors}
     ids = [a["entity_id"] for a in anchors][:6]
     cat = (category_candidates(anchors) or [None])[0]
-    cat = (await _deeper_category(client, intake, ev, cat)) or cat
+    cat = _deeper_from_anchors(anchors, cat) or (await _deeper_category(client, intake, ev, cat)) or cat
     tries = [(intake.location, "local"), (None, "global")] if cat else [(intake.location, "local")]
     last: tuple[list[dict[str, Any]], Any, dict[str, Any]] = ([], None, {})
     for loc, scope in tries:
@@ -163,6 +200,12 @@ async def discover_lean(client: QlooClient, intake: ProductIntake, ev: Evidence,
         unresolved += missing
     if not discover:
         return {"anchors": anchors, "unresolved": unresolved, "notes": notes, "category": None}
+
+    # competitors Qloo itself names on the listed brands (2 search calls); the identity check below applies to them too
+    tagged = tag_competitor_names(anchors) if anchors else []
+    if tagged:
+        found, _missing = await _resolve(client, tagged, "qloo_competitor_tags", ev, pick_anchor)
+        add(found)
 
     # nothing resolved: start from Qloo's own category for the product type (2 calls, no name lookups)
     if not anchors:
@@ -206,14 +249,14 @@ async def discover_lean(client: QlooClient, intake: ProductIntake, ev: Evidence,
                 notes.append(f"LLM suggested brands Qloo could not confirm, so they were not used: {', '.join(missing)}.")
 
     # identity check for brands found by name (never for brands that came through a Qloo category)
-    named = [a for a in anchors if a["source"] in ("given", "llm_confirmed")]
+    named = [a for a in anchors if a["source"] in ("given", "llm_confirmed", "qloo_competitor_tags")]
     profiles: dict[str, dict[str, Any]] = {}
     if named and llm is not None:
         profiles = await _records(client, ev, named)
         bad, why = await verify_anchors(llm, intake, profiles)
         if bad:
             for a in named:
-                if a["entity_id"] in bad:
+                if a["entity_id"] in bad and a["source"] != "qloo_competitor_tags":
                     unresolved.append(a["query"] if a["source"] == "given" else a["name"])
             anchors[:] = [a for a in anchors if a["entity_id"] not in bad]
             notes.extend(why)

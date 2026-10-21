@@ -32,8 +32,8 @@ class ApiSettings:
     runs_dir: str
     agent_enabled: bool
     llm_delay: float  # seconds between LLM calls (provider token-per-minute limits, e.g. 8 on Groq's free tier)
-    engine_mode: str = "lean"  # lean = few shared Qloo calls (about 12); full = every segment gets its own calls (about 50)
-    max_qloo_calls: int = 0  # ceiling on Qloo calls per analysis; 0 = the mode's default (30 lean, 150 full)
+    engine_mode: str = "lean"  # lean = shared market calls plus two calls per segment (about 25); full = every segment gets its own calls (about 50)
+    max_qloo_calls: int = 0  # ceiling on Qloo calls per analysis; 0 = the mode's default (40 lean, 150 full)
     auto_migrate: bool = True  # apply pending Alembic migrations when the API starts
     admin_emails: tuple[str, ...] = ()  # accounts that can open the admin dashboard (ADMIN_EMAILS, comma separated)
     keep_runs: bool = False  # keep every run's folder (calls, model exchanges, evidence, ledger) under RUNS_DIR for debugging

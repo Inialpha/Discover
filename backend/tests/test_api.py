@@ -201,7 +201,7 @@ def test_engine_mode_switch_reaches_the_engine(tmp_path, monkeypatch):
             h = signup(c)
             aid = c.post("/api/analyses", json={"intake": INTAKE}, headers=h).json()["id"]
             assert wait(c, h, aid) == "complete"
-    assert seen == [(True, 30), (False, 150)]
+    assert seen == [(True, 40), (False, 150)]
 
 
 def test_engine_mode_env_parsing(monkeypatch):

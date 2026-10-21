@@ -184,15 +184,16 @@ async def gather_segments(client: QlooClient, intake: ProductIntake, segments: l
 
 
 MARKET_KINDS = ("tv_show", "artist", "place")
-SEGMENT_KINDS = ("tv_show",)  # tastes that differ by age, asked per segment for the top segments only
+SEGMENT_KINDS = ("tv_show", "place")  # tastes and places that differ by age, asked for each segment
 
 
 async def gather_market(client: QlooClient, intake: ProductIntake, segments: list[SegmentScore], ev: Evidence,
-                        anchors: list[dict[str, Any]] | None, take: int = 10, top_segments: int = 3,
-                        kinds: tuple[str, ...] | list[str] = MARKET_KINDS) -> None:
+                        anchors: list[dict[str, Any]] | None, take: int = 10, top_segments: int = 6,
+                        kinds: tuple[str, ...] | list[str] = MARKET_KINDS,
+                        segment_kinds: tuple[str, ...] | list[str] = SEGMENT_KINDS) -> None:
     """Lean step 3. Calls: shows and artists around the competitors (competitors + location), places (location), one heatmap
-    (competitors + location), then TV shows for each of the top segments with that segment's age. About 5 + top_segments calls
-    in all, shared by every persona; the per-segment call keeps the personas different from one another.
+    (competitors + location), then TV shows and places for each segment with that segment's age and gender. About 4 + 2 per
+    segment calls in all; the per-segment calls are what make the personas different from one another.
 
     Competitor signals and age signals are never mixed in one call, so neither can drown the other."""
     ids = anchor_ids(anchors)
@@ -213,7 +214,7 @@ async def gather_market(client: QlooClient, intake: ProductIntake, segments: lis
         tasks.append((MARKET, "heatmap", calls.insights_heatmap("heatmap", "market-heatmap", calls.Signals(location=loc))))
     for s in segments[:top_segments]:
         sig = calls.Signals(age=list(s.ages), gender=s.gender, location=loc)
-        for kind in SEGMENT_KINDS:
+        for kind in segment_kinds:
             tasks.append((s.label, kind, calls.insights_entities("affinity", f"{s.label}-{kind}", kind, sig, take=take, explain=False,
                                                                  allow_no_location=False)))
     results = await asyncio.gather(*(client.call(t[2]) for t in tasks))
@@ -244,15 +245,18 @@ def segment_entities(ev_items: list[dict[str, Any]], seg_label: str) -> list[dic
 
 def culture_for(ev_items: list[dict[str, Any]], seg_label: str, other_labels: list[str]) -> dict[str, Any]:
     """Culture digests for one segment (see personas/culture.py):
-      market   the audience of the product's competitors and similar brands, and the shows and artists around them (same for every
-               segment; empty in the full per-segment mode)
+      market   the audience of the product's competitors and similar brands (same for every segment; empty in the full mode)
+      around   the shows, artists and places around those brands (same for every segment)
       segment  what this segment's own Qloo lists say, against the other segments' lists as the baseline
       platforms  social platforms of all the entities behind both"""
     shared = segment_entities(ev_items, MARKET)
     own = segment_entities(ev_items, seg_label)
     base = [e for lab in other_labels if lab not in (seg_label, MARKET) for e in segment_entities(ev_items, lab)]
-    return {"market": culture.digest(shared, [], top=5, sentences=4) if shared else None,
-            "segment": culture.digest(own, base, top=5, sentences=3 if shared else 4) if own else None,
+    brands = [e for e in shared if culture._kind(e) == "brand"]
+    around = [e for e in shared if culture._kind(e) != "brand"]
+    return {"market": culture.digest(brands, [], top=5, sentences=4) if brands else None,
+            "around": culture.digest(around, [], top=4, sentences=2) if around else None,
+            "segment": culture.digest(own, base, top=5, sentences=3) if own else None,
             "platforms": culture.platforms(shared + own)}
 
 
