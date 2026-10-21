@@ -212,3 +212,19 @@ def test_engine_mode_env_parsing(monkeypatch):
     assert (Settings.from_env().engine_mode, Settings.from_env().max_qloo_calls) == ("full", 80)
     monkeypatch.setenv("ENGINE_MODE", "whatever")
     assert Settings.from_env().engine_mode == "lean"
+
+
+def test_admin_overview_is_limited_to_admin_emails(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with TestClient(create_app(settings(database_url=f"sqlite:///{tmp_path}/adm.db", admin_emails=("boss@example.com",)))) as c:
+        h = signup(c, "boss@example.com")
+        other = signup(c, "user@example.com")
+        assert c.get("/api/auth/me", headers=h).json()["is_admin"] is True
+        assert c.get("/api/auth/me", headers=other).json()["is_admin"] is False
+        assert c.get("/api/admin/overview", headers=other).status_code == 404
+        assert c.get("/api/admin/overview").status_code == 401
+        aid = c.post("/api/analyses", json={"intake": INTAKE, "options": {"use_agent": False, "discover": False}}, headers=other).json()["id"]
+        wait(c, other, aid)
+        o = c.get("/api/admin/overview", headers=h).json()
+        assert o["totals"]["users"] == 2 and o["totals"]["analyses"] == 1 and o["recent"][0]["user"] == "user@example.com"
+        assert "result" not in o["recent"][0] and o["per_day"][-1]["analyses"] == 1

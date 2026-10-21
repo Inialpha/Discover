@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from ..config import load_dotenv
 from . import migrations
 from .db import make_engine, make_session_factory
-from .routes import analyses, auth, exports, meta, products
+from .routes import admin, analyses, auth, exports, meta, products
 from .services import runner
 from .services.runner import fail_stale
 from .settings import ApiSettings
@@ -39,7 +39,7 @@ def create_app(settings: ApiSettings | None = None, engine_kwargs: dict[str, Any
     app.state.settings, app.state.session_factory, app.state.engine = st, sf, engine
     app.state.engine_kwargs = engine_kwargs or {}  # tests inject fake LLM/Qloo transports here
     app.add_middleware(CORSMiddleware, allow_origins=st.cors_origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
-    for r in (meta.router, auth.router, analyses.router, products.router, exports.router):
+    for r in (meta.router, auth.router, analyses.router, products.router, exports.router, admin.router):
         app.include_router(r)
     return app
 

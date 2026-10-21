@@ -23,3 +23,13 @@ async def owned_analysis(analysis_id: str, user: User = Depends(current_user), d
     if a is None or a.user_id != user.id:  # same answer for "missing" and "not yours"
         raise HTTPException(404, "Analysis not found")
     return a
+
+
+def is_admin(user: User, request: Request) -> bool:
+    return user.email.lower() in request.app.state.settings.admin_emails
+
+
+async def admin_user(request: Request, user: User = Depends(current_user)) -> User:
+    if not is_admin(user, request):
+        raise HTTPException(404, "Not found")  # same answer as a missing page: do not reveal that an admin area exists
+    return user

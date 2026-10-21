@@ -9,7 +9,20 @@ export const tokenStore = {
 };
 
 export type Basis = "evidence" | "calculated" | "interpretation";
-export interface User { id: string; email: string; name: string }
+export interface User { id: string; email: string; name: string; is_admin?: boolean }
+export interface AdminRun {
+  id: string; user: string; product: string; run: number; category: string; location: string; status: string; agent: boolean;
+  created_at: string | null; seconds: number | null; qloo_calls: number | null; llm_calls: number | null; warnings: number; error: string | null;
+}
+export interface AdminOverview {
+  generated_at: string;
+  totals: { users: number; analyses: number; complete: number; failed: number; running: number; success_rate: number | null; active_users_7d: number;
+            users_with_analyses: number; avg_seconds: number | null; avg_qloo_calls: number | null; avg_llm_calls: number | null; qloo_calls_total: number };
+  per_day: { day: string; analyses: number; complete: number; failed: number; signups: number }[];
+  top_locations: { label: string; count: number }[]; top_categories: { label: string; count: number }[];
+  recent: AdminRun[]; recent_failures: AdminRun[];
+  users: { email: string; name: string; joined: string; analyses: number; last_analysis: string | null }[];
+}
 export interface Meta {
   categories: { id: string; label: string; profile: string }[];
   purchase_types: { id: string; label: string }[];
@@ -90,6 +103,7 @@ export const api = {
   signup: (email: string, password: string, name: string) => call<{ token: string; user: User }>("/api/auth/signup", { method: "POST", body: JSON.stringify({ email, password, name }) }),
   login: (email: string, password: string) => call<{ token: string; user: User }>("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
   me: () => call<User>("/api/auth/me"),
+  adminOverview: () => call<AdminOverview>("/api/admin/overview"),
   create: (intake: Intake, options: { use_agent: boolean; discover: boolean }, link?: { product_id?: string; based_on?: string }) =>
     call<{ id: string; status: string; product_id: string; run_number: number }>("/api/analyses", { method: "POST", body: JSON.stringify({ intake, options, ...link }) }),
   products: () => call<ProductItem[]>("/api/products"),

@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db import get_db
-from ..deps import current_user
+from ..deps import current_user, is_admin
 from ..models import User
 from ..schemas import Login, SignUp, TokenOut, UserOut
 from ..security import hash_password, make_token, verify_password
@@ -15,9 +15,15 @@ from ..security import hash_password, make_token, verify_password
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
+def _out(request: Request, user: User) -> UserOut:
+    out = UserOut.model_validate(user)
+    out.is_admin = is_admin(user, request)
+    return out
+
+
 def _token(request: Request, user: User) -> TokenOut:
     s = request.app.state.settings
-    return TokenOut(token=make_token(user.id, s.secret_key, s.token_minutes), user=UserOut.model_validate(user))
+    return TokenOut(token=make_token(user.id, s.secret_key, s.token_minutes), user=_out(request, user))
 
 
 @router.post("/signup", response_model=TokenOut, status_code=201)
@@ -42,5 +48,5 @@ async def login(body: Login, request: Request, db: AsyncSession = Depends(get_db
 
 
 @router.get("/me", response_model=UserOut)
-async def me(user: User = Depends(current_user)) -> User:
-    return user
+async def me(request: Request, user: User = Depends(current_user)) -> UserOut:
+    return _out(request, user)
