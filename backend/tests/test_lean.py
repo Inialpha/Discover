@@ -182,3 +182,43 @@ def test_a_brand_missing_from_the_multi_id_answer_is_fetched_alone(tmp_path):
     r, ev, seen = go_records(tmp_path, llm, RECORDS, multi=False)
     assert [q["entity_ids"] for p, q in seen if p == "/entities"] == ["G-Colgate,G-Pepsodent", "G-Pepsodent"]
     assert llm.verify_input["Pepsodent"]["products"] == ["Toothpaste"]
+
+
+# ---- a narrower category found by semantic tag search -------------------------------------------------------------
+DEEP = {"id": "urn:tag:genre:brand:health_and_beauty:oral_care", "name": "Oral Care", "type": "urn:tag:genre:brand"}
+
+
+def qloo_deep(seen, tags):
+    base = qloo(seen)
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        if req.url.path == "/v2/tags":
+            seen.append(("/v2/tags", dict(req.url.params)))
+            return httpx.Response(200, json={"success": True, "results": {"tags": tags}})
+        return base.handler(req)
+    return httpx.MockTransport(handler)
+
+
+def go_deep(tmp_path, tags, llm=None):
+    i = ProductIntake(**CASES["toothpaste"], competitors=["Colgate", "Pepsodent"])
+    seen: list = []
+
+    async def inner():
+        async with _client(tmp_path, qloo_deep(seen, tags)) as c:
+            return await L.discover_lean(c, i, Evidence(), pick_anchor, llm=llm)
+    run(inner())
+    return seen
+
+
+def test_semantic_tag_search_narrows_the_category_when_it_sits_under_the_competitors_category(tmp_path):
+    seen = go_deep(tmp_path, [{"id": "urn:tag:genre:brand:finance", "name": "Finance", "type": "urn:tag:genre:brand"}, DEEP])
+    tag_call = next(q for p, q in seen if p == "/v2/tags")
+    assert tag_call["filter.query"] == "toothpaste" and tag_call["feature.semantic_search"] == "true"
+    insights = next(q for p, q in seen if p == "/v2/insights")
+    assert insights["filter.tags"] == DEEP["id"] and insights["take"] == str(L.MAX_CANDIDATES)
+
+
+def test_a_loose_semantic_match_outside_the_competitors_category_is_ignored(tmp_path):
+    seen = go_deep(tmp_path, [{"id": "urn:tag:genre:brand:finance:banks", "name": "Banks", "type": "urn:tag:genre:brand"}])
+    insights = next(q for p, q in seen if p == "/v2/insights")
+    assert insights["filter.tags"] == HB["id"]  # stays with the category the competitors themselves carry

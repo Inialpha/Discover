@@ -28,7 +28,8 @@ from .competitors import (LLM_SYSTEM, _resolve, category_candidates, clean_llm_n
 from .intake import ProductIntake
 
 MARKET = "Market"  # evidence "segment" label for results that describe the product's whole market, not one buyer segment
-MAX_CANDIDATES = 10
+MAX_CANDIDATES = 20  # one Qloo call returns this many; each costs the LLM only a short card
+PICK = 5  # most similar brands kept
 ABOUT_WORDS = 12  # the line about each candidate is cut by words; ids are sent in full
 
 SELECT_SYSTEM = """You choose which brands are most similar to a product. Reply as JSON: {"similar": ["<id>", ...]}.
@@ -105,11 +106,29 @@ async def _records(client: QlooClient, ev: Evidence, anchors: list[dict[str, Any
     return out
 
 
+async def _deeper_category(client: QlooClient, intake: ProductIntake, ev: Evidence, base: dict[str, Any] | None) -> dict[str, Any] | None:
+    """The competitors usually share only a broad Qloo category (Crest and Sensodyne: health_and_beauty), and a broad filter returns
+    skincare, pain relief and hair care next to the toothpastes (live run, New York: 1 oral-care brand in 10). A semantic search of Qloo's
+    brand categories for the product type finds the narrow one (health_and_beauty:oral_care). It is used only when it sits UNDER the
+    competitors' own category, so a loose semantic match can never move the search into another industry."""
+    if not base:
+        return None
+    for term in search_terms(intake):
+        res = await client.call(calls.tags_of_type(f"tag-{term}", "urn:tag:genre:brand", query=term, take=10, step="resolve", semantic=True))
+        tags = nz.tags_from_body(res.body) if res.ok else []
+        under = [t for t in tags if is_brand_tag(t) and str(t.get("id", "")).startswith(base["id"] + ":")]
+        ev.add("resolve", f"deeper category for {term}", res, {"query": term, "kind": "tag", "candidates": tags[:8], "chosen": under[0] if under else None})
+        if under:
+            return {"id": under[0]["id"], "name": under[0].get("name"), "depth": len(under[0]["id"].split(":")) - 3}
+    return None
+
+
 async def _peers(client: QlooClient, intake: ProductIntake, ev: Evidence, anchors: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], Any, dict[str, Any]]:
     """Brands similar to the anchors (category filter when they share one). Returns (candidates, call result, meta)."""
     have = {a["entity_id"] for a in anchors}
-    ids = [a["entity_id"] for a in anchors][:5]
+    ids = [a["entity_id"] for a in anchors][:6]
     cat = (category_candidates(anchors) or [None])[0]
+    cat = (await _deeper_category(client, intake, ev, cat)) or cat
     tries = [(intake.location, "local"), (None, "global")] if cat else [(intake.location, "local")]
     last: tuple[list[dict[str, Any]], Any, dict[str, Any]] = ([], None, {})
     for loc, scope in tries:
@@ -206,7 +225,7 @@ async def discover_lean(client: QlooClient, intake: ProductIntake, ev: Evidence,
         ents, peers_res, meta = await _peers(client, intake, ev, anchors)
         cat = meta.get("category")
         pool = [e for e in ents if not cat or any(str(t.get("id", "")).startswith(cat) for t in e.get("tags") or [])] or []
-        room = max(3, want - len(anchors))
+        room = PICK
         chosen_ids = await select_similar(llm, intake, pool, room)
         selected = [e for e in pool if e["entity_id"] in chosen_ids] if chosen_ids is not None else pool[:room]
         if chosen_ids is not None:  # keep the LLM's order

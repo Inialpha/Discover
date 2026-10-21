@@ -182,3 +182,33 @@ def test_production_requires_a_secret_key(monkeypatch):
     monkeypatch.delenv("SECRET_KEY", raising=False)
     with pytest.raises(RuntimeError):
         ApiSettings.from_env()
+
+
+def test_engine_mode_switch_reaches_the_engine(tmp_path, monkeypatch):
+    """ENGINE_MODE=full runs the older per-segment Qloo mode with a higher ceiling; the default is lean."""
+    import discover.api.services.runner as R
+    from tests.test_personas_step2 import LLM_SETTINGS
+    seen = []
+    real = R.execute_personas
+
+    async def spy(opts, *a, **kw):
+        seen.append((opts.lean, opts.max_calls))
+        return await real(opts, *a, **kw)
+    monkeypatch.setattr(R, "execute_personas", spy)
+    for mode in ("lean", "full"):
+        app = create_app(settings(database_url=f"sqlite:///{tmp_path}/{mode}.db", engine_mode=mode), engine_kwargs={"engine_settings": LLM_SETTINGS})
+        with TestClient(app) as c:
+            h = signup(c)
+            aid = c.post("/api/analyses", json={"intake": INTAKE}, headers=h).json()["id"]
+            assert wait(c, h, aid) == "complete"
+    assert seen == [(True, 30), (False, 150)]
+
+
+def test_engine_mode_env_parsing(monkeypatch):
+    Settings = ApiSettings
+    monkeypatch.delenv("ENGINE_MODE", raising=False); monkeypatch.delenv("MAX_QLOO_CALLS", raising=False)
+    assert (Settings.from_env().engine_mode, Settings.from_env().max_qloo_calls) == ("lean", 0)
+    monkeypatch.setenv("ENGINE_MODE", " FULL "); monkeypatch.setenv("MAX_QLOO_CALLS", "80")
+    assert (Settings.from_env().engine_mode, Settings.from_env().max_qloo_calls) == ("full", 80)
+    monkeypatch.setenv("ENGINE_MODE", "whatever")
+    assert Settings.from_env().engine_mode == "lean"

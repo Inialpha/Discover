@@ -136,7 +136,7 @@ def _market_view(lad: dict[str, Any], anchors: list[dict[str, Any]]) -> dict[str
 
 
 ANCHORED_KINDS = ("brand", "artist", "tv_show")
-ANCHORS_PER_CALL = 5
+ANCHORS_PER_CALL = 6
 
 
 def anchor_ids(anchors: list[dict[str, Any]] | None, limit: int = ANCHORS_PER_CALL) -> list[str]:
