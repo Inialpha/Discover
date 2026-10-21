@@ -291,8 +291,8 @@ def test_runner_reranks_with_qloo_and_fetches_evidence_only_for_final_segments(m
 def test_runner_with_llm_and_fake_provider(make_intake, store, tmp_path):
     t, seen = fake_llm_transport()
     code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path), LLM_SETTINGS, store, llm_transport=t))
-    assert summary["persona_sources"] == ["llm"] * 3 and summary["llm_calls"] == 5 and code == 0  # 3 personas + identity check + market map
-    assert len(seen) == 5
+    assert summary["persona_sources"] == ["llm"] * 3 and summary["llm_calls"] == 4 and code == 0  # 3 personas + the similar-brand pick (the mock records list no industries, so no identity check)
+    assert len(seen) == 4
     res = json.loads((run / "04_personas.json").read_text())
     assert all(x["basis"] == "calculated" for p in res["personas"] for x in p["platforms"])  # computed in code, never by the LLM
     plats = {x["platform"] for p in res["personas"] for x in p["platforms"]}
