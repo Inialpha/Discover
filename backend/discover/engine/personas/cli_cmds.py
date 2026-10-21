@@ -31,9 +31,10 @@ def add_parsers(sub: Any) -> None:
     p.add_argument("--out", default="runs"); p.add_argument("--no-zip", action="store_true")
     p.add_argument("--kinds", default="brand,artist,tv_show,place", help="Qloo entity kinds per persona")
     p.add_argument("--take", type=int, default=8)
+    p.add_argument("--full", action="store_true", help="the older full mode: every segment gets its own brand, artist, show and place calls and a heatmap (about 50+ calls)")
     p.add_argument("--no-llm", action="store_true"); p.add_argument("--mock", action="store_true", help="synthetic offline Qloo")
     p.add_argument("--dry-run", action="store_true", help="write planned Qloo requests, make no calls")
-    p.add_argument("--max-calls", type=int, default=150); p.add_argument("--concurrency", type=int, default=2)
+    p.add_argument("--max-calls", type=int, default=30, help="ceiling on Qloo calls (a lean run uses about 10 to 14)"); p.add_argument("--concurrency", type=int, default=2)
     p.add_argument("--delay", type=float, default=0.0, help="seconds between Qloo calls")
     p.add_argument("--no-discover", action="store_true", help="use only the competitors you list; do not look for more in Qloo")
     p.add_argument("--agent", action="store_true", help="let the LLM explore Qloo itself (tools, notebook, cited findings) to find competitors and audience")
@@ -191,7 +192,7 @@ def run_personas(a: argparse.Namespace) -> int:
             print(" -", e)
         return 3
     opts = PersonaOptions(intake=intake, out=Path(a.out), kinds=[k.strip() for k in a.kinds.split(",") if k.strip()],
-                          take=a.take, no_llm=a.no_llm, mock=a.mock, dry_run=a.dry_run, max_calls=a.max_calls,
+                          take=a.take, no_llm=a.no_llm, mock=a.mock, dry_run=a.dry_run, max_calls=(150 if a.full and a.max_calls == 30 else a.max_calls), lean=not a.full,
                           concurrency=a.concurrency, delay=a.delay, llm_delay=a.llm_delay, zip=not a.no_zip, refresh=a.refresh, discover=not a.no_discover, agent=a.agent, agent_steps=a.agent_steps)
     code, run_dir, summary = asyncio.run(execute_personas(opts, Settings.from_env(), ReferenceStore(cache_path=Path(a.cache))))
     print(f"run folder : {run_dir}\nstatus     : {summary.get('status')}  (exit {code})")

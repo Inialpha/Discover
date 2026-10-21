@@ -284,7 +284,7 @@ def test_runner_reranks_with_qloo_and_fetches_evidence_only_for_final_segments(m
     after = json.loads((run / "02_segments_after_qloo.json").read_text())
     final_labels = {s["label"] for s in after["ranked"]}
     ev = json.loads((run / "03_evidence.json").read_text())
-    assert {e["segment"] for e in ev if e["segment"]} == final_labels
+    assert {e["segment"] for e in ev if e["segment"]} - {"Market"} <= final_labels
     assert all("qloo_fit" in s["components"] for s in after["ranked"] if s["id"] in {"students_budget", "first_time_users"})
 
 
@@ -304,7 +304,7 @@ def test_runner_with_llm_and_fake_provider(make_intake, store, tmp_path):
             return {}
     persona_calls = [c for c in map(_payload, seen) if "segment" in c]
     assert persona_calls and all("culture" in c["qloo"] and "platforms" not in c["qloo"]["culture"] for c in persona_calls)
-    assert any(c["qloo"]["culture"]["sentences"] for c in persona_calls)
+    assert any(c["qloo"]["culture"].get("market", {}).get("sentences") or c["qloo"]["culture"].get("segment", {}).get("sentences") for c in persona_calls)
     assert len(list((run / "llm").glob("*_persona_*.json"))) == 3
 
 
@@ -517,21 +517,34 @@ def test_fake_llm_cannot_smuggle_invented_numbers_through_write_personas(bundle_
     assert all(p["messages"] == [] and p["validation"]["dropped"]["messages"] == 1 for p in ps)
 
 
-def test_anchored_calls_use_competitors_and_feed_culture_only(make_intake, store, tmp_path):
+def test_lean_run_uses_few_shared_calls_and_per_segment_tv_only(make_intake, store, tmp_path):
     code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path), LLM_SETTINGS, store, llm_transport=fake_llm_transport()[0]))
+    ev = json.loads((run / "03_evidence.json").read_text())
+    market = [e for e in ev if e["segment"] == "Market"]
+    kinds = {(e.get("data") or {}).get("kind") or e["step"] for e in market}
+    assert {"tv_show", "artist", "place", "heatmap", "brand"} <= kinds  # shared by every persona
+    per_segment = [e for e in ev if e["segment"] not in (None, "Market")]
+    assert {(e.get("data") or {}).get("kind") for e in per_segment if e["step"] == "affinity"} == {"tv_show"}
+    assert len({e["segment"] for e in per_segment}) <= 3
+    assert summary["qloo_calls"] <= 16, summary["qloo_calls"]
+    calls_log = [json.loads(x) for x in (run / "calls.jsonl").read_text().splitlines()]
+    sent = [c for c in calls_log if c["label"].startswith("market-")]
+    assert sent and all(c["ok"] for c in sent)
+    body = json.loads(next((run / "qloo").glob("*market-tv-show*")).read_text())
+    assert "signal.interests.entities" in body["request"]["params"] and "signal.demographics.age" not in body["request"]["params"]
+    seg = next((run / "qloo").glob("*tv-show_v1.json"))
+    seg_bodies = [json.loads(f.read_text())["request"]["params"] for f in (run / "qloo").glob("*affinity*tv-show*") if "market" not in f.name]
+    assert seg_bodies and all("signal.demographics.age" in p and "signal.interests.entities" not in p for p in seg_bodies)
+
+
+def test_full_mode_keeps_the_per_segment_calls(make_intake, store, tmp_path):
+    code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path, lean=False, max_calls=150), LLM_SETTINGS, store,
+                                                    llm_transport=fake_llm_transport()[0]))
     ev = json.loads((run / "03_evidence.json").read_text())
     anchored = [e for e in ev if e["step"] == "affinity" and (e.get("data") or {}).get("anchored")]
     plain = [e for e in ev if e["step"] == "affinity" and e["segment"] and not (e.get("data") or {}).get("anchored")]
-    assert anchored and {e["data"]["kind"] for e in anchored} == set(E.ANCHORED_KINDS)
-    assert len(anchored) == 3 * len({e["segment"] for e in anchored}) and plain
-    calls_log = [json.loads(x) for x in (run / "calls.jsonl").read_text().splitlines()]
-    sent = [c for c in calls_log if c["label"].endswith("-anchored")]
-    assert sent and all(c["ok"] for c in sent)
-    q = [f for f in (run / "qloo").glob("*anchored*")]
-    body = json.loads(q[0].read_text())
-    assert "signal.interests.entities" in body["request"]["params"] and "signal.demographics.age" in body["request"]["params"]
-    # the plain per-segment lists are untouched by the extra calls
-    assert all("anchored" not in k for e in plain for k in (e.get("data") or {}))
+    assert anchored and {e["data"]["kind"] for e in anchored} == set(E.ANCHORED_KINDS) and plain
+    assert summary["qloo_calls"] > 30
 
 
 def test_anchor_ids_prefer_direct_competitors():

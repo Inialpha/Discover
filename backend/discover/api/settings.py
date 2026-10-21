@@ -32,6 +32,7 @@ class ApiSettings:
     runs_dir: str
     agent_enabled: bool
     llm_delay: float  # seconds between LLM calls (provider token-per-minute limits, e.g. 8 on Groq's free tier)
+    max_qloo_calls: int = 30  # ceiling on Qloo calls per analysis (a lean run uses about 10 to 14)
     auto_migrate: bool = True  # apply pending Alembic migrations when the API starts
     keep_runs: bool = False  # keep every run's folder (calls, model exchanges, evidence, ledger) under RUNS_DIR for debugging
 
@@ -57,4 +58,5 @@ class ApiSettings:
             llm_delay=float(os.environ.get("LLM_DELAY_SECONDS") or 0),
             keep_runs=_bool("KEEP_RUNS", False),
             auto_migrate=_bool("AUTO_MIGRATE", True),
+            max_qloo_calls=_int("MAX_QLOO_CALLS", 30),
         )

@@ -19,6 +19,7 @@ from ..modes.business.pipeline import Evidence, _annotate_heatmaps, _pick
 from ..qloo import calls, normalize as nz
 from ..qloo.client import QlooClient
 from . import culture
+from .lean import MARKET
 from .intake import ProductIntake
 from .scoring import SegmentScore
 from .segments import by_id
@@ -67,16 +68,19 @@ def qloo_fit_from_age_index(age_index: dict[str, float], segments: list[Any]) ->
 
 async def resolve_and_skew(client: QlooClient, intake: ProductIntake, llm: Any = None, discover: bool = False,
                            want: int = 5, preset: dict[str, Any] | None = None,
-                           known_categories: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+                           known_categories: list[dict[str, Any]] | None = None, lean: bool = False) -> dict[str, Any]:
     """Steps 1-2: find competitor anchors (given, and with discover=True also found through Qloo), run the category ladder for
     alternatives and the wider sector, then ask for the audience skew of the competitors (and, separately, of the alternatives)."""
     from .competitors import discover_competitors
     from .ladder import run_ladder
+    from .lean import discover_lean
     ev = Evidence()
-    found = preset if preset is not None else await discover_competitors(client, intake, ev, pick_anchor, llm=llm, want=want, discover=discover)
+    finder = discover_lean if lean else discover_competitors
+    found = preset if preset is not None else await finder(client, intake, ev, pick_anchor, llm=llm, want=want, discover=discover)
     anchors, unresolved, notes = list(found["anchors"]), found["unresolved"], list(found["notes"])
     market: dict[str, Any] | None = None
-    if discover and llm is not None:
+    n_direct0 = sum(1 for a in anchors if a.get("tier", "direct") == "direct")
+    if discover and llm is not None and (not lean or n_direct0 < 2):  # lean: the market map only when direct competitors are missing
         lad = await run_ladder(client, intake, ev, llm, anchors, known=known_categories)
         notes += lad["notes"]
         have = {a["entity_id"] for a in anchors}
@@ -179,6 +183,55 @@ async def gather_segments(client: QlooClient, intake: ProductIntake, segments: l
     _annotate_heatmaps(ev)
 
 
+MARKET_KINDS = ("tv_show", "artist", "place")
+SEGMENT_KINDS = ("tv_show",)  # tastes that differ by age, asked per segment for the top segments only
+
+
+async def gather_market(client: QlooClient, intake: ProductIntake, segments: list[SegmentScore], ev: Evidence,
+                        anchors: list[dict[str, Any]] | None, take: int = 10, top_segments: int = 3,
+                        kinds: tuple[str, ...] | list[str] = MARKET_KINDS) -> None:
+    """Lean step 3. Calls: shows and artists around the competitors (competitors + location), places (location), one heatmap
+    (competitors + location), then TV shows for each of the top segments with that segment's age. About 5 + top_segments calls
+    in all, shared by every persona; the per-segment call keeps the personas different from one another.
+
+    Competitor signals and age signals are never mixed in one call, so neither can drown the other."""
+    ids = anchor_ids(anchors)
+    loc = intake.location
+    tasks: list[tuple[str, str, calls.CallSpec]] = []
+    for kind in kinds:
+        if kind == "place":
+            sig = calls.Signals(location=loc)
+        elif ids:
+            sig = calls.Signals(entities=ids, location=loc)
+        else:
+            continue
+        tasks.append((MARKET, kind, calls.insights_entities("affinity", f"market-{kind}", kind, sig, take=take, explain=False,
+                                                            allow_no_location=False)))
+    if ids:
+        tasks.append((MARKET, "heatmap", calls.insights_heatmap("heatmap", "market-heatmap", calls.Signals(entities=ids, location=loc))))
+    else:
+        tasks.append((MARKET, "heatmap", calls.insights_heatmap("heatmap", "market-heatmap", calls.Signals(location=loc))))
+    for s in segments[:top_segments]:
+        sig = calls.Signals(age=list(s.ages), gender=s.gender, location=loc)
+        for kind in SEGMENT_KINDS:
+            tasks.append((s.label, kind, calls.insights_entities("affinity", f"{s.label}-{kind}", kind, sig, take=take, explain=False,
+                                                                 allow_no_location=False)))
+    results = await asyncio.gather(*(client.call(t[2]) for t in tasks))
+    for (label, kind, _), res in zip(tasks, results):
+        if kind == "heatmap":
+            data = {"points": nz.heatmap_from_body(res.body)[:30]} if res.ok else None
+            ev.add("heatmap", f"{label}:heatmap", res, data, label)
+        else:
+            data = {"kind": kind, "entities": nz.entities_from_insights(res.body)[:take]} if res.ok else None
+            ev.add("affinity", f"{label}:{kind}", res, data, label)
+    _annotate_heatmaps(ev)
+
+
+def _mine(it: dict[str, Any], label: str) -> bool:
+    """An evidence item belongs to a segment if it is its own or describes the whole market (shared by every segment)."""
+    return it.get("segment") in (label, MARKET)
+
+
 def segment_entities(ev_items: list[dict[str, Any]], seg_label: str) -> list[dict[str, Any]]:
     """Every entity Qloo returned for a segment, each tagged with the evidence id of the call it came from."""
     out: list[dict[str, Any]] = []
@@ -190,17 +243,24 @@ def segment_entities(ev_items: list[dict[str, Any]], seg_label: str) -> list[dic
 
 
 def culture_for(ev_items: list[dict[str, Any]], seg_label: str, other_labels: list[str]) -> dict[str, Any]:
-    """Culture digest for one segment (see personas/culture.py): the other segments' entities are the baseline."""
-    base = [e for lab in other_labels if lab != seg_label for e in segment_entities(ev_items, lab)]
-    return culture.digest(segment_entities(ev_items, seg_label), base, top=5, sentences=4)
+    """Culture digests for one segment (see personas/culture.py):
+      market   the audience of the product's competitors and similar brands, and the shows and artists around them (same for every
+               segment; empty in the full per-segment mode)
+      segment  what this segment's own Qloo lists say, against the other segments' lists as the baseline
+      platforms  social platforms of all the entities behind both"""
+    shared = segment_entities(ev_items, MARKET)
+    own = segment_entities(ev_items, seg_label)
+    base = [e for lab in other_labels if lab not in (seg_label, MARKET) for e in segment_entities(ev_items, lab)]
+    return {"market": culture.digest(shared, [], top=5, sentences=4) if shared else None,
+            "segment": culture.digest(own, base, top=5, sentences=3 if shared else 4) if own else None,
+            "platforms": culture.platforms(shared + own)}
 
 
 def segment_view(ev_items: list[dict[str, Any]], seg: SegmentScore, per_kind: int = 5, areas: int = 4) -> dict[str, Any]:
     """Compact per-segment evidence for the persona writer: ids stay attached so claims can cite them."""
     view: dict[str, Any] = {"segment_id": seg.id, "label": seg.label, "ages": list(seg.ages), "lists": {}, "areas": []}
-    for it in ev_items:
-        if it.get("segment") != seg.label:
-            continue
+    shared = [i for i in ev_items if i.get("segment") == MARKET]
+    for it in shared + [i for i in ev_items if i.get("segment") == seg.label]:  # the segment's own lists override the shared ones
         if not it.get("ok"):
             view.setdefault("missing", []).append({"id": it["id"], "label": it.get("label"), "error": it.get("error")})
             continue
@@ -227,11 +287,11 @@ def place_names(ev_items: list[dict[str, Any]], seg_label: str) -> set[str]:
     """Names of places Qloo returned for a segment, used to validate any 'where to reach them' claim."""
     names: set[str] = set()
     for it in ev_items:
-        if it.get("segment") == seg_label and it.get("ok") and it["step"] == "affinity":
+        if _mine(it, seg_label) and it.get("ok") and it["step"] == "affinity":
             d = it.get("data") or {}
             if d.get("kind") == "place":
                 names |= {e.get("name") for e in d.get("entities", []) if e.get("name")}
-        if it.get("segment") == seg_label and it.get("ok") and it["step"] == "heatmap":
+        if _mine(it, seg_label) and it.get("ok") and it["step"] == "heatmap":
             for p in (it.get("data") or {}).get("points", []):
                 names |= {n["name"] for n in p.get("nearby_places", [])}
     return names
@@ -241,7 +301,7 @@ def entity_names(ev_items: list[dict[str, Any]], seg_label: str) -> dict[str, st
     """name -> evidence id for every entity Qloo returned for the segment (validates 'tastes' claims)."""
     out: dict[str, str] = {}
     for it in ev_items:
-        if it.get("segment") == seg_label and it.get("ok") and it["step"] == "affinity":
+        if _mine(it, seg_label) and it.get("ok") and it["step"] == "affinity":
             for e in (it.get("data") or {}).get("entities", []):
                 if e.get("name"):
                     out[e["name"]] = it["id"]
@@ -256,7 +316,7 @@ def segment_ages(seg_id: str) -> tuple[str, ...]:
 def place_affinity(ev_items: list[dict[str, Any]], seg_label: str) -> dict[str, float]:
     out: dict[str, float] = {}
     for it in ev_items:
-        if it.get("segment") == seg_label and it.get("ok") and it["step"] == "affinity" and (it.get("data") or {}).get("kind") == "place":
+        if _mine(it, seg_label) and it.get("ok") and it["step"] == "affinity" and (it.get("data") or {}).get("kind") == "place":
             for e in it["data"].get("entities", []):
                 if e.get("name") and isinstance(e.get("affinity"), (int, float)):
                     out[e["name"]] = float(e["affinity"])

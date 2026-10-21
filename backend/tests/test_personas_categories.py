@@ -152,7 +152,7 @@ def test_runner_end_to_end_per_category(key, store, tmp_path):
     res = json.loads((run / "04_personas.json").read_text())
     md = (run / "04_personas.md").read_text()
     assert code == 0 and len(res["personas"]) == 3
-    assert "Competitors used" in md and "Qloo brands for the product's tag" in md
+    assert "Competitors used" in md and ("Qloo brands for the product's tag" in md or "similar to your competitors" in md)
     low = md.lower()
     if key != "phone":
         assert "battery" not in low and "smartphone" not in low

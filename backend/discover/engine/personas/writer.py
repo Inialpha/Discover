@@ -56,9 +56,11 @@ Rules:
 - "events" are interpretation: Qloo has no event data. At most 2 events.
 - At most 3 messages (each under 25 words), 3 motivations, 3 objections. Messages must rest on a product fact in the input
   or a cited taste; do not promise features the product text does not state.
-- "qloo.culture" is a digest of Qloo's own descriptions of the AUDIENCE of the items this segment likes: "lists" (items
-  with "n of m" support, meaning n of the m items that had that field) and "sentences". Use them to describe the persona's
-  values, outlook, tone and occasions, and to shape message angles, citing the evidence ids that come with them.
+- "qloo.culture" is a digest of Qloo's own descriptions of the AUDIENCE of the items around this product. "market" is the
+  audience of the competitors and similar brands and of the shows and artists they share; it is the same for every persona.
+  "segment" is what this age group's own TV tastes say. Each has "lists" (items with "n of m" support, meaning n of the m items
+  that had that field) and "sentences". Use them to describe the persona's values, outlook, tone and occasions, and to shape
+  message angles, citing the evidence ids that come with them.
   Paraphrase; never present n/m as a share of people; never attribute a trait that no entry supports. If the digest is
   thin or empty, say little about values instead of guessing.
 - Do not write platforms; the system adds them from data.
@@ -159,11 +161,15 @@ def price_barriers(seg: SegmentScore, aff: Affordability) -> list[dict[str, Any]
 
 
 def culture_for_llm(c: dict[str, Any]) -> dict[str, Any]:
-    """The digest as the writer sees it: short keys, no counts of entities, no platforms (the system adds those)."""
-    lists = {f: [{"item": r["item"], "n": r["n"], "of": r["of"], "evidence": r["evidence"]} for r in rows]
-             for f, rows in (c.get("lists") or {}).items()}
-    sents = [{"text": x["text"], "evidence": x["evidence"]} for x in c.get("sentences") or []]
-    return {"lists": lists, "sentences": sents}
+    """The digests as the writer sees them: short keys, no platforms (the system adds those)."""
+    def compact(d: dict[str, Any] | None) -> dict[str, Any] | None:
+        if not d:
+            return None
+        lists = {f: [{"item": r["item"], "n": r["n"], "of": r["of"], "evidence": r["evidence"]} for r in rows]
+                 for f, rows in (d.get("lists") or {}).items()}
+        sents = [{"text": x["text"], "evidence": x["evidence"]} for x in d.get("sentences") or []]
+        return {"lists": lists, "sentences": sents} if lists or sents else None
+    return {k: v for k, v in (("market", compact(c.get("market"))), ("segment", compact(c.get("segment")))) if v}
 
 
 def llm_input(intake: ProductIntake, aff: Affordability, seg: SegmentScore, view: dict[str, Any],
@@ -369,7 +375,7 @@ def markdown(intake: ProductIntake, aff: Affordability, personas: list[dict[str,
         if a.get("matched_by") == "prefix":
             L += [f"> Competitor '{a['query']}' was matched to Qloo's '{a['name']}'.", ""]
     if bundle.get("anchors"):
-        how = {"given": "you listed it", "qloo_tag": "Qloo brands for the product's tag", "llm_confirmed": "suggested by the LLM, confirmed in Qloo",
+        how = {"given": "you listed it", "qloo_tag": "Qloo brands for the product's tag", "qloo_similar": "a Qloo brand similar to your competitors, chosen as the closest fit to your product", "llm_confirmed": "suggested by the LLM, confirmed in Qloo",
                "qloo_competitor_tags": "listed as a competitor or similar brand on a Qloo brand record above", "qloo_category": "a Qloo brand in the same category as your competitors", "agent": "chosen by the exploring agent from Qloo results (calls cited in the agent section below)", "related": "related to the listed brands in Qloo and in the same Qloo brand category"}
         L += ["**Competitors used** (how each was found):", ""]
         L += [f"- {a['name']} — {how.get(a.get('source', 'given'), a.get('source'))}" for a in bundle["anchors"]] + [""]

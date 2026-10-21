@@ -39,7 +39,9 @@ class PersonaOptions:
     no_llm: bool = False
     mock: bool = False
     dry_run: bool = False
-    max_calls: int = 150
+    max_calls: int = 30
+    lean: bool = True  # few shared Qloo calls (see evidence.gather_market); False = the full per-segment calls
+    top_segments: int = 3  # lean mode: segments that get their own age-specific TV-show call
     concurrency: int = 2
     delay: float = 0.0
     llm_delay: float = 0.0
@@ -156,7 +158,7 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
             summary["warnings"].append("--agent needs the LLM (not configured or disabled): fell back to the fixed competitor steps.")
         _emit(opts, "competitors", "Looking up competitors and their audience in Qloo")
         anchor = await E.resolve_and_skew(client, intake, llm=llm, discover=opts.discover, preset=preset,
-                                          known_categories=opts.known_categories)
+                                          known_categories=opts.known_categories, lean=opts.lean)
         _emit(opts, "competitors", "Competitors used: " + (", ".join(a["name"] for a in anchor["anchors"]) or "none found"),
               {"competitors": [a["name"] for a in anchor["anchors"]]})
         mk = anchor.get("market")
@@ -171,7 +173,10 @@ async def execute_personas(opts: PersonaOptions, settings: Settings, store: Refe
                                  if anchor["age_index"] else None)
         rec.write_json("02_segments_after_qloo.json", scoring.to_dict())
         _emit(opts, "segments", f"Collecting Qloo taste, place and area data for {len(scoring.ranked)} buyer segments")
-        await E.gather_segments(client, intake, scoring.ranked, anchor["ev"], opts.kinds, opts.take, anchors=anchor["anchors"])
+        if opts.lean:
+            await E.gather_market(client, intake, scoring.ranked, anchor["ev"], anchor["anchors"], opts.take, opts.top_segments)
+        else:
+            await E.gather_segments(client, intake, scoring.ranked, anchor["ev"], opts.kinds, opts.take, anchors=anchor["anchors"])
         results, auth_failed, calls_used = client.results, client.auth_failed, client.calls_used
 
     ev_items = anchor["ev"].items
