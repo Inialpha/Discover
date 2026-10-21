@@ -117,3 +117,68 @@ def test_card_is_short():
     c = L.card({"entity_id": "X", "name": "N", "properties": {"short_description": "w " * 200},
                 "tags": [{"id": "urn:tag:genre:brand:a", "name": "A"}, {"id": "urn:tag:style:x", "name": "Style"}] + [{"id": f"urn:tag:genre:brand:{n}", "name": n} for n in "bcd"]})
     assert len(c["about"].split()) == L.ABOUT_WORDS and c["id"] == "X" and c["tags"] == ["A", "b", "c"]
+
+
+# ---- identity check reads the full Qloo record, not the search hit ------------------------------------------------
+def rec(eid, industries, products=()):
+    return {"entity_id": eid, "name": eid, "tags": [{"id": f"urn:tag:industry:qloo:{n.lower().replace(' ', '_')}", "name": n} for n in industries]
+            + [{"id": f"urn:tag:product_service:qloo:{n.lower().replace(' ', '_')}", "name": n} for n in products]}
+
+
+def qloo_with_records(seen, records, multi=True):
+    base = qloo(seen)
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        if req.url.path == "/entities":
+            seen.append(("/entities", dict(req.url.params)))
+            ids = req.url.params.get("entity_ids", "").split(",")
+            if not multi and len(ids) > 1:
+                ids = ids[:1]  # the API answered only for the first id
+            return httpx.Response(200, json={"success": True, "results": [records[i] for i in ids if i in records]})
+        return base.handler(req)
+    return httpx.MockTransport(handler)
+
+
+class SeeingLLM(LLM):
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.verify_input = None
+
+    async def chat_json(self, name, system, user, **kw):
+        if name == "verify_competitor_identity":
+            self.verify_input = json.loads(user)["records"]
+        return await super().chat_json(name, system, user, **kw)
+
+
+def go_records(tmp_path, llm, records, multi=True):
+    i = ProductIntake(**CASES["toothpaste"], competitors=["Colgate", "Pepsodent"])
+    seen: list = []
+
+    async def inner():
+        async with _client(tmp_path, qloo_with_records(seen, records, multi)) as c:
+            ev = Evidence()
+            return await L.discover_lean(c, i, ev, pick_anchor, llm=llm), ev
+    r, ev = run(inner())
+    return r, ev, seen
+
+
+RECORDS = {"G-Colgate": rec("G-Colgate", ["Higher Education", "Education"], ["Undergraduate Degree Programs"]),
+           "G-Pepsodent": rec("G-Pepsodent", ["Oral Care", "Beauty & Personal Care"], ["Toothpaste"])}
+
+
+def test_identity_check_gets_industries_and_products_from_the_full_record_in_one_call(tmp_path):
+    llm = SeeingLLM(verify={"Colgate": False, "Pepsodent": True}, similar=["P1"])
+    r, ev, seen = go_records(tmp_path, llm, RECORDS)
+    assert llm.verify_input["Colgate"]["industries"][:1] == ["Higher Education"] and llm.verify_input["Colgate"]["products"] == ["Undergraduate Degree Programs"]
+    assert [p for p, _ in seen].count("/entities") == 1 and seen[[p for p, _ in seen].index("/entities")][1]["entity_ids"] == "G-Colgate,G-Pepsodent"
+    assert [a["name"] for a in r["anchors"] if a["source"] == "given"] == ["Pepsodent"] and r["unresolved"] == ["Colgate"]
+    assert set(r["profiles"]) >= {"Pepsodent"} and any(e["step"] == "brand_profile" for e in ev.items)
+    insights = next(q for p, q in seen if p == "/v2/insights")
+    assert "G-Colgate" not in insights["signal.interests.entities"]  # the wrong entity never pulls its own peers in
+
+
+def test_a_brand_missing_from_the_multi_id_answer_is_fetched_alone(tmp_path):
+    llm = SeeingLLM(verify={"Colgate": True, "Pepsodent": True}, similar=[])
+    r, ev, seen = go_records(tmp_path, llm, RECORDS, multi=False)
+    assert [q["entity_ids"] for p, q in seen if p == "/entities"] == ["G-Colgate,G-Pepsodent", "G-Pepsodent"]
+    assert llm.verify_input["Pepsodent"]["products"] == ["Toothpaste"]

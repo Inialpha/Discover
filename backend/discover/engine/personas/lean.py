@@ -1,13 +1,13 @@
 """Lean competitor discovery: few Qloo calls, one cheap LLM choice, and the choice is always checked against Qloo's data.
 
-Qloo calls (typical run: 2 to 4):
-  1. resolve the competitors the business listed (one search each)
+Qloo calls (typical run: 4 to 5):
+  1. resolve the competitors the business listed (one search each), then ONE call for their full records (identity check)
   2. ONE insights call for brands similar to them (hard category filter + the competitors as signals + the location),
      which also returns each brand's full record, including the text describing its audience
   3. only when the business listed no competitor: a tag search for the product type, then ONE insights call for that category
 
 LLM calls (small, names and ids only):
-  - identity check of the competitors found by name (live: "Colgate" is also a university)
+  - identity check of the competitors found by name, read from Qloo's full record of each (live: "Colgate" is also a university)
   - ONE selection call: the product and up to 10 candidate brands (id, name, a line about them, category tags) go in, the ids of the
     ones that really are similar to the product come out. Banks and make-up brands that Qloo links to a toothpaste are dropped
     here. Ids that were not offered are discarded, so the LLM can only choose among brands Qloo returned.
@@ -23,8 +23,8 @@ from typing import Any
 from ..modes.business.pipeline import Evidence
 from ..qloo import calls, normalize as nz
 from ..qloo.client import QlooClient
-from .competitors import (LLM_SYSTEM, _resolve, category_candidates, clean_llm_names, is_brand_tag, search_terms, tag_matches,
-                          verify_anchors)
+from .competitors import (LLM_SYSTEM, _resolve, category_candidates, clean_llm_names, is_brand_tag, profile_from_extras, search_terms,
+                          tag_matches, verify_anchors)
 from .intake import ProductIntake
 
 MARKET = "Market"  # evidence "segment" label for results that describe the product's whole market, not one buyer segment
@@ -75,6 +75,34 @@ def _search_profile(a: dict[str, Any]) -> dict[str, Any]:
     names = [t.get("name") for t in a.get("tags") or [] if t.get("name")]
     lead = [a["disambiguation"]] if a.get("disambiguation") else []
     return {"name": a["name"], "industries": (lead + names)[:6], "products": [], "segments": [], "competitors": []}
+
+
+async def _records(client: QlooClient, ev: Evidence, anchors: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """What Qloo's own record says each brand is (industries, products, segments, competitors), for the identity check.
+    The search hit only carries a dozen tags and is not enough: live run, "Colgate" (the university) listed "Health & Beauty" next to
+    architecture styles and was accepted; its full record lists Higher Education and degree programmes. ONE call for all brands;
+    a brand missing from the answer is fetched on its own."""
+    ids = [a["entity_id"] for a in anchors]
+    res = await client.call(calls.entities_by_ids("records-" + "-".join(a["name"] for a in anchors)[:60], ids))
+    by_id: dict[str, dict[str, Any]] = {}
+    body = res.body if res.ok else None
+    rows = body.get("results") if isinstance(body, dict) else None
+    rows = rows.get("entities") if isinstance(rows, dict) else rows
+    for e in rows or []:
+        if isinstance(e, dict) and e.get("entity_id") in ids:
+            by_id[e["entity_id"]] = profile_from_extras(nz.entity_extras({"results": [e]}))
+    for a in anchors:
+        if a["entity_id"] not in by_id:
+            one = await client.call(calls.entity_by_id(f"record-{a['name']}", a["entity_id"]))
+            if one.ok:
+                by_id[a["entity_id"]] = profile_from_extras(nz.entity_extras(one.body))
+    out: dict[str, dict[str, Any]] = {}
+    for a in anchors:
+        pr = by_id.get(a["entity_id"]) or _search_profile(a)  # no record at all: judge from the search hit
+        pr["name"] = a["name"]
+        out[a["entity_id"]] = pr
+        ev.add("brand_profile", f"Qloo record: {a['name']}", res, pr)
+    return out
 
 
 async def _peers(client: QlooClient, intake: ProductIntake, ev: Evidence, anchors: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], Any, dict[str, Any]]:
@@ -160,8 +188,10 @@ async def discover_lean(client: QlooClient, intake: ProductIntake, ev: Evidence,
 
     # identity check for brands found by name (never for brands that came through a Qloo category)
     named = [a for a in anchors if a["source"] in ("given", "llm_confirmed")]
+    profiles: dict[str, dict[str, Any]] = {}
     if named and llm is not None:
-        bad, why = await verify_anchors(llm, intake, {a["entity_id"]: _search_profile(a) for a in named})
+        profiles = await _records(client, ev, named)
+        bad, why = await verify_anchors(llm, intake, profiles)
         if bad:
             for a in named:
                 if a["entity_id"] in bad:
@@ -199,7 +229,8 @@ async def discover_lean(client: QlooClient, intake: ProductIntake, ev: Evidence,
         notes.append("No competitor could be found in Qloo; audience skew is unavailable and ranking uses rules only.")
     for a in anchors:
         a.pop("entity", None)
-    return {"anchors": anchors, "unresolved": unresolved, "notes": notes, "category": None, "profiles": {}}
+    return {"anchors": anchors, "unresolved": unresolved, "notes": notes, "category": None,
+            "profiles": {a["name"]: profiles[a["entity_id"]] for a in anchors if a["entity_id"] in profiles}}
 
 
 class _FakeOk:
