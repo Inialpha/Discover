@@ -116,4 +116,4 @@ def test_select_similar_edge_cases():
 def test_card_is_short():
     c = L.card({"entity_id": "X", "name": "N", "properties": {"short_description": "w " * 200},
                 "tags": [{"id": "urn:tag:genre:brand:a", "name": "A"}, {"id": "urn:tag:style:x", "name": "Style"}] + [{"id": f"urn:tag:genre:brand:{n}", "name": n} for n in "bcd"]})
-    assert len(c["about"]) <= 110 and c["tags"] == ["A", "b", "c"]
+    assert len(c["about"].split()) == L.ABOUT_WORDS and c["id"] == "X" and c["tags"] == ["A", "b", "c"]

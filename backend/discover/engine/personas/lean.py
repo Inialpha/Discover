@@ -29,6 +29,7 @@ from .intake import ProductIntake
 
 MARKET = "Market"  # evidence "segment" label for results that describe the product's whole market, not one buyer segment
 MAX_CANDIDATES = 10
+ABOUT_WORDS = 12  # the line about each candidate is cut by words; ids are sent in full
 
 SELECT_SYSTEM = """You choose which brands are most similar to a product. Reply as JSON: {"similar": ["<id>", ...]}.
 Input: the product (name, description, type, country) and candidate brands, each with an id, a name, a short line about it and
@@ -42,7 +43,7 @@ def card(e: dict[str, Any]) -> dict[str, Any]:
     p = e.get("properties") or {}
     about = p.get("short_description") or p.get("description") or e.get("disambiguation") or ""
     tags = [t.get("name") for t in e.get("tags") or [] if str(t.get("id", "")).startswith("urn:tag:genre:") and t.get("name")]
-    return {"id": e["entity_id"], "name": e["name"], "about": " ".join(str(about).split())[:110], "tags": tags[:3]}
+    return {"id": e["entity_id"], "name": e["name"], "about": " ".join(str(about).split()[:ABOUT_WORDS]), "tags": tags[:3]}
 
 
 async def select_similar(llm: Any, intake: ProductIntake, candidates: list[dict[str, Any]], limit: int) -> list[str] | None:
