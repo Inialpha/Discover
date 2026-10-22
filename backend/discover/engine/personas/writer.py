@@ -188,7 +188,7 @@ def culture_support(c: dict[str, Any]) -> dict[str, list[str]]:
         for rows in (d.get("lists") or {}).values():
             for r in rows:
                 for eid in r.get("evidence") or []:
-                    out.setdefault(eid, []).append(" ".join([r["item"], *r.get("from", [])]))
+                    out.setdefault(eid, []).append(r["item"])
         for x in d.get("sentences") or []:
             if x.get("evidence"):
                 out.setdefault(x["evidence"], []).append(x["text"] + " " + x.get("entity", ""))
@@ -204,7 +204,11 @@ def supported_by(text: str, sources: list[str], product: str) -> bool:
     """A claim is traceable to a cited entry when it shares at least two key words with it (product words do not count)."""
     skip = _stems(product, set())
     mine = _stems(text, skip)
-    return any(len(mine & _stems(src, skip)) >= 2 for src in sources)
+    for src in sources:
+        theirs = _stems(src, skip)
+        if theirs and len(mine & theirs) >= min(2, len(theirs)):  # a short list item ("Families") needs one shared word, a sentence two
+            return True
+    return False
 
 
 def llm_input(intake: ProductIntake, aff: Affordability, seg: SegmentScore, view: dict[str, Any],

@@ -16,7 +16,7 @@ function Claims({ items, lead }: { items: Claim[]; lead?: "angle" | "platform" |
           {lead && c[lead] && <strong>{c[lead]}</strong>}
           <p>{c.text ?? c.why}</p>
           {c.text && c.why && <p className="muted">{c.why}</p>}
-          <div className="meta"><Badge basis={c.basis} />{(c.evidence?.length ?? 0) > 0 && <code>{c.evidence!.join(", ")}</code>}</div>
+          <div className="meta"><Badge basis={c.basis} /></div>
         </li>
       ))}
     </ul>
@@ -51,7 +51,6 @@ export default function PersonaPage() {
           <div className="chips">
             <span className="chip">{p.age_label}</span>
             <span className="chip cap">{p.gender}{p.gender_basis === "qloo" ? "" : " *"}</span>
-            <span className={`chip conf c-${p.confidence}`}>{p.confidence} confidence</span>
           </div>
         </div>
         <ExportMenu id={a.id} filename={`${a.intake.name}_${p.display_name}`.replace(/[^\w-]+/g, "_")} />
@@ -63,28 +62,28 @@ export default function PersonaPage() {
       </div>
 
       <section className="card">
-        <h3>Messages to try</h3>
-        <p className="muted small">Ideas from the model, inspired by the tastes below. Test them, don't treat them as findings.</p>
+        <h3>Message ideas to try</h3>
+        <p className="muted small">Ideas to test with this group, inspired by what they like. They are suggestions, not findings.</p>
         <Claims items={p.messages} lead="angle" />
       </section>
 
       <div className="pcols">
         <section className="card">
           <h3>Where to reach them</h3>
-          <h4>Platforms <Badge basis="interpretation" /></h4>
+          <h4>Online</h4>
           <Claims items={p.platforms} lead="platform" />
-          <h4>Places in {a.intake.location} <Badge basis="evidence" /></h4>
+          <h4>Places in {a.intake.location}</h4>
           {p.where_to_reach.length ? (
-            <ul className="places">{p.where_to_reach.map((pl) => <li key={pl.place}><span>{pl.place}</span>{pl.affinity != null && <small>{Math.round(pl.affinity * 100)}% match</small>}</li>)}</ul>
-          ) : <p className="muted">No places were confirmed for this group.</p>}
-          {p.events.length > 0 && (<><h4>Event ideas <Badge basis="interpretation" /></h4><Claims items={p.events} lead="idea" /></>)}
+            <ul className="places">{p.where_to_reach.map((pl) => <li key={pl.place}><span>{pl.place}</span></li>)}</ul>
+          ) : <p className="muted">No places stood out for this group.</p>}
+          {p.events.length > 0 && (<><h4>Event ideas</h4><Claims items={p.events} lead="idea" /></>)}
         </section>
         <section className="card">
-          <h3>What they like <Badge basis="evidence" /></h3>
+          <h3>What they like</h3>
           {p.tastes.length ? (
             <ul className="taste-list">{p.tastes.map((t) => <li key={t.name}><b>{t.name}</b><small>{t.kind.replace(/_/g, " ")}</small></li>)}</ul>
-          ) : <p className="muted">No tastes returned.</p>}
-          <h4>Age profile of the market</h4>
+          ) : <p className="muted">We found no clear tastes for this group.</p>}
+          <h4>Who buys in this market, by age</h4>
           <AgeSkew index={a.result.anchor_audience.age_index} highlight={(p as unknown as { ages?: string[] }).ages ?? []} />
         </section>
       </div>
@@ -92,7 +91,7 @@ export default function PersonaPage() {
       {p.caveats.length > 0 && (
         <section className="card caveats"><h3>Worth knowing</h3><ul>{p.caveats.map((c) => <li key={c}>{c}</li>)}</ul></section>
       )}
-      <p className="muted small">* Name, gender and avatar are illustrative. Only the age and gender figures are data.</p>
+      <p className="muted small">* Name, gender and picture are for illustration. This is a type of customer, not a real person.</p>
       {a.result.personas.length > 1 && <p className="next"><Link to={`/analysis/${id}/persona/${nextIdx}`}>Next persona: {a.result.personas[nextIdx].display_name} →</Link></p>}
     </div>
   );

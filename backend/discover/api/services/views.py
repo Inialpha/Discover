@@ -26,6 +26,8 @@ def merged_result(a: Analysis) -> dict[str, Any] | None:
                 p.setdefault("edited_fields", [])
                 if f not in p["edited_fields"]:
                     p["edited_fields"].append(f)
+    from ...engine.personas import summary
+    res["executive_summary"] = summary.build(a.intake, res)
     return res
 
 
