@@ -26,7 +26,7 @@ from .scoring import SegmentScore
 PERSONA_SYSTEM = """You write ONE buyer persona for a business, using ONLY the JSON you are given. Reply with one JSON object:
 {"segment_id": str, "name": str, "first_name": str, "gender": "female"|"male", "headline": str, "who": str,
  "motivations": [{"text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
- "objections": [{"text": str, "basis": "interpretation", "evidence": [ids]}],
+ "objections": [{"text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
  "messages": [{"angle": str, "text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
  "where_to_reach": [{"place": str, "evidence": [ids]}],
  "tastes": [{"name": str, "kind": str, "evidence": [ids]}],
@@ -44,6 +44,9 @@ Rules:
   are RELATIVE; say "skews toward", never "X% of".
 - Price statements may only use the "affordability" and "reach" fields; the computed price barriers are added by the system,
   so your objections are interpretation.
+- Motivations and objections should rest on "qloo.culture": paraphrase an entry (a "lists" item or a "sentences" line) and cite
+  its evidence id, with basis "evidence". Use "interpretation" for at most ONE motivation and ONE objection per persona, and only
+  when no entry fits. A cited claim must reuse the entry's own key words, not just its topic.
 - "messages" are the model's marketing ideas (always interpretation). Put the evidence ids of a taste that inspired a
   message in "evidence", but never claim the product has a feature, partnership or similarity to a brand that the
   product text does not state, and never call a brand "top-rated" or "trusted".
@@ -58,7 +61,8 @@ Rules:
   or a cited taste; do not promise features the product text does not state.
 - "qloo.culture" is a digest of Qloo's own descriptions of the AUDIENCE of the items around this product. "market" is the
   audience of the competitors and similar brands and of the shows and artists they share; it is the same for every persona.
-  "segment" is what this age group's own TV tastes say. Each has "lists" (items with "n of m" support, meaning n of the m items
+  "around" is the same for the shows, artists and places those brands share. "segment" is what this age group's own TV and place
+  tastes say. Each has "lists" (items with "n of m" support, meaning n of the m items
   that had that field) and "sentences". Use them to describe the persona's values, outlook, tone and occasions, and to shape
   message angles, citing the evidence ids that come with them.
   Paraphrase; never present n/m as a share of people; never attribute a trait that no entry supports. If the digest is
@@ -169,7 +173,36 @@ def culture_for_llm(c: dict[str, Any]) -> dict[str, Any]:
                  for f, rows in (d.get("lists") or {}).items()}
         sents = [{"text": x["text"], "evidence": x["evidence"]} for x in d.get("sentences") or []]
         return {"lists": lists, "sentences": sents} if lists or sents else None
-    return {k: v for k, v in (("market", compact(c.get("market"))), ("segment", compact(c.get("segment")))) if v}
+    return {k: v for k, v in (("market", compact(c.get("market"))), ("around", compact(c.get("around"))),
+                              ("segment", compact(c.get("segment")))) if v}
+
+
+def culture_support(c: dict[str, Any]) -> dict[str, list[str]]:
+    """evidence id -> the digest texts (list items, sentences, source entity names) that came from that call: what a claim citing
+    the id has to be traceable to."""
+    out: dict[str, list[str]] = {}
+    for part in ("market", "around", "segment"):
+        d = c.get(part) or {}
+        for rows in (d.get("lists") or {}).values():
+            for r in rows:
+                for eid in r.get("evidence") or []:
+                    out.setdefault(eid, []).append(" ".join([r["item"], *r.get("from", [])]))
+        for x in d.get("sentences") or []:
+            if x.get("evidence"):
+                out.setdefault(x["evidence"], []).append(x["text"] + " " + x.get("entity", ""))
+    return out
+
+
+def _stems(text: str, skip: set[str]) -> set[str]:
+    from .culture import _tokens
+    return {w[:5] for w in _tokens(text) if w[:5] not in skip}
+
+
+def supported_by(text: str, sources: list[str], product: str) -> bool:
+    """A claim is traceable to a cited entry when it shares at least two key words with it (product words do not count)."""
+    skip = _stems(product, set())
+    mine = _stems(text, skip)
+    return any(len(mine & _stems(src, skip)) >= 2 for src in sources)
 
 
 def llm_input(intake: ProductIntake, aff: Affordability, seg: SegmentScore, view: dict[str, Any],
@@ -207,7 +240,8 @@ def _market_for_llm(market: dict[str, Any] | None) -> dict[str, Any] | None:
 
 def _clean_claims(rows: Any, valid: set[str], allowed_basis: tuple[str, ...], default: str,
                   names: dict[str, list[str]] | None = None, intake: ProductIntake | None = None,
-                  dropped: dict[str, int] | None = None, key: str = "") -> tuple[list[dict[str, Any]], int]:
+                  dropped: dict[str, int] | None = None, key: str = "",
+                  support: dict[str, list[str]] | None = None) -> tuple[list[dict[str, Any]], int]:
     kept, fixed = [], 0
     for r in rows if isinstance(rows, list) else []:
         if not isinstance(r, dict) or not (r.get("text") or r.get("angle")):
@@ -223,7 +257,9 @@ def _clean_claims(rows: Any, valid: set[str], allowed_basis: tuple[str, ...], de
         ids = [i for i in (r.get("evidence") or []) if i in valid]
         if names is not None and ids:
             # a citation must be traceable: the text has to mention something the cited evidence actually returned
-            ids = [i for i in ids if any(_norm(n) and _norm(n) in _norm(text) for n in names.get(i, []))]
+            product = product_text(intake) if intake is not None else ""
+            ids = [i for i in ids if any(_norm(n) and _norm(n) in _norm(text) for n in names.get(i, []))
+                   or (support and supported_by(text, support.get(i, []), product))]
         basis = r.get("basis") if r.get("basis") in allowed_basis else default
         if r.get("basis") not in allowed_basis and r.get("basis") in ("evidence", "calculated"):
             fixed += 1  # the model claimed a stronger basis than this field may carry
@@ -257,10 +293,11 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
     p["name"] = str(p.get("name") or seg.label)[:80]
     p["headline"] = str(p.get("headline") or seg.description)[:200]
     p["who"] = str(p.get("who") or seg.description)[:400]
+    support = culture_support(culture_view or {})
     for key, allowed, default in (("motivations", ("evidence", "interpretation"), "interpretation"),
                                   ("messages", ("interpretation",), "interpretation"),
-                                  ("objections", ("interpretation",), "interpretation")):
-        p[key], f = _clean_claims(p.get(key), valid, allowed, default, nbi, intake, dropped, key)
+                                  ("objections", ("evidence", "interpretation"), "interpretation")):
+        p[key], f = _clean_claims(p.get(key), valid, allowed, default, nbi, intake, dropped, key, support if key != "messages" else None)
         downgraded += f
         p[key] = p[key][:3]
     # computed price barriers always lead the objections
@@ -294,8 +331,14 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
             dropped["tastes"] += 1
     p["tastes"] = keep_tastes[:6]
     p["caveats"] = [str(c) for c in (p.get("caveats") or [])][:4]
-    p["validation"] = {"dropped": dropped, "downgraded_to_interpretation": downgraded}
+    p["validation"] = {"dropped": dropped, "downgraded_to_interpretation": downgraded, "grounded_share": grounded_share(p)}
     return p
+
+
+def grounded_share(p: dict[str, Any]) -> float | None:
+    """Share of the persona's claims that rest on Qloo evidence or on a calculation (not on the model's interpretation)."""
+    rows = [r for k in ("motivations", "objections", "messages", "platforms", "events", "tastes", "where_to_reach") for r in p.get(k) or []]
+    return round(sum(1 for r in rows if r.get("basis") in ("evidence", "calculated")) / len(rows), 2) if rows else None
 
 
 def template_persona(seg: SegmentScore, view: dict[str, Any], aff: Affordability, culture_view: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -349,6 +392,7 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
         persona["source"] = source
         persona["rank"] = n + 1
         enrich(persona, seg.id, getattr(seg, "gender", None) or intake.gender_focus, list(seg.ages), n + 1)
+        persona["display_name"] = unique_name(persona["display_name"], persona["gender"], {x["display_name"] for x in out})
         persona["score"] = seg.score
         persona["confidence"] = seg.confidence
         persona["score_components"] = {k: v["value"] for k, v in seg.components.items()}
@@ -359,6 +403,15 @@ async def write_personas(llm: LLMClient | None, intake: ProductIntake, aff: Affo
         if on_persona:
             on_persona(n + 1, len(ranked), persona)
     return out
+
+
+def unique_name(name: str, gender: str, used: set[str]) -> str:
+    """No two personas of a run share a first name (a live run had four "Emily")."""
+    from .identity import FEMALE, MALE, NEUTRAL
+    if name not in used:
+        return name
+    pool = {"female": FEMALE, "male": MALE}.get(gender, NEUTRAL)
+    return next((n for n in pool if n not in used), name)
 
 
 _LABEL = {"evidence": "Qloo", "calculated": "calculated", "interpretation": "LLM interpretation"}

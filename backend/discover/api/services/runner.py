@@ -82,7 +82,8 @@ async def run_analysis(sf: SF, api: ApiSettings, analysis_id: str, engine_settin
     out = Path(await asyncio.to_thread(tempfile.mkdtemp, prefix="run-", dir=_ensure(api.runs_dir)))
     try:
         intake = ProductIntake.from_dict(intake_dict)
-        opts = PersonaOptions(intake=intake, out=out, mock=api.mock_engine, zip=False, max_calls=api.max_qloo_calls,
+        opts = PersonaOptions(intake=intake, out=out, mock=api.mock_engine, zip=False, lean=api.engine_mode != "full",
+                              max_calls=api.max_qloo_calls or (150 if api.engine_mode == "full" else 40),
                               discover=bool(options.get("discover", True)),
                               agent=bool(options.get("use_agent", True)) and api.agent_enabled and not api.mock_engine,
                               llm_delay=api.llm_delay, progress=writer.callback, known_categories=known)

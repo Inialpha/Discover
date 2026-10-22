@@ -39,9 +39,9 @@ class PersonaOptions:
     no_llm: bool = False
     mock: bool = False
     dry_run: bool = False
-    max_calls: int = 30
+    max_calls: int = 40
     lean: bool = True  # few shared Qloo calls (see evidence.gather_market); False = the full per-segment calls
-    top_segments: int = 3  # lean mode: segments that get their own age-specific TV-show call
+    top_segments: int = 6  # lean mode: segments that get their own age-specific TV-show and place calls
     concurrency: int = 2
     delay: float = 0.0
     llm_delay: float = 0.0
