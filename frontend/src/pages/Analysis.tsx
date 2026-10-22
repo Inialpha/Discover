@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, type Analysis as A, type Ev, type Market, type MarketRow } from "../api";
-import Badge from "../components/Badge";
 import PersonaCard from "../components/PersonaCard";
 import ExportMenu from "../components/ExportMenu";
 import AgeSkew from "../components/AgeSkew";
@@ -51,7 +50,7 @@ function MarketCard({ m }: { m: Market }) {
         <div className="tiers">
           {groups.map(([title, rows]) => rows.length > 0 && (
             <div key={title}>
-              <h4>{title} <Badge basis="evidence" /></h4>
+              <h4>{title}</h4>
               {rows.map((row) => (
                 <p key={row.label}><span className="muted">{row.label}</span><br />{row.brands.map((b) => b.name).join(", ")}</p>
               ))}
@@ -59,11 +58,11 @@ function MarketCard({ m }: { m: Market }) {
           ))}
         </div>
       ) : (
-        <p><span className="badge b-notconfirmed">Not confirmed</span> We could not confirm competing or alternative brands for this market, so the personas rest on income data and the audience profile only.</p>
+        <p>We could not find competing brands for this market, so these customer groups rest on income data and the audience profile only.</p>
       )}
       {m.alternatives_audience && (
         <div>
-          <h4>Who buys the alternatives <Badge basis="evidence" /></h4>
+          <h4>Who buys the alternatives</h4>
           <p className="muted small">People using {m.alternatives_audience.brands.slice(0, 4).join(", ")} today. Reach them with a message that shows how your product solves the same problem better.</p>
           <AgeSkew index={m.alternatives_audience.age_index} />
         </div>
@@ -131,20 +130,21 @@ export default function Analysis() {
       {r && (
         <>
           {r.synthetic && <p className="note">Demo data: this analysis ran on built-in sample data, not live market data.</p>}
+          {r.executive_summary && (
+            <section className="card summary">
+              <h2>{r.executive_summary.headline}</h2>
+              <dl className="sumlist">
+                {r.executive_summary.bullets.map((b) => <div key={b.label}><dt>{b.label}</dt><dd>{b.text}</dd></div>)}
+              </dl>
+              <p className="muted small">{r.executive_summary.note}</p>
+            </section>
+          )}
           <section className="overview card">
             <div>
-              <h2>The market at a glance</h2>
-              <p>
-                At {r.affordability.local_price.toLocaleString()} {r.affordability.local_currency} in {r.affordability.country_name}, this reads as a{" "}
-                <strong>{r.affordability.tier}</strong> price{r.affordability.ratio != null && <> ({(r.affordability.ratio * 100).toFixed(1)}% of average yearly income)</>}.
-              </p>
+              <h3>Who buys from your competitors</h3>
               {r.anchor_audience.anchors.length > 0 && (
-                <p className="muted">Audience read from the buyers of: {r.anchor_audience.anchors.slice(0, 8).map((x) => x.name).join(", ")}.</p>
+                <p className="muted">Based on the customers of {r.anchor_audience.anchors.slice(0, 8).map((x) => x.name).join(", ")}.</p>
               )}
-              {r.evidence_notes.map((n) => <p key={n} className="muted small">{n}</p>)}
-            </div>
-            <div>
-              <h3>Who buys from competitors</h3>
               <AgeSkew index={r.anchor_audience.age_index} />
             </div>
           </section>
@@ -153,8 +153,8 @@ export default function Analysis() {
           <div className="pgrid">
             {r.personas.map((p, i) => <PersonaCard key={p.segment_id + i} p={p} analysisId={a.id} index={i} />)}
           </div>
-          <p className="muted small">* Name, gender and avatar are illustrative. Only the age and gender figures are data.</p>
-          {r.attribution.length > 0 && <p className="muted small">Sources: market data by Qloo; {r.attribution.join("; ")}.</p>}
+          <p className="muted small">* Names, genders and pictures are for illustration. Each group is a type of customer, not a real person.</p>
+          {r.attribution.length > 0 && <p className="muted small">Taste and market data from Qloo. Income data from the World Bank.</p>}
         </>
       )}
     </div>

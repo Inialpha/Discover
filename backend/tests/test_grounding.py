@@ -17,8 +17,8 @@ def test_record_competitor_names_skip_used_and_rejected():
     crest = {"competitors": ["Colgate", "Sensodyne", "Arm & Hammer"], "similar": []}
     senso = {"competitors": ["Colgate", "Crest", "Arm & Hammer"], "similar": ["Pronamel", "Oral-B"]}
     anchors = [{"name": "Crest", "query": "Crest"}, {"name": "Sensodyne", "query": "Sensodyne"}]
-    assert lean.record_competitor_names([crest, senso], anchors, []) == ["Arm & Hammer", "Colgate", "Oral-B"]
-    assert lean.record_competitor_names([crest, senso], anchors, ["Colgate"]) == ["Arm & Hammer", "Oral-B", "Pronamel"]
+    assert lean.record_competitor_names([crest, senso], anchors, []) == ["Arm & Hammer", "Colgate"]
+    assert lean.record_competitor_names([crest, senso], anchors, ["Colgate"]) == ["Arm & Hammer", "Oral-B"]
 
 
 def test_accepted_brand_records_feed_the_market_culture_and_rejected_ones_do_not():

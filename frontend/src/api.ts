@@ -51,6 +51,7 @@ export interface Result {
   agent: { goals?: string[]; steps?: number } | null;
   market?: Market | null;
   scoring: { notes: string[] };
+  executive_summary?: { headline: string; bullets: { label: string; text: string }[]; note: string };
 }
 export interface MarketRow { label: string; brands: { name: string }[] }
 export interface Market {

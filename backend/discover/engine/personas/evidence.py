@@ -184,16 +184,16 @@ async def gather_segments(client: QlooClient, intake: ProductIntake, segments: l
 
 
 MARKET_KINDS = ("tv_show", "artist", "place")
-SEGMENT_KINDS = ("tv_show", "artist")  # tastes that differ by age, asked for each segment. Places do not: live run, Qloo returned the
+SEGMENT_KINDS = ("tv_show", "artist", "brand")  # tastes that differ by age, asked for each segment. Places do not: live run, Qloo returned the
 # same eight New York places in the same order for every age group, so places stay one shared call
 
 
 async def gather_market(client: QlooClient, intake: ProductIntake, segments: list[SegmentScore], ev: Evidence,
                         anchors: list[dict[str, Any]] | None, take: int = 10, top_segments: int = 6,
                         kinds: tuple[str, ...] | list[str] = MARKET_KINDS,
-                        segment_kinds: tuple[str, ...] | list[str] = SEGMENT_KINDS) -> None:
+                        segment_kinds: tuple[str, ...] | list[str] = SEGMENT_KINDS, segment_heatmap: bool = True) -> None:
     """Lean step 3. Calls: shows and artists around the competitors (competitors + location), places (location), one heatmap
-    (competitors + location), then TV shows and artists for each segment with that segment's age and gender. About 4 + 2 per
+    (competitors + location), then TV shows, artists, brands and a heatmap for each segment with that segment's age and gender. About 4 + 4 per
     segment calls in all; the per-segment calls are what make the personas different from one another.
 
     Competitor signals and age signals are never mixed in one call, so neither can drown the other."""
@@ -218,6 +218,8 @@ async def gather_market(client: QlooClient, intake: ProductIntake, segments: lis
         for kind in segment_kinds:
             tasks.append((s.label, kind, calls.insights_entities("affinity", f"{s.label}-{kind}", kind, sig, take=take, explain=False,
                                                                  allow_no_location=False)))
+        if segment_heatmap:  # the areas of the city this age group and gender concentrate in
+            tasks.append((s.label, "heatmap", calls.insights_heatmap("heatmap", f"{s.label}-heatmap", sig)))
     results = await asyncio.gather(*(client.call(t[2]) for t in tasks))
     for (label, kind, _), res in zip(tasks, results):
         if kind == "heatmap":
@@ -248,7 +250,8 @@ def culture_for(ev_items: list[dict[str, Any]], seg_label: str, other_labels: li
     """Culture digests for one segment (see personas/culture.py):
       market   the audience of the product's competitors and similar brands (same for every segment; empty in the full mode)
       around   the shows, artists and places around those brands (same for every segment)
-      segment  what this segment's own Qloo lists say, against the other segments' lists as the baseline
+      segment  who the brands this age group likes are for (their audience text), against the other segments' brands
+      taste    the same for this segment's own shows and artists
       platforms  social platforms of all the entities behind both"""
     shared = segment_entities(ev_items, MARKET)
     own = segment_entities(ev_items, seg_label)
@@ -259,9 +262,14 @@ def culture_for(ev_items: list[dict[str, Any]], seg_label: str, other_labels: li
                 and not it["data"].get("rejected")]  # Qloo's own record of each competitor that passed the identity check
     brands = profiled + [e for e in shared if culture._kind(e) == "brand"]
     around = [e for e in shared if culture._kind(e) != "brand"]
+    own_brands = [e for e in own if culture._kind(e) == "brand"]
+    own_taste = [e for e in own if culture._kind(e) != "brand"]
+    base_brands = [e for e in base if culture._kind(e) == "brand"]
+    base_taste = [e for e in base if culture._kind(e) != "brand"]
     return {"market": culture.digest(brands, [], top=5, sentences=4, min_support=1 if len(brands) <= 4 else culture.MIN_SUPPORT) if brands else None,
             "around": culture.digest(around, [], top=4, sentences=2) if around else None,
-            "segment": culture.digest(own, base, top=5, sentences=3) if own else None,
+            "segment": culture.digest(own_brands, base_brands, top=5, sentences=3) if own_brands else None,
+            "taste": culture.digest(own_taste, base_taste, top=5, sentences=3) if own_taste else None,
             "platforms": culture.platforms(shared + own)}
 
 

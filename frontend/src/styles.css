@@ -150,3 +150,8 @@ label.check { display: flex; gap: .6rem; align-items: center; font-weight: 500; 
 .tablewrap { overflow-x: auto; } table.data { width: 100%; border-collapse: collapse; font-size: .88rem; }
 table.data th, table.data td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
 table.data th { color: var(--muted); font-weight: 600; } .st-failed { color: var(--bad); font-weight: 600; } .st-complete { color: var(--teal); }
+
+/* summary */
+.summary h2 { margin-top: 0; } .sumlist { display: grid; gap: .7rem; margin: 1rem 0; }
+.sumlist div { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: .2rem 1rem; } .sumlist dt { font-weight: 700; } .sumlist dd { margin: 0; }
+@media (max-width: 640px) { .sumlist div { grid-template-columns: 1fr; } }
