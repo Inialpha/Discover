@@ -1,0 +1,13 @@
+{
+  "name": "BrightSmile",
+  "product_type": "toothpaste",
+  "category": "beauty_personal_care",
+  "price": 4.99,
+  "currency": "USD",
+  "location": "New York",
+  "purchase_type": "repeat",
+  "purchases_per_year": 12,
+  "competitors": ["Crest", "Sensodyne"],
+  "max_personas": 6,
+  "description": "Fluoride toothpaste for daily family use at an affordable price."
+}
