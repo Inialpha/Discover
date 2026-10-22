@@ -157,7 +157,7 @@ def test_validate_persona_drops_invented_places_and_tastes(bundle_and_seg):
     assert p["motivations"][0]["basis"] == "interpretation" and p["motivations"][1]["basis"] == "evidence"
     assert p["messages"][0]["basis"] == "interpretation"
     assert p["platforms"] == []  # platforms never come from the LLM; without a culture digest there are none
-    assert len(p["events"]) == 2 and {x["basis"] for x in p["events"]} == {"interpretation"}
+    assert p["events"] == []  # no event data exists, so no event ideas are offered
     assert p["validation"]["downgraded_to_interpretation"] == 3  # motivation, message and objection overclaimed
     assert p["objections"][0]["basis"] == "calculated"          # the system-computed barrier leads
     assert [o["basis"] for o in p["objections"] if o["text"] == "pricey"] == ["interpretation"]  # the model's never 'calculated'
@@ -524,8 +524,8 @@ def test_lean_run_uses_few_shared_calls_and_per_segment_tv_and_places(make_intak
     kinds = {(e.get("data") or {}).get("kind") or e["step"] for e in market}
     assert {"tv_show", "artist", "place", "heatmap", "brand"} <= kinds  # shared by every persona
     per_segment = [e for e in ev if e["segment"] not in (None, "Market")]
-    assert {(e.get("data") or {}).get("kind") for e in per_segment if e["step"] == "affinity"} == {"tv_show", "place"}
-    assert summary["qloo_calls"] <= 28, summary["qloo_calls"]
+    assert {(e.get("data") or {}).get("kind") for e in per_segment if e["step"] == "affinity"} == {"tv_show", "artist", "brand"}
+    assert summary["qloo_calls"] <= 40, summary["qloo_calls"]
     calls_log = [json.loads(x) for x in (run / "calls.jsonl").read_text().splitlines()]
     sent = [c for c in calls_log if c["label"].startswith("market-")]
     assert sent and all(c["ok"] for c in sent)

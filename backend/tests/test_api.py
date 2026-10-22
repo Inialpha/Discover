@@ -103,12 +103,16 @@ def test_full_run_progress_result_edit_and_exports(client):
     r = client.get(f"/api/analyses/{aid}/export?format=pptx", headers=h)
     assert r.status_code == 200 and "presentationml" in r.headers["content-type"]
     prs = Presentation(io.BytesIO(r.content))
-    assert len(prs.slides) == 2 + 2 * 3 + 1
+    assert len(prs.slides) in (3 + 2 * 3, 3 + 2 * 3 + 1)  # title, summary, (market), two slides per persona, about
     r = client.get(f"/api/analyses/{aid}/export?format=docx", headers=h)
     d = Document(io.BytesIO(r.content))
     assert any(ps[1]["display_name"] in p.text for p in d.paragraphs) or any(ps[1]["display_name"] in c.text for t in d.tables for row in t.rows for c in row.cells)
     assert client.get(f"/api/analyses/{aid}/export?format=json", headers=h).json()["result"]["personas"]
-    assert client.get(f"/api/analyses/{aid}/export?format=md", headers=h).status_code == 200
+    md = client.get(f"/api/analyses/{aid}/export?format=md", headers=h)
+    assert md.status_code == 200 and "## Summary" in md.text
+    import re as _re
+    assert not _re.search(r"\bE\d{3}\b|affinity|confidence|score|Qloo", md.text.replace("Taste and market data from Qloo.", ""))
+    assert client.get(f"/api/analyses/{aid}", headers=h).json()["result"]["executive_summary"]["bullets"]
     assert client.get(f"/api/analyses/{aid}/export?format=exe", headers=h).status_code == 422
 
 

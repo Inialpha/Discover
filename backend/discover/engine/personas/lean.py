@@ -106,6 +106,24 @@ async def _records(client: QlooClient, ev: Evidence, anchors: list[dict[str, Any
     return out
 
 
+RECORD_COMPETITORS = 2  # most extra competitor names taken from the listed brands' records
+
+
+def record_competitor_names(profiles: list[dict[str, Any]], anchors: list[dict[str, Any]], rejected: list[str], limit: int = RECORD_COMPETITORS) -> list[str]:
+    """Names the verified brands' own Qloo records give as competitors or similar brands, not already used or rejected, most shared first."""
+    from collections import Counter
+    have = {_norm(a["name"]) for a in anchors} | {_norm(a.get("query", "")) for a in anchors} | {_norm(r) for r in rejected}
+    count: Counter = Counter()
+    label: dict[str, str] = {}
+    for pr in profiles:
+        for n in (pr.get("competitors") or []) + (pr.get("similar") or []):
+            k = _norm(n)
+            if k and k not in have:
+                count[k] += 1
+                label.setdefault(k, n)
+    return [label[k] for k, _ in sorted(count.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]]
+
+
 TAG_COMPETITORS = 2  # most competitor names read off the listed brands' own Qloo tags
 
 
@@ -201,12 +219,6 @@ async def discover_lean(client: QlooClient, intake: ProductIntake, ev: Evidence,
     if not discover:
         return {"anchors": anchors, "unresolved": unresolved, "notes": notes, "category": None}
 
-    # competitors Qloo itself names on the listed brands (2 search calls); the identity check below applies to them too
-    tagged = tag_competitor_names(anchors) if anchors else []
-    if tagged:
-        found, _missing = await _resolve(client, tagged, "qloo_competitor_tags", ev, pick_anchor)
-        add(found)
-
     # nothing resolved: start from Qloo's own category for the product type (2 calls, no name lookups)
     if not anchors:
         for term in search_terms(intake):
@@ -259,7 +271,32 @@ async def discover_lean(client: QlooClient, intake: ProductIntake, ev: Evidence,
                 if a["entity_id"] in bad and a["source"] != "qloo_competitor_tags":
                     unresolved.append(a["query"] if a["source"] == "given" else a["name"])
             anchors[:] = [a for a in anchors if a["entity_id"] not in bad]
+            for a in named:
+                if a["entity_id"] in bad:
+                    for it in ev.items:
+                        if it["step"] == "brand_profile" and it["label"] == f"Qloo record: {a['name']}" and it.get("data"):
+                            it["data"]["rejected"] = True
             notes.extend(why)
+
+    # competitors Qloo's own records name (Crest: Colgate, Sensodyne, Arm & Hammer; Sensodyne similar: Oral-B, Pronamel). Resolved by name
+    # and put through the same identity check, so a namesake ("Colgate" the university) is dropped again.
+    if profiles and llm is not None and anchors:
+        extra = record_competitor_names(list(profiles.values()), anchors, unresolved)
+        if extra:
+            found, _missing = await _resolve(client, extra, "qloo_competitor_tags", ev, pick_anchor)
+            new = [a for a in found if a["entity_id"] not in {x["entity_id"] for x in anchors}]
+            if new:
+                more = await _records(client, ev, new)
+                bad, why = await verify_anchors(llm, intake, more)
+                for a in new:
+                    if a["entity_id"] in bad:
+                        for it in ev.items:
+                            if it["step"] == "brand_profile" and it["label"] == f"Qloo record: {a['name']}" and it.get("data"):
+                                it["data"]["rejected"] = True
+                    else:
+                        profiles[a["entity_id"]] = more[a["entity_id"]]
+                        add([a])
+                notes.extend(why)
 
     # similar brands: one call, then the LLM keeps the ones that really fit the product
     selected: list[dict[str, Any]] = []

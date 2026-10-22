@@ -16,8 +16,7 @@ export default function PersonaCard({ p, analysisId, index }: { p: Persona; anal
         <p className="ptitle">{p.title}</p>
         <div className="chips">
           <span className="chip">{p.age_label}</span>
-          <span className="chip cap" title={p.gender_basis === "qloo" ? "From the audience data" : "Illustrative only: not a finding"}>{p.gender}{p.gender_basis === "qloo" ? "" : " *"}</span>
-          <span className={`chip conf c-${p.confidence}`}>{p.confidence} confidence</span>
+          <span className="chip cap" title={p.gender_basis === "qloo" ? "From the audience data" : "For illustration only"}>{p.gender}{p.gender_basis === "qloo" ? "" : " *"}</span>
         </div>
         <p className="psum">{p.summary}</p>
         {tastes.length > 0 && (

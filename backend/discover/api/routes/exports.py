@@ -10,6 +10,7 @@ from fastapi.responses import Response
 from ..deps import owned_analysis
 from ..models import Analysis
 from ..services import exports as ex
+from ...engine.personas import summary
 from ..services.views import merged_result
 
 router = APIRouter(prefix="/api/analyses", tags=["exports"])
@@ -29,7 +30,7 @@ async def export(format: str = Query("pptx", pattern="^(pptx|docx|json|md)$"), a
     elif format == "docx":
         body = await asyncio.to_thread(ex.build_docx, a.intake, res)
     elif format == "md":
-        body = (a.report_md or "").encode("utf-8")
+        body = summary.markdown(a.intake, res).encode("utf-8")
     else:
         body = json.dumps({"intake": a.intake, "result": res}, indent=2, ensure_ascii=False).encode("utf-8")
     name = re.sub(r"[^A-Za-z0-9]+", "-", a.intake.get("name", "personas")).strip("-").lower() or "personas"

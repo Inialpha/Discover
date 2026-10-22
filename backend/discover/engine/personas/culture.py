@@ -107,7 +107,8 @@ MIN_LIFT = 1.5   # items that every segment has ("Loyal") say nothing about this
 MIN_BASELINE = 8
 
 
-def rank_lists(seg_entities: list[dict[str, Any]], base_entities: list[dict[str, Any]], top: int = 6) -> dict[str, Any]:
+def rank_lists(seg_entities: list[dict[str, Any]], base_entities: list[dict[str, Any]], top: int = 6,
+               min_support: int = MIN_SUPPORT) -> dict[str, Any]:
     """Per list field: the items most carried by this segment's entities and most distinctive against the baseline.
     Items need at least MIN_SUPPORT entities behind them; a field with no such item is left out."""
     seg, carry = _list_stats(seg_entities)
@@ -117,7 +118,7 @@ def rank_lists(seg_entities: list[dict[str, Any]], base_entities: list[dict[str,
         m, mb = carry[f], carry_b.get(f, 0)
         rows = []
         for c, s in items.items():
-            if s["n"] < MIN_SUPPORT:
+            if s["n"] < min_support:
                 continue
             share = s["n"] / m
             b = base.get(f, {}).get(c, {}).get("n", 0)
@@ -227,7 +228,7 @@ def platforms(seg_entities: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def digest(seg_entities: list[dict[str, Any]], base_entities: list[dict[str, Any]], *, top: int = 6,
-           sentences: int = 4) -> dict[str, Any]:
+           sentences: int = 4, min_support: int = MIN_SUPPORT) -> dict[str, Any]:
     """The whole digest for one segment. `base_entities` are the other segments' entities from the same run."""
-    return {"lists": rank_lists(seg_entities, base_entities, top), "sentences": pick_sentences(seg_entities, base_entities, sentences),
+    return {"lists": rank_lists(seg_entities, base_entities, top, min_support), "sentences": pick_sentences(seg_entities, base_entities, sentences),
             "platforms": platforms(seg_entities), "entities": len(seg_entities)}
