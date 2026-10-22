@@ -227,3 +227,5 @@ node_modules/
 *.tsbuildinfo
 frontend/package.json
 frontend/package-lock.json
+
+package-lock.json
