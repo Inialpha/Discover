@@ -184,7 +184,8 @@ async def gather_segments(client: QlooClient, intake: ProductIntake, segments: l
 
 
 MARKET_KINDS = ("tv_show", "artist", "place")
-SEGMENT_KINDS = ("tv_show", "place")  # tastes and places that differ by age, asked for each segment
+SEGMENT_KINDS = ("tv_show", "artist")  # tastes that differ by age, asked for each segment. Places do not: live run, Qloo returned the
+# same eight New York places in the same order for every age group, so places stay one shared call
 
 
 async def gather_market(client: QlooClient, intake: ProductIntake, segments: list[SegmentScore], ev: Evidence,
@@ -192,7 +193,7 @@ async def gather_market(client: QlooClient, intake: ProductIntake, segments: lis
                         kinds: tuple[str, ...] | list[str] = MARKET_KINDS,
                         segment_kinds: tuple[str, ...] | list[str] = SEGMENT_KINDS) -> None:
     """Lean step 3. Calls: shows and artists around the competitors (competitors + location), places (location), one heatmap
-    (competitors + location), then TV shows and places for each segment with that segment's age and gender. About 4 + 2 per
+    (competitors + location), then TV shows and artists for each segment with that segment's age and gender. About 4 + 2 per
     segment calls in all; the per-segment calls are what make the personas different from one another.
 
     Competitor signals and age signals are never mixed in one call, so neither can drown the other."""
@@ -252,9 +253,13 @@ def culture_for(ev_items: list[dict[str, Any]], seg_label: str, other_labels: li
     shared = segment_entities(ev_items, MARKET)
     own = segment_entities(ev_items, seg_label)
     base = [e for lab in other_labels if lab not in (seg_label, MARKET) for e in segment_entities(ev_items, lab)]
-    brands = [e for e in shared if culture._kind(e) == "brand"]
+    profiled = [{"name": it["data"]["name"], "subtype": "urn:entity:brand", "evidence_id": it["id"],
+                 "properties": {"customer_segments": it["data"]["segments"]}}
+                for it in ev_items if it["step"] == "brand_profile" and it.get("ok") and (it.get("data") or {}).get("segments")
+                and not it["data"].get("rejected")]  # Qloo's own record of each competitor that passed the identity check
+    brands = profiled + [e for e in shared if culture._kind(e) == "brand"]
     around = [e for e in shared if culture._kind(e) != "brand"]
-    return {"market": culture.digest(brands, [], top=5, sentences=4) if brands else None,
+    return {"market": culture.digest(brands, [], top=5, sentences=4, min_support=1 if len(brands) <= 4 else culture.MIN_SUPPORT) if brands else None,
             "around": culture.digest(around, [], top=4, sentences=2) if around else None,
             "segment": culture.digest(own, base, top=5, sentences=3) if own else None,
             "platforms": culture.platforms(shared + own)}
