@@ -44,7 +44,9 @@ Rules:
   are RELATIVE; say "skews toward", never "X% of".
 - Price statements may only use the "affordability" and "reach" fields; the computed price barriers are added by the system,
   so your objections are interpretation.
-- Motivations and objections should rest on "qloo.culture": paraphrase an entry (a "lists" item or a "sentences" line) and cite
+- Motivations and objections about buying or using this kind of product should rest on "qloo.culture.market" (what Qloo says about
+  the competitors' customers). "around" and "segment" describe taste and outlook (shows, music): use them for tone, message
+  angles and event ideas, not as the reason someone buys the product. Where they fit, motivations and objections should rest on "qloo.culture": paraphrase an entry (a "lists" item or a "sentences" line) and cite
   its evidence id, with basis "evidence". Use "interpretation" for at most ONE motivation and ONE objection per persona, and only
   when no entry fits. A cited claim must reuse the entry's own key words, not just its topic.
 - "messages" are the model's marketing ideas (always interpretation). Put the evidence ids of a taste that inspired a

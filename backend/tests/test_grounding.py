@@ -13,6 +13,25 @@ def test_tag_competitor_names_skip_known_and_rank_by_sharing():
     assert lean.tag_competitor_names([crest, senso]) == ["Colgate", "Aim"]
 
 
+def test_record_competitor_names_skip_used_and_rejected():
+    crest = {"competitors": ["Colgate", "Sensodyne", "Arm & Hammer"], "similar": []}
+    senso = {"competitors": ["Colgate", "Crest", "Arm & Hammer"], "similar": ["Pronamel", "Oral-B"]}
+    anchors = [{"name": "Crest", "query": "Crest"}, {"name": "Sensodyne", "query": "Sensodyne"}]
+    assert lean.record_competitor_names([crest, senso], anchors, []) == ["Arm & Hammer", "Colgate", "Oral-B"]
+    assert lean.record_competitor_names([crest, senso], anchors, ["Colgate"]) == ["Arm & Hammer", "Oral-B", "Pronamel"]
+
+
+def test_accepted_brand_records_feed_the_market_culture_and_rejected_ones_do_not():
+    from discover.engine.personas.evidence import culture_for
+    def prof(i, name, segs, **kw):
+        return {"id": i, "step": "brand_profile", "ok": True, "segment": None, "label": "x", "data": {"name": name, "segments": segs, **kw}}
+    items = [prof("E004", "Crest", ["Families", "Health-Conscious Consumers"]),
+             prof("E006", "Colgate", ["Undergraduate Scholars"], rejected=True)]
+    c = culture_for(items, "Everyday", [])
+    got = [r["item"] for r in c["market"]["lists"]["customer_segments"]]
+    assert "Families" in got and "Undergraduate Scholars" not in got
+
+
 def test_deeper_category_from_a_brand_tag_stays_under_the_shared_one():
     base = {"id": "urn:tag:genre:brand:health_and_beauty", "depth": 1}
     colgate = {"tags": [tag("urn:tag:genre:brand:health_and_beauty:oral_care", "Oral Care")]}
