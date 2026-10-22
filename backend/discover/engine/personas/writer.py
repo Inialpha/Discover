@@ -44,8 +44,8 @@ Rules:
 - Price statements may only use the "affordability" and "reach" fields; the computed price barriers are added by the system,
   so your objections are interpretation.
 - Motivations and objections about buying or using this kind of product should rest on "qloo.culture.market" (what Qloo says about
-  the competitors' customers). "around" and "segment" describe taste and outlook (shows, music): use them for tone, message
-  angles and event ideas, not as the reason someone buys the product. Where they fit, motivations and objections should rest on "qloo.culture": paraphrase an entry (a "lists" item or a "sentences" line) and cite
+  the competitors' customers) and "qloo.culture.segment" (who the brands this age group likes are for). "around" and "taste"
+  describe taste and outlook (shows, music): use them for tone and message angles, not as the reason someone buys the product. Where they fit, motivations and objections should rest on "qloo.culture": paraphrase an entry (a "lists" item or a "sentences" line) and cite
   its evidence id, with basis "evidence". Use "interpretation" for at most ONE motivation and ONE objection per persona, and only
   when no entry fits. A cited claim must reuse the entry's own key words, not just its topic.
 - "messages" are the model's marketing ideas (always interpretation). Put the evidence ids of a taste that inspired a
@@ -61,8 +61,8 @@ Rules:
   or a cited taste; do not promise features the product text does not state.
 - "qloo.culture" is a digest of Qloo's own descriptions of the AUDIENCE of the items around this product. "market" is the
   audience of the competitors and similar brands and of the shows and artists they share; it is the same for every persona.
-  "around" is the same for the shows, artists and places those brands share. "segment" is what this age group's own TV and place
-  tastes say. Each has "lists" (items with "n of m" support, meaning n of the m items
+  "around" is the same for the shows, artists and places those brands share. "segment" is who the brands this age group likes
+  are for, and "taste" is what this age group's own shows and artists say. Each has "lists" (items with "n of m" support, meaning n of the m items
   that had that field) and "sentences". Use them to describe the persona's values, outlook, tone and occasions, and to shape
   message angles, citing the evidence ids that come with them.
   Paraphrase; never present n/m as a share of people; never attribute a trait that no entry supports. If the digest is
@@ -174,7 +174,7 @@ def culture_for_llm(c: dict[str, Any]) -> dict[str, Any]:
         sents = [{"text": x["text"], "evidence": x["evidence"]} for x in d.get("sentences") or []]
         return {"lists": lists, "sentences": sents} if lists or sents else None
     return {k: v for k, v in (("market", compact(c.get("market"))), ("around", compact(c.get("around"))),
-                              ("segment", compact(c.get("segment")))) if v}
+                              ("segment", compact(c.get("segment"))), ("taste", compact(c.get("taste")))) if v}
 
 
 def culture_support(c: dict[str, Any], parts: tuple[str, ...] = ("market", "around", "segment")) -> dict[str, list[str]]:
@@ -310,8 +310,8 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
         downgraded += f
         p[key] = p[key][:3]
     # a motivation or objection the writer left uncited is still grounded if it plainly restates what Qloo says about the
-    # competitors' customers; it then carries that entry (market part only: show and music text says nothing about why people buy)
-    market_support = culture_support(culture_view or {}, ("market",))
+    # competitors' customers; it then carries that entry (brand text only: show and music text says nothing about why people buy)
+    market_support = culture_support(culture_view or {}, ("market", "segment"))
     auto = 0
     for key in ("motivations", "objections"):
         for r in p[key]:

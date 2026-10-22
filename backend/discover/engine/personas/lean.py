@@ -106,7 +106,7 @@ async def _records(client: QlooClient, ev: Evidence, anchors: list[dict[str, Any
     return out
 
 
-RECORD_COMPETITORS = 3  # most extra competitor names taken from the listed brands' records
+RECORD_COMPETITORS = 2  # most extra competitor names taken from the listed brands' records
 
 
 def record_competitor_names(profiles: list[dict[str, Any]], anchors: list[dict[str, Any]], rejected: list[str], limit: int = RECORD_COMPETITORS) -> list[str]:
