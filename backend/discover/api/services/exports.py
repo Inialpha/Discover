@@ -131,7 +131,8 @@ def build_pptx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
         _section(s, 7.1, 1.2, 5.6, "Where to find them online", [(x["platform"], _badge(x)) for x in p.get("platforms", [])], "Nothing to show", 13, h=2.0)
         _section(s, 7.1, 3.4, 5.6, "Places to reach them", [(x["place"], "Backed by data") for x in p.get("where_to_reach", [])],
                  "Nothing to show", 13, h=1.8)
-        _section(s, 0.6, 4.4, 6.2, "Event ideas", [(f"{x['idea']}: {x.get('why', '')}", _badge(x)) for x in p.get("events", [])], "Nothing to show", 13, h=1.6)
+        if p.get("events"):
+            _section(s, 0.6, 4.4, 6.2, "Event ideas", [(f"{x['idea']}: {x.get('why', '')}", _badge(x)) for x in p.get("events", [])], "Nothing to show", 13, h=1.6)
         if p.get("caveats"):
             _tb(s, 0.6, 6.5, 12, 0.7, "Worth knowing: " + " ".join(p["caveats"])[:300], 10, False, MUTED)
     # last: how to read
@@ -200,7 +201,8 @@ def build_docx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
         _dh(doc, "Places to reach them", 2)
         _dbul(doc, [(x["place"], "Backed by data") for x in p.get("where_to_reach", [])], "Nothing to show")
         _dh(doc, "What they like", 2); _dbul(doc, [(f"{x['name']} ({x.get('kind', '').replace('_', ' ')})", "Backed by data") for x in p.get("tastes", [])], "Nothing to show")
-        _dh(doc, "Event ideas", 2); _dbul(doc, [(f"{x['idea']}: {x.get('why', '')}", _badge(x)) for x in p.get("events", [])], "Nothing to show")
+        if p.get("events"):
+            _dh(doc, "Event ideas", 2); _dbul(doc, [(f"{x['idea']}: {x.get('why', '')}", _badge(x)) for x in p.get("events", [])], "Nothing to show")
         for cv in p.get("caveats", []):
             doc.add_paragraph(f"Worth knowing: {cv}").runs[0].font.size = DPt(9)
     doc.add_page_break()

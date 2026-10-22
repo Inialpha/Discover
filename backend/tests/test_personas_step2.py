@@ -157,7 +157,7 @@ def test_validate_persona_drops_invented_places_and_tastes(bundle_and_seg):
     assert p["motivations"][0]["basis"] == "interpretation" and p["motivations"][1]["basis"] == "evidence"
     assert p["messages"][0]["basis"] == "interpretation"
     assert p["platforms"] == []  # platforms never come from the LLM; without a culture digest there are none
-    assert len(p["events"]) == 2 and {x["basis"] for x in p["events"]} == {"interpretation"}
+    assert p["events"] == []  # no event data exists, so no event ideas are offered
     assert p["validation"]["downgraded_to_interpretation"] == 3  # motivation, message and objection overclaimed
     assert p["objections"][0]["basis"] == "calculated"          # the system-computed barrier leads
     assert [o["basis"] for o in p["objections"] if o["text"] == "pricey"] == ["interpretation"]  # the model's never 'calculated'

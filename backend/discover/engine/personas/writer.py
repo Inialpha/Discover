@@ -30,7 +30,6 @@ PERSONA_SYSTEM = """You write ONE buyer persona for a business, using ONLY the J
  "messages": [{"angle": str, "text": str, "basis": "evidence"|"interpretation", "evidence": [ids]}],
  "where_to_reach": [{"place": str, "evidence": [ids]}],
  "tastes": [{"name": str, "kind": str, "evidence": [ids]}],
- "events": [{"idea": str, "why": str}],
  "caveats": [str]}
 Rules:
 - Evidence ids look like E012 and appear in the input. Cite them in "evidence" for every claim about tastes or places.
@@ -58,7 +57,6 @@ Rules:
 - Never invent product specs or numbers (hours of battery, megapixels, storage, speeds). Use only what the product text
   states. Never use comparatives or social proof ("outlasts", "best", "top-rated", "chosen by", "trusted by", "fans of").
 - If an item looks foreign to the market (for example an artist from another country), you may list it but say it is cross-market.
-- "events" are interpretation: Qloo has no event data. At most 2 events.
 - At most 3 messages (each under 25 words), 3 motivations, 3 objections. Messages must rest on a product fact in the input
   or a cited taste; do not promise features the product text does not state.
 - "qloo.culture" is a digest of Qloo's own descriptions of the AUDIENCE of the items around this product. "market" is the
@@ -179,11 +177,11 @@ def culture_for_llm(c: dict[str, Any]) -> dict[str, Any]:
                               ("segment", compact(c.get("segment")))) if v}
 
 
-def culture_support(c: dict[str, Any]) -> dict[str, list[str]]:
+def culture_support(c: dict[str, Any], parts: tuple[str, ...] = ("market", "around", "segment")) -> dict[str, list[str]]:
     """evidence id -> the digest texts (list items, sentences, source entity names) that came from that call: what a claim citing
     the id has to be traceable to."""
     out: dict[str, list[str]] = {}
-    for part in ("market", "around", "segment"):
+    for part in parts:
         d = c.get(part) or {}
         for rows in (d.get("lists") or {}).values():
             for r in rows:
@@ -201,13 +199,18 @@ def _stems(text: str, skip: set[str]) -> set[str]:
 
 
 def supported_by(text: str, sources: list[str], product: str) -> bool:
-    """A claim is traceable to a cited entry when it shares at least two key words with it (product words do not count)."""
+    """A claim is traceable to an entry when it shares key words with it. A short list item ("Families", "Health-Conscious Adults")
+    needs one shared word; a sentence needs two and product words do not count towards it."""
     skip = _stems(product, set())
-    mine = _stems(text, skip)
     for src in sources:
-        theirs = _stems(src, skip)
-        if theirs and len(mine & theirs) >= min(2, len(theirs)):  # a short list item ("Families") needs one shared word, a sentence two
-            return True
+        short = _stems(src, set())
+        if len(short) <= 3:
+            if short & _stems(text, set()):
+                return True
+        else:
+            theirs = _stems(src, skip)
+            if len(_stems(text, skip) & theirs) >= 2:
+                return True
     return False
 
 
@@ -306,13 +309,23 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
         p[key], f = _clean_claims(p.get(key), valid, allowed, default, nbi, intake, dropped, key, support if key != "messages" else None)
         downgraded += f
         p[key] = p[key][:3]
+    # a motivation or objection the writer left uncited is still grounded if it plainly restates what Qloo says about the
+    # competitors' customers; it then carries that entry (market part only: show and music text says nothing about why people buy)
+    market_support = culture_support(culture_view or {}, ("market",))
+    auto = 0
+    for key in ("motivations", "objections"):
+        for r in p[key]:
+            if r.get("basis") == "interpretation" and not r.get("evidence"):
+                hit = next((eid for eid, srcs in market_support.items() if eid in valid and supported_by(str(r.get("text", "")), srcs, product_text(intake) if intake else "")), None)
+                if hit:
+                    r["evidence"], r["basis"] = [hit], "evidence"
+                    auto += 1
     # computed price barriers always lead the objections
     barriers = price_barriers(seg, aff)
     seen = {_norm(o["text"]) for o in barriers}
     p["objections"] = (barriers + [o for o in p["objections"] if _norm(o.get("text", "")) not in seen])[:4]
     p["platforms"] = platform_rows(culture_view)
-    p["events"] = [{"idea": str(x.get("idea")), "why": str(x.get("why", "")), "basis": "interpretation"}
-                   for x in (p.get("events") or []) if isinstance(x, dict) and x.get("idea")][:2]
+    p["events"] = []  # Qloo has no event data, so no event ideas are offered
     places = {_norm(n): n for n in place_names(ev_items, seg.label)}
     aff_by_place = place_affinity(ev_items, seg.label)
     ents = {_norm(n): (n, eid) for n, eid in entity_names(ev_items, seg.label).items()}
@@ -337,7 +350,7 @@ def validate_persona(p: dict[str, Any], seg: SegmentScore, ev_items: list[dict[s
             dropped["tastes"] += 1
     p["tastes"] = keep_tastes[:6]
     p["caveats"] = [str(c) for c in (p.get("caveats") or [])][:4]
-    p["validation"] = {"dropped": dropped, "downgraded_to_interpretation": downgraded, "grounded_share": grounded_share(p)}
+    p["validation"] = {"dropped": dropped, "downgraded_to_interpretation": downgraded, "auto_cited": auto, "grounded_share": grounded_share(p)}
     return p
 
 
