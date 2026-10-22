@@ -103,6 +103,7 @@ export const api = {
   meta: () => call<Meta>("/api/meta"),
   signup: (email: string, password: string, name: string) => call<{ token: string; user: User }>("/api/auth/signup", { method: "POST", body: JSON.stringify({ email, password, name }) }),
   login: (email: string, password: string) => call<{ token: string; user: User }>("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
+  google: (credential: string) => call<{ token: string; user: User }>("/api/auth/google", { method: "POST", body: JSON.stringify({ credential }) }),
   me: () => call<User>("/api/auth/me"),
   adminOverview: () => call<AdminOverview>("/api/admin/overview"),
   create: (intake: Intake, options: { use_agent: boolean; discover: boolean }, link?: { product_id?: string; based_on?: string }) =>
