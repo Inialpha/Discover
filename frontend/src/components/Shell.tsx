@@ -26,6 +26,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         <nav>
           <NavLink to="/" end>New analysis</NavLink>
           <NavLink to="/history">My analyses</NavLink>
+          {user?.is_admin && <NavLink to="/admin">Admin</NavLink>}
         </nav>
         <div className="who">
           <span>{user?.name || user?.email}</span>

@@ -197,6 +197,11 @@ def entity_by_id(label: str, entity_id: str, step: str = "detail") -> CallSpec:
     return CallSpec(step, label, "/entities", [Variant({"entity_ids": entity_id}, {})], note="entity by id")
 
 
+def entities_by_ids(label: str, entity_ids: list[str], step: str = "detail") -> CallSpec:
+    """Full records of several entities in ONE call (GET /entities?entity_ids=ID1,ID2). Callers check that every id came back."""
+    return CallSpec(step, label, "/entities", [Variant({"entity_ids": ",".join(entity_ids)}, {})], note="entities by id")
+
+
 def tags_of_type(label: str, tag_type: str, query: str | None = None, take: int = 50, page: int | None = None,
                  step: str = "taxonomy", semantic: bool = False) -> CallSpec:
     """Tags inside one namespace, optionally filtered by a keyword; page walks through large namespaces."""

@@ -45,6 +45,7 @@ def test_api_run_with_the_ladder_stores_the_category_and_reuses_it(tmp_path, mon
     from discover.api.main import create_app
     from tests.test_api import INTAKE, settings, signup, wait
     from tests.test_personas_step2 import LLM_SETTINGS
+    from discover.engine.qloo.mock import make_transport
 
     monkeypatch.chdir(tmp_path)
     log: list[str] = []
@@ -66,7 +67,9 @@ def test_api_run_with_the_ladder_stores_the_category_and_reuses_it(tmp_path, mon
 
     intake = {**INTAKE, "competitors": [], "max_personas": 2}
     app = create_app(settings(database_url=f"sqlite:///{tmp_path}/e2e.db"),
-                     engine_kwargs={"engine_settings": LLM_SETTINGS, "llm_transport": httpx.MockTransport(llm)})
+                     engine_kwargs={"engine_settings": LLM_SETTINGS, "llm_transport": httpx.MockTransport(llm),
+                                    # Qloo has no brand category for this product type, so the market map (the ladder) is what runs
+                                    "qloo_transport": make_transport(lambda r: r.url.path == "/v2/tags" and r.url.params.get("filter.query") == "smartphone")})
     with TestClient(app) as c:
         h = signup(c)
         aid = c.post("/api/analyses", json={"intake": intake}, headers=h).json()["id"]

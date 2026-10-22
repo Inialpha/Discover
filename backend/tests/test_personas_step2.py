@@ -156,7 +156,7 @@ def test_validate_persona_drops_invented_places_and_tastes(bundle_and_seg):
     assert p["validation"]["dropped"] == {"tastes": 1, "where_to_reach": 1}
     assert p["motivations"][0]["basis"] == "interpretation" and p["motivations"][1]["basis"] == "evidence"
     assert p["messages"][0]["basis"] == "interpretation"
-    assert len(p["platforms"]) == 3 and {x["basis"] for x in p["platforms"]} == {"interpretation"}
+    assert p["platforms"] == []  # platforms never come from the LLM; without a culture digest there are none
     assert len(p["events"]) == 2 and {x["basis"] for x in p["events"]} == {"interpretation"}
     assert p["validation"]["downgraded_to_interpretation"] == 3  # motivation, message and objection overclaimed
     assert p["objections"][0]["basis"] == "calculated"          # the system-computed barrier leads
@@ -284,17 +284,27 @@ def test_runner_reranks_with_qloo_and_fetches_evidence_only_for_final_segments(m
     after = json.loads((run / "02_segments_after_qloo.json").read_text())
     final_labels = {s["label"] for s in after["ranked"]}
     ev = json.loads((run / "03_evidence.json").read_text())
-    assert {e["segment"] for e in ev if e["segment"]} == final_labels
+    assert {e["segment"] for e in ev if e["segment"]} - {"Market"} <= final_labels
     assert all("qloo_fit" in s["components"] for s in after["ranked"] if s["id"] in {"students_budget", "first_time_users"})
 
 
 def test_runner_with_llm_and_fake_provider(make_intake, store, tmp_path):
     t, seen = fake_llm_transport()
     code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path), LLM_SETTINGS, store, llm_transport=t))
-    assert summary["persona_sources"] == ["llm"] * 3 and summary["llm_calls"] == 5 and code == 0  # 3 personas + identity check + market map
-    assert len(seen) == 5
+    assert summary["persona_sources"] == ["llm"] * 3 and summary["llm_calls"] == 4 and code == 0  # 3 personas + the similar-brand pick (the mock records list no industries, so no identity check)
+    assert len(seen) == 4
     res = json.loads((run / "04_personas.json").read_text())
-    assert all(p["platforms"][0]["basis"] == "interpretation" for p in res["personas"])
+    assert all(x["basis"] == "calculated" for p in res["personas"] for x in p["platforms"])  # computed in code, never by the LLM
+    plats = {x["platform"] for p in res["personas"] for x in p["platforms"]}
+    assert "Instagram" in plats and "WhatsApp" not in plats and "Wikidata" not in plats  # allowlist from data; the LLM's guess is ignored
+    def _payload(b):
+        try:
+            return json.loads(b["messages"][1]["content"])
+        except ValueError:
+            return {}
+    persona_calls = [c for c in map(_payload, seen) if "segment" in c]
+    assert persona_calls and all("culture" in c["qloo"] and "platforms" not in c["qloo"]["culture"] for c in persona_calls)
+    assert any(c["qloo"]["culture"].get("market", {}).get("sentences") or c["qloo"]["culture"].get("segment", {}).get("sentences") for c in persona_calls)
     assert len(list((run / "llm").glob("*_persona_*.json"))) == 3
 
 
@@ -505,3 +515,39 @@ def test_fake_llm_cannot_smuggle_invented_numbers_through_write_personas(bundle_
     llm = LLMClient(LLM_SETTINGS, RunRecorder(tmp_path / "r7"), transport=httpx.MockTransport(handler))
     ps = run_async(W.write_personas(llm, i, aff, res.ranked, bundle))
     assert all(p["messages"] == [] and p["validation"]["dropped"]["messages"] == 1 for p in ps)
+
+
+def test_lean_run_uses_few_shared_calls_and_per_segment_tv_and_places(make_intake, store, tmp_path):
+    code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path), LLM_SETTINGS, store, llm_transport=fake_llm_transport()[0]))
+    ev = json.loads((run / "03_evidence.json").read_text())
+    market = [e for e in ev if e["segment"] == "Market"]
+    kinds = {(e.get("data") or {}).get("kind") or e["step"] for e in market}
+    assert {"tv_show", "artist", "place", "heatmap", "brand"} <= kinds  # shared by every persona
+    per_segment = [e for e in ev if e["segment"] not in (None, "Market")]
+    assert {(e.get("data") or {}).get("kind") for e in per_segment if e["step"] == "affinity"} == {"tv_show", "place"}
+    assert summary["qloo_calls"] <= 28, summary["qloo_calls"]
+    calls_log = [json.loads(x) for x in (run / "calls.jsonl").read_text().splitlines()]
+    sent = [c for c in calls_log if c["label"].startswith("market-")]
+    assert sent and all(c["ok"] for c in sent)
+    body = json.loads(next((run / "qloo").glob("*market-tv-show*")).read_text())
+    assert "signal.interests.entities" in body["request"]["params"] and "signal.demographics.age" not in body["request"]["params"]
+    seg = next((run / "qloo").glob("*tv-show_v1.json"))
+    seg_bodies = [json.loads(f.read_text())["request"]["params"] for f in (run / "qloo").glob("*affinity*tv-show*") if "market" not in f.name]
+    assert seg_bodies and all("signal.demographics.age" in p and "signal.interests.entities" not in p for p in seg_bodies)
+
+
+def test_full_mode_keeps_the_per_segment_calls(make_intake, store, tmp_path):
+    code, run, summary = run_async(execute_personas(opts(make_intake, tmp_path, lean=False, max_calls=150), LLM_SETTINGS, store,
+                                                    llm_transport=fake_llm_transport()[0]))
+    ev = json.loads((run / "03_evidence.json").read_text())
+    anchored = [e for e in ev if e["step"] == "affinity" and (e.get("data") or {}).get("anchored")]
+    plain = [e for e in ev if e["step"] == "affinity" and e["segment"] and not (e.get("data") or {}).get("anchored")]
+    assert anchored and {e["data"]["kind"] for e in anchored} == set(E.ANCHORED_KINDS) and plain
+    assert summary["qloo_calls"] > 30
+
+
+def test_anchor_ids_prefer_direct_competitors():
+    a = [{"entity_id": "1", "tier": "direct"}, {"entity_id": "2", "tier": "direct"}, {"entity_id": "3", "tier": "alternative"}, {"name": "x"}]
+    assert E.anchor_ids(a) == ["1", "2"]
+    assert E.anchor_ids([{"entity_id": "3", "tier": "alternative"}, {"entity_id": "1"}]) == ["3", "1"]  # too few direct: others stand in
+    assert E.anchor_ids(None) == [] and len(E.anchor_ids([{"entity_id": str(i)} for i in range(9)])) == E.ANCHORS_PER_CALL

@@ -7,6 +7,7 @@ import Analysis from "./pages/Analysis";
 import PersonaPage from "./pages/Persona";
 import History from "./pages/History";
 import ProductPage from "./pages/Product";
+import Admin from "./pages/Admin";
 
 function Protected() {
   const { user, ready } = useAuth();
@@ -22,6 +23,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route element={<Protected />}>
         <Route path="/" element={<NewAnalysis />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="/history" element={<History />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/analysis/:id" element={<Analysis />} />

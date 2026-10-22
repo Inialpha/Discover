@@ -144,7 +144,7 @@ def build_pptx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
     _bullets(tf, [("Confirmed: found in market data for your location (brands, places, audiences). Scores are relative, not shares.", ""),
                   ("Calculated: worked out from public income data (World Bank) and the price you entered.", ""),
                   ("Suggestion: our own reasoning from the data above. Not confirmed by data: treat it as an idea to test.", ""),
-                  ("There is no data on platforms, events or income by person, so platforms and events are suggestions.", ""),
+                  ("Platforms show where the brands, artists and shows this audience likes are active, not where the people spend time. There is no data on events or income by person, so events are suggestions.", ""),
                   ("Market data powered by Qloo.", "")] +
              [(a, "") for a in (res.get("attribution") or [])], 14)
     buf = io.BytesIO()
@@ -207,7 +207,7 @@ def build_docx(intake: dict[str, Any], res: dict[str, Any]) -> bytes:
     _dbul(doc, [("Confirmed: found in market data for your location. Scores are relative, not shares.", ""),
                 ("Calculated: worked out from public income data (World Bank) and your price.", ""),
                 ("Suggestion: our own reasoning from the data. Not confirmed by data: treat it as an idea to test.", ""),
-                ("There is no data on platforms, events or income by person, so those are suggestions.", ""),
+                ("Platforms show where the brands, artists and shows this audience likes are active, not where the people spend time. There is no data on events or income by person, so events are suggestions.", ""),
                 ("Market data powered by Qloo.", "")] + [(a, "") for a in (res.get("attribution") or [])], "")
     buf = io.BytesIO()
     doc.save(buf)

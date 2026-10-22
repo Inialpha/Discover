@@ -20,7 +20,7 @@ from .affordability import Affordability
 from .intake import ProductIntake
 from .segments import SEGMENTS, Segment
 
-WEIGHTS = {"affordability": 0.35, "feature_fit": 0.25, "qloo_fit": 0.40}
+WEIGHTS = {"affordability": 0.35, "feature_fit": 0.25, "qloo_fit": 0.40, "tier_prior": 0.15}
 REACH_VALUE = {"comfortable": 1.0, "stretch": 0.5, "out_of_reach": 0.0}
 RULES_ONLY_SCORE = 0.5
 
@@ -101,10 +101,10 @@ def score_segments(intake: ProductIntake, aff: Affordability, qloo_fit: dict[str
     for seg in SEGMENTS:
         if intake.category not in seg.categories:
             continue  # not a rule match for this product type; not worth listing
-        if aff.tier not in seg.tiers:
-            excluded.append({"id": seg.id, "label": seg.label,
-                             "reason": f"rule: this segment is not listed for the '{aff.tier}' affordability tier"})
-            continue
+        # Price never removes a segment: someone who could easily afford a cheap product may still want it (convenience,
+        # habit, a gift) and someone on a tighter budget may stretch for an expensive one. Income bands already lower the
+        # score where a price is out of reach; the tier list is only a weak prior when there is no income data.
+        off_tier = aff.tier not in seg.tiers
         if intake.gender_focus and seg.gender and seg.gender != intake.gender_focus:
             excluded.append({"id": seg.id, "label": seg.label, "reason": f"filter: gender_focus={intake.gender_focus}"})
             continue
@@ -122,6 +122,11 @@ def score_segments(intake: ProductIntake, aff: Affordability, qloo_fit: dict[str
                                       "detail": {f"band_{q}": r for q, r in reach.items()}}
         comps["feature_fit"] = {"value": round(min(1.0, len(hits) / 2), 3), "weight": WEIGHTS["feature_fit"],
                                 "detail": {"matched": hits, "of": len(seg.keywords)}}
+        if off_tier and not use_income:
+            comps["tier_prior"] = {"value": 0.4, "weight": WEIGHTS["tier_prior"],
+                                   "detail": f"not a typical segment at the '{aff.tier}' tier; weak prior only (no income data)"}
+        elif not use_income:
+            comps["tier_prior"] = {"value": 1.0, "weight": WEIGHTS["tier_prior"], "detail": f"typical segment at the '{aff.tier}' tier"}
         if qloo_fit and seg.id in qloo_fit:
             comps["qloo_fit"] = {"value": round(qloo_fit[seg.id], 3), "weight": WEIGHTS["qloo_fit"],
                                  "detail": "competitor/anchor audience skew toward this segment's age bands (relative index)"}
@@ -135,6 +140,8 @@ def score_segments(intake: ProductIntake, aff: Affordability, qloo_fit: dict[str
             rationale.append("Income bands " + ", ".join(f"{q}={r}" for q, r in reach.items()) + ".")
         else:
             rationale.append("Income-band check skipped: the country's income distribution is incomplete in the reference data.")
+        if off_tier:
+            rationale.append(f"Not a typical segment at the '{aff.tier}' price tier, but price alone does not rule it out.")
         if niche:
             rationale.append("Niche: the price is out of reach for every income band this segment draws on, so only the "
                              "top slice of the highest band could buy at this price.")
@@ -147,8 +154,8 @@ def score_segments(intake: ProductIntake, aff: Affordability, qloo_fit: dict[str
     ranked_by = "affordability + features" + (" + Qloo audience fit" if qloo_fit else "")
     if scored and not any("affordability" in s.components for s in scored):
         ranked_by = "features only"
-        notes.append("Income-band data is incomplete for this country, so ranking uses feature cues only; the tier rule still "
-                     "applies. Run `discover refdata refresh` to fetch the full income distribution; treat the order as weak.")
+        notes.append("Income-band data is incomplete for this country, so ranking uses feature cues and a weak tier prior only; "
+                     "price does not remove any segment. Run `discover refdata refresh` to fetch the full income distribution; treat the order as weak.")
     if scored and all(s.components["feature_fit"]["value"] == 0 for s in scored) and not any(
             "affordability" in s.components or "qloo_fit" in s.components for s in scored):
         for s in scored:

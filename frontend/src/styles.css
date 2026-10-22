@@ -136,3 +136,17 @@ label.check { display: flex; gap: .6rem; align-items: center; font-weight: 500; 
 .changes { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; } .chg { background: #fdeccb; color: #7a5300; border-radius: 8px; padding: .1em .7em; font-size: .85rem; font-weight: 600; }
 .again { max-width: 760px; margin-bottom: 1.2rem; border-color: var(--teal); background: var(--teal-l); } .again p { margin: 0 0 .5rem; }
 .ghost.small, .primary.small { font-size: .85rem; text-decoration: none; } a.ghost { text-decoration: none; display: inline-block; }
+
+/* admin */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .8rem; margin: 1rem 0 1.5rem; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .8rem 1rem; display: grid; gap: .1rem; }
+.stat b { font-size: 1.7rem; } .stat span { color: var(--muted); font-size: .88rem; } .stat small { color: var(--muted); font-size: .78rem; }
+.bars { display: flex; gap: 4px; align-items: flex-end; height: 120px; padding: .5rem 0 0; }
+.bar { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; min-width: 0; }
+.bar i { display: block; width: 100%; min-height: 2px; background: var(--teal); border-radius: 4px 4px 0 0; } .bar i.has-fail { border-top: 4px solid var(--bad); }
+.bar span { font-size: .7rem; color: var(--muted); margin-top: 2px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+.plain { list-style: none; padding: 0; display: grid; gap: .4rem; } .plain li { display: flex; justify-content: space-between; gap: 1rem; }
+.tablewrap { overflow-x: auto; } table.data { width: 100%; border-collapse: collapse; font-size: .88rem; }
+table.data th, table.data td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.data th { color: var(--muted); font-weight: 600; } .st-failed { color: var(--bad); font-weight: 600; } .st-complete { color: var(--teal); }

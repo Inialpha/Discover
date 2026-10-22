@@ -202,7 +202,7 @@ async def _resolve(client: QlooClient, names: list[str], source: str, ev: Eviden
                                                  "matched_by": how, "source": source})
         if top:
             found.append({"query": name, "entity_id": top["entity_id"], "name": top["name"], "matched_by": how,
-                          "source": source, "tags": top.get("tags") or []})
+                          "source": source, "tags": top.get("tags") or [], "disambiguation": top.get("disambiguation")})
         else:
             missing.append(name)
     return found, missing

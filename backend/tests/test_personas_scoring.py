@@ -33,18 +33,20 @@ def test_segment_ids_unique_and_fields_valid():
 
 
 def test_budget_and_premium_phones_get_different_personas(make_intake, store):
-    _, a1, budget = run(make_intake, store, price=40_000, max_personas=10)
-    _, a2, premium = run(make_intake, store, price=1_500_000, max_personas=10)
+    _, a1, budget = run(make_intake, store, price=40_000, max_personas=30)
+    _, a2, premium = run(make_intake, store, price=1_500_000, max_personas=30)
     assert a1.tier == "budget" and a2.tier == "premium"
-    assert set(ids(budget)) != set(ids(premium))
-    assert "first_time_users" in ids(budget) and "first_time_users" not in ids(premium)
-    assert "high_earners_young" in ids(premium) and "high_earners_young" not in ids(budget)
+    assert set(ids(budget)) == set(ids(premium))  # same candidates; only the scores move
+    # price no longer removes segments; income bands only lower the score where a price is out of reach
+    av = lambda res, i: next(x for x in res.ranked if x.id == i).components["affordability"]["value"]  # noqa: E731
+    assert av(budget, "high_earners_young") == 1.0 >= av(budget, "first_time_users")   # a cheap price does not penalise higher earners
+    assert av(premium, "first_time_users") == 0.0 and any(x.niche for x in premium.ranked)  # an expensive one is flagged, not hidden
 
 
 def test_budget_product_gets_budget_segments_ranked_first(make_intake, store):
-    _, _, res = run(make_intake, store, price=40_000)
-    assert res.ranked[0].id in {"students_budget", "first_time_users", "cost_conscious_households"}
-    assert res.ranked[0].confidence == "medium"
+    _, _, res = run(make_intake, store, price=40_000, max_personas=30)
+    assert {"students_budget", "first_time_users", "cost_conscious_households"} <= set(ids(res))  # still candidates
+    assert res.ranked[0].components["affordability"]["value"] == 1.0 and res.ranked[0].confidence == "medium"
 
 
 def test_mass_market_product_has_its_own_segments(make_intake, store):
@@ -86,10 +88,12 @@ def test_equal_scores_without_evidence_are_flagged_as_tied(make_intake, store):
                                        price=40_000, max_personas=10)[2].ranked)
 
 
-def test_tier_mismatch_is_listed_as_excluded(make_intake, store):
-    _, _, res = run(make_intake, store, price=40_000, max_personas=10)
-    reasons = {e["id"]: e["reason"] for e in res.excluded}
-    assert "high_earners_young" in reasons and "rule:" in reasons["high_earners_young"]
+def test_price_tier_never_removes_a_segment(make_intake, store):
+    _, aff, res = run(make_intake, store, price=40_000, max_personas=30)
+    assert not [e for e in res.excluded if e["reason"].startswith("rule:")]
+    he = next(s for s in res.ranked if s.id == "high_earners_young")  # listed only for upper/premium tiers
+    assert aff.tier not in ("upper", "premium") and any("price alone does not rule it out" in r for r in he.rationale)
+    assert he.components["affordability"]["value"] == 1.0  # comfortable for the higher bands, so no penalty either
 
 
 # ---- components -------------------------------------------------------------------------------------------
@@ -119,10 +123,10 @@ def test_keyword_hits_whole_words_only():
 
 
 def test_qloo_component_is_optional_and_renormalised(make_intake, store):
-    # budget phone: 9 candidate segments, so every one fits inside max_personas=10
-    _, _, base = run(make_intake, store, price=40_000, max_personas=10)
+    # no segment is dropped by price, so ask for all of them
+    _, _, base = run(make_intake, store, price=40_000, max_personas=30)
     taste = {"first_time_users": 1.0, "students_budget": 0.0}
-    _, _, withtaste = run(make_intake, store, taste, price=40_000, max_personas=10)
+    _, _, withtaste = run(make_intake, store, taste, price=40_000, max_personas=30)
     b = next(s for s in base.ranked if s.id == "first_time_users")
     t = next(s for s in withtaste.ranked if s.id == "first_time_users")
     assert "qloo_fit" not in b.components and "qloo_fit" in t.components
