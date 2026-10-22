@@ -191,9 +191,9 @@ SEGMENT_KINDS = ("tv_show", "artist", "brand")  # tastes that differ by age, ask
 async def gather_market(client: QlooClient, intake: ProductIntake, segments: list[SegmentScore], ev: Evidence,
                         anchors: list[dict[str, Any]] | None, take: int = 10, top_segments: int = 6,
                         kinds: tuple[str, ...] | list[str] = MARKET_KINDS,
-                        segment_kinds: tuple[str, ...] | list[str] = SEGMENT_KINDS, segment_heatmap: bool = True) -> None:
+                        segment_kinds: tuple[str, ...] | list[str] = SEGMENT_KINDS, segment_heatmap: bool = False) -> None:  # live run: no per-segment map had a named area, so it is off
     """Lean step 3. Calls: shows and artists around the competitors (competitors + location), places (location), one heatmap
-    (competitors + location), then TV shows, artists, brands and a heatmap for each segment with that segment's age and gender. About 4 + 4 per
+    (competitors + location), then TV shows, artists and brands for each segment with that segment's age and gender. About 4 + 3 per
     segment calls in all; the per-segment calls are what make the personas different from one another.
 
     Competitor signals and age signals are never mixed in one call, so neither can drown the other."""
