@@ -232,3 +232,52 @@ def test_admin_overview_is_limited_to_admin_emails(tmp_path, monkeypatch):
         o = c.get("/api/admin/overview", headers=h).json()
         assert o["totals"]["users"] == 2 and o["totals"]["analyses"] == 1 and o["recent"][0]["user"] == "user@example.com"
         assert "result" not in o["recent"][0] and o["per_day"][-1]["analyses"] == 1
+
+
+def test_google_sign_in_creates_then_reuses_the_account_and_rejects_bad_tokens(tmp_path, monkeypatch):
+    import discover.api.routes.auth as auth_routes
+    from discover.api.google import GoogleAuthError
+    monkeypatch.chdir(tmp_path)
+    seen = {}
+
+    async def fake(credential, client_id, transport=None):
+        seen["client"] = client_id
+        if credential.startswith("bad"):
+            raise GoogleAuthError("Google did not accept this sign-in")
+        return {"email": "new.user@example.com", "name": "New User"}
+    monkeypatch.setattr(auth_routes, "verify_google", fake)
+    with TestClient(create_app(settings(database_url=f"sqlite:///{tmp_path}/g.db", google_client_id="cid"))) as c:
+        r = c.post("/api/auth/google", json={"credential": "good" * 10})
+        assert r.status_code == 200 and r.json()["user"]["email"] == "new.user@example.com" and seen["client"] == "cid"
+        h = {"Authorization": f"Bearer {r.json()['token']}"}
+        assert c.get("/api/auth/me", headers=h).json()["name"] == "New User"
+        again = c.post("/api/auth/google", json={"credential": "good" * 10}).json()
+        assert again["user"]["id"] == r.json()["user"]["id"]  # same account, not a second one
+        assert c.post("/api/auth/login", json={"email": "new.user@example.com", "password": "anything123"}).status_code == 401
+        assert c.post("/api/auth/google", json={"credential": "bad" * 10}).status_code == 401
+    with TestClient(create_app(settings(database_url=f"sqlite:///{tmp_path}/g2.db", google_client_id="cid", allow_signup=False))) as c:
+        assert c.post("/api/auth/google", json={"credential": "good" * 10}).status_code == 403
+
+
+def test_google_token_checks_audience_issuer_and_verified_email():
+    import asyncio
+    import httpx
+    from discover.api.google import GoogleAuthError, verify_google
+
+    def run(payload, status=200, client="cid"):
+        t = httpx.MockTransport(lambda req: httpx.Response(status, json=payload))
+        return asyncio.run(verify_google("tok", client, transport=t))
+    good = {"aud": "cid", "iss": "https://accounts.google.com", "email": "A@Example.com", "email_verified": "true", "name": "Ada"}
+    assert run(good) == {"email": "a@example.com", "name": "Ada"}
+    for bad, st in (({**good, "aud": "other"}, 200), ({**good, "iss": "evil.com"}, 200), ({**good, "email_verified": "false"}, 200), (good, 400)):
+        try:
+            run(bad, st)
+        except GoogleAuthError:
+            continue
+        raise AssertionError(f"accepted {bad}")
+    try:
+        run(good, client="")
+    except GoogleAuthError:
+        pass
+    else:
+        raise AssertionError("accepted with no client id")

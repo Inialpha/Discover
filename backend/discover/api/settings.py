@@ -35,6 +35,7 @@ class ApiSettings:
     engine_mode: str = "lean"  # lean = shared market calls plus two calls per segment (about 25); full = every segment gets its own calls (about 50)
     max_qloo_calls: int = 0  # ceiling on Qloo calls per analysis; 0 = the mode's default (40 lean, 150 full)
     auto_migrate: bool = True  # apply pending Alembic migrations when the API starts
+    google_client_id: str = ""  # GOOGLE_CLIENT_ID; empty = Google sign-in is off
     admin_emails: tuple[str, ...] = ()  # accounts that can open the admin dashboard (ADMIN_EMAILS, comma separated)
     keep_runs: bool = False  # keep every run's folder (calls, model exchanges, evidence, ledger) under RUNS_DIR for debugging
 
@@ -62,5 +63,6 @@ class ApiSettings:
             auto_migrate=_bool("AUTO_MIGRATE", True),
             engine_mode="full" if (os.environ.get("ENGINE_MODE") or "").strip().lower() == "full" else "lean",
             max_qloo_calls=_int("MAX_QLOO_CALLS", 0),
+            google_client_id=(os.environ.get("GOOGLE_CLIENT_ID") or "").strip(),
             admin_emails=tuple(e.strip().lower() for e in (os.environ.get("ADMIN_EMAILS") or "").split(",") if e.strip()),
         )

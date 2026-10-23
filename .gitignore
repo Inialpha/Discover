@@ -225,3 +225,6 @@ backend/runs/
 .discover_cache/
 node_modules/
 *.tsbuildinfo
+frontend/package-lock.json
+
+package-lock.json

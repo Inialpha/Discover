@@ -1,10 +1,11 @@
-import { useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../auth";
 import { Logo } from "../components/Shell";
 import Avatar from "../components/Avatar";
 import Footer from "../components/Footer";
+import GoogleButton from "../components/GoogleButton";
 
 export default function Login() {
   const { user, signIn } = useAuth();
@@ -27,6 +28,16 @@ export default function Login() {
     } catch (e2) { setErr((e2 as Error).message); } finally { setBusy(false); }
   };
 
+  const withGoogle = useCallback(async (credential: string) => {
+    setBusy(true); setErr("");
+    try {
+      const r = await api.google(credential);
+      signIn(r.token, r.user);
+      nav(loc.state?.from || "/", { replace: true });
+    } catch (e2) { setErr((e2 as Error).message); } finally { setBusy(false); }
+  }, [signIn, nav, loc.state?.from]);
+  const googleError = useCallback((m: string) => setErr(m), []);
+
   return (
     <>
     <div className="login">
@@ -40,8 +51,8 @@ export default function Login() {
           ))}
         </div>
         <ul className="points">
-          <li><b>Grounded.</b> Tastes, places and competitors are confirmed in market data, not guessed.</li>
-          <li><b>Honest.</b> Every point is marked Confirmed, Calculated or Suggestion.</li>
+          <li><b>Grounded.</b> Tastes, places and competitors come from real market data, not guesses.</li>
+          <li><b>Honest.</b> Every point says whether it is backed by data or is our suggestion.</li>
           <li><b>Ready to use.</b> Export slides or a written brief.</li>
         </ul>
       </section>
@@ -51,6 +62,7 @@ export default function Login() {
           <button type="button" className={mode === "login" ? "on" : ""} onClick={() => setMode("login")}>Sign in</button>
           <button type="button" className={mode === "signup" ? "on" : ""} onClick={() => setMode("signup")}>Sign up</button>
         </div>
+        <GoogleButton onCredential={withGoogle} onError={googleError} />
         {mode === "signup" && (
           <label>Your name<input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" /></label>
         )}
