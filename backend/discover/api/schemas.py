@@ -27,6 +27,10 @@ class UserOut(BaseModel):
     is_admin: bool = False
 
 
+class GoogleLogin(BaseModel):
+    credential: str = Field(min_length=20, max_length=4096)
+
+
 class TokenOut(BaseModel):
     token: str
     user: UserOut

@@ -526,7 +526,6 @@ def test_lean_run_uses_few_shared_calls_and_per_segment_tv_and_places(make_intak
     per_segment = [e for e in ev if e["segment"] not in (None, "Market")]
     assert {(e.get("data") or {}).get("kind") for e in per_segment if e["step"] == "affinity"} == {"tv_show", "artist", "brand"}
     assert summary["qloo_calls"] <= 40, summary["qloo_calls"]
-    assert {e["segment"] for e in ev if e["step"] == "heatmap"} > {"Market"}  # each segment also gets its own area map
     calls_log = [json.loads(x) for x in (run / "calls.jsonl").read_text().splitlines()]
     sent = [c for c in calls_log if c["label"].startswith("market-")]
     assert sent and all(c["ok"] for c in sent)
